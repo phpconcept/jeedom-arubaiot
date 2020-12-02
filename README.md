@@ -8,7 +8,7 @@ Today, ArubaIoT supports BLE capabilities of AP, and can understand few, wellkno
 
 You need to have a Jeedom application see https://www.jeedom.com for more details.
 
-### Documentation
+## Documentation
 
 To Be Completed
 
