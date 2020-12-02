@@ -1,0 +1,26 @@
+{
+    "plugins/arubaiot/desktop/php/ArubaIot.php": {
+        "Gestion": "Management",
+        "Ajouter": "Add",
+        
+        "Mes IFTTT": "My IFTTT",
+        "Général": "Main",
+        "Nom de l'équipement IFTTT": "IFTTT device name",
+        "Objet parent": "Parent object",
+        "Aucun": "None",
+        "Activer": "Enabled",
+        "Visible": "Visible",
+        "Clef": "Key",
+        "IFTTT": "IFTTT",
+        "Ajouter une commande": "Add a command",
+        "Nom": "Name",
+        "Sous-type": "Sub-type",
+        "Evènement": "Event",
+        "Valeur": "Value",
+        "Action": "Action",
+        "Supprimer": "Delete",
+        "Sauvegarder": "Save",
+        "#": "#",
+        "Catégorie": "Category"
+    }
+}

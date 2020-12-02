@@ -1,0 +1,19 @@
+{
+	"id" : "ArubaIot",
+	"name" : "Aruba Iot Gateway",
+    "description": {
+        "fr_FR": "Plugin d'interfacage IOT Aruba",
+        "en_US": "Plugin to use Aruba IOT capabilities"
+    },
+	"licence" : "AGPL",
+	"author" : "Vincent",
+	"require" : "4.0",
+    "version": "0.1",
+	"category" : "automation protocol",
+	"hasDependency" : false,
+	"hasOwnDeamon" : true,
+	"changelog" : "https://github.com/phpconcept/jeedom-arubaiot/blob/main/README.md",
+	"documentation" : "https://github.com/phpconcept/jeedom-arubaiot/blob/main/README.md",
+	"language" : ["fr_FR","en_US"],
+	"compatibility" : ["miniplus","smart","rpi","docker","diy","mobile"]
+}
