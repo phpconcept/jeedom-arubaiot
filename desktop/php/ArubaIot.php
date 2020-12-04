@@ -7,7 +7,11 @@ sendVarToJS('eqType', $plugin->getId());
 $eqLogics = eqLogic::byType($plugin->getId());
 
 
-
+if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
+	echo '<div class="alert jqAlert alert-warning" id="div_inclusionAlert" style="margin : 0px 5px 15px 15px; padding : 7px 35px 7px 15px;">{{Vous etes en mode inclusion. Recliquez sur le bouton d\'inclusion pour sortir de ce mode}}</div>';
+} else {
+	echo '<div id="div_inclusionAlert"></div>';
+}
 
 ?>
 
@@ -21,6 +25,21 @@ $eqLogics = eqLogic::byType($plugin->getId());
         <span>{{Ajouter}}</span>
     </div>
 
+			<?php
+			if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
+				echo '<div class="cursor changeIncludeState include card logoSecondary" data-mode="1" data-state="0">';
+				echo '<i class="fas fa-sign-in-alt fa-rotate-90"></i>';
+				echo '<br/>';
+				echo '<span>{{Arrêter inclusion}}</span>';
+				echo '</div>';
+			} else {
+				echo '<div class="cursor changeIncludeState include card logoSecondary" data-mode="1" data-state="1">';
+				echo '<i class="fas fa-sign-in-alt fa-rotate-90"></i>';
+				echo '<br/>';
+				echo '<span>{{Mode inclusion}}</span>';
+				echo '</div>';
+			}
+			?>
 
 
       <div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf">
@@ -115,16 +134,7 @@ foreach (jeeObject::all() as $object) {
                 <select id="cluster" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="class_type">
 <?php
 
-      $v_result = array();
-
-      $v_result['auto'] = 'Découvrir automatiquement';
-      $v_result['enoceanSwitch'] = 'enoceanSwitch';
-      $v_result['enoceanSensor'] = 'enoceanSensor';
-      $v_result['arubaTag'] = 'arubaTag';
-      $v_result['arubaBeacon'] = 'arubaBeacon';
-      $v_result['generic'] = 'generic';
-
-      $v_list = $v_result;
+      $v_list = ArubaIot::supportedDeviceType('description' );
 
 foreach ($v_list as $v_index => $v_item) {
   echo '<option value="'.$v_index.'">'.$v_item.'</option>"';

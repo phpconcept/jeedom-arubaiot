@@ -49,16 +49,10 @@ if (!isConnect()) {
             </div>
         </div>
         <div class="form-group">
-            <label class="col-lg-4 control-label">{{Délais détection d'absence (sec)}}</label>
+            <label class="col-lg-4 control-label">{{Delais detection d'absence (sec)}}</label>
             <div class="col-lg-2">
                 <input class="configKey form-control" data-l1key="presence_timeout" />
             </div>
-        </div>
-               <div class="form-group">
-                 <label class="col-lg-4 control-label">{{Allow Automatic Device Insertion}}</label>
-                 <div class="col-lg-4">
-                     <input type="checkbox" class="configKey" data-l1key="auto_insertion" />
-                 </div>
         </div>
 
 </fieldset>

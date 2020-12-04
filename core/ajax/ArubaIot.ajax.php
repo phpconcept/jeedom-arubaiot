@@ -26,7 +26,10 @@ try {
     
     ajax::init();
 
-
+	if (init('action') == 'changeIncludeState') {
+		ArubaIot::changeIncludeState(init('state'));
+		ajax::success();
+	}
 
     throw new Exception(__('Aucune méthode correspondante à : ', __FILE__) . init('action'));
     /*     * *********Catch exeption*************** */

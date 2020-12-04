@@ -51,3 +51,54 @@ function addCmdToTable(_cmd) {
     }
     jeedom.cmd.changeType($('#table_cmd tbody tr:last'), init(_cmd.subType));
 }
+
+
+
+/*
+ * Management of inclusion
+ */
+$('.changeIncludeState').off('click').on('click', function () {
+
+  var el = $(this);
+  jeedom.config.save({
+    plugin : 'ArubaIot',
+    configuration: {autoDiscoverEqLogic: el.attr('data-state')},
+    error: function (error) {
+      $('#div_alert').showAlert({message: error.message, level: 'danger'});
+    },
+    success: function () {
+      if (el.attr('data-state') == 1) {
+        $.hideAlert();
+        $('.changeIncludeState').attr('data-state', 0);
+        $('.changeIncludeState.card span').text('{{Arrêter l\'inclusion}}');
+        $('#div_inclusionAlert').showAlert({message: '{{Vous êtes en mode inclusion. Recliquez sur le bouton d\'inclusion pour sortir de ce mode}}', level: 'warning'});
+      } else {
+        $.hideAlert();
+        $('.changeIncludeState').attr('data-state', 1);
+        $('.changeIncludeState.card span').text('{{Mode inclusion}}');
+        $('#div_inclusionAlert').hideAlert();
+      }
+    }
+  });
+
+  $.ajax({
+    type: "POST",
+    url: "plugins/ArubaIot/core/ajax/ArubaIot.ajax.php",
+    data: {
+      action: "changeIncludeState",
+      state: $(this).attr('data-state')
+    },
+    dataType: 'json',
+    error: function (request, status, error) {
+      handleAjaxError(request, status, error);
+    },
+    success: function (data) {
+      if (data.state != 'ok') {
+        $('#div_alert').showAlert({message: data.result, level: 'danger'});
+        return;
+      }
+    }
+  });
+});
+
+

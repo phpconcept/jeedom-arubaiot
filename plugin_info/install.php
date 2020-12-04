@@ -24,15 +24,13 @@ function ArubaIot_install() {
   // ----- Set default parameters
   config::save('ws_ip_address', '0.0.0.0', 'ArubaIot');
   config::save('ws_port', 8081, 'ArubaIot');
-  config::save('auto_insertion', 0, 'ArubaIot');
+  config::save('include_mode', 0, 'ArubaIot');
   config::save('reporters_allow_list', '', 'ArubaIot');
-  config::save('device_type_allow_list', 'enoceanSwitch,enceanSensor,arubaTag,arubaBeacon,generic', 'ArubaIot');
+  $v_device_type_allow_list = implode(',',ArubaIot::supportedDeviceType());
+  config::save('device_type_allow_list', $v_device_type_allow_list, 'ArubaIot');
   config::save('presence_timeout', 60, 'ArubaIot');
 
-
-  // ----- Test creation objet
-
-
+  log::add('ArubaIot', 'info', 'Supported devices : '.$v_device_type_allow_list);
 
 
 
@@ -53,13 +51,12 @@ function ArubaIot_install() {
   }
   log::add('ArubaIot', 'info', "ArubaIot Websocket daemon installed ($active / $enabled)");
 
-
 }
 
 function ArubaIot_update() {
     
   // ----- Restart Daemon
-  log::add('ArubaIot', 'info', 'Updating ArubaIot Websocket daemon');
+  log::add('ArubaIot', 'info', 'Updating (restart) ArubaIot Websocket daemon');
   exec(system::getCmdSudo() . 'systemctl restart ArubaIot-websocket');
 
 }
