@@ -9,9 +9,9 @@
 namespace aruba_telemetry;
 
 /**
- * Protobuf message : aruba_telemetry.Accelerometer
+ * Protobuf message : aruba_telemetry.Stats
  */
-class Accelerometer extends \Protobuf\AbstractMessage
+class Stats extends \Protobuf\AbstractMessage
 {
 
     /**
@@ -25,151 +25,151 @@ class Accelerometer extends \Protobuf\AbstractMessage
     protected $extensions = null;
 
     /**
-     * x required float = 1
+     * uptime optional uint64 = 1
      *
-     * @var float
+     * @var int
      */
-    protected $x = null;
+    protected $uptime = null;
 
     /**
-     * y required float = 2
+     * adv_cnt optional uint64 = 2
      *
-     * @var float
+     * @var int
      */
-    protected $y = null;
+    protected $adv_cnt = null;
 
     /**
-     * z required float = 3
+     * seq_nr optional uint32 = 3
      *
-     * @var float
+     * @var int
      */
-    protected $z = null;
+    protected $seq_nr = null;
 
     /**
-     * status optional enum = 4
+     * frame_cnt required uint32 = 4
      *
-     * @var \aruba_telemetry\AccelStatus
+     * @var int
      */
-    protected $status = null;
+    protected $frame_cnt = null;
 
     /**
-     * Check if 'x' has a value
+     * Check if 'uptime' has a value
      *
      * @return bool
      */
-    public function hasX()
+    public function hasUptime()
     {
-        return $this->x !== null;
+        return $this->uptime !== null;
     }
 
     /**
-     * Get 'x' value
+     * Get 'uptime' value
      *
-     * @return float
+     * @return int
      */
-    public function getX()
+    public function getUptime()
     {
-        return $this->x;
+        return $this->uptime;
     }
 
     /**
-     * Set 'x' value
+     * Set 'uptime' value
      *
-     * @param float $value
+     * @param int $value
      */
-    public function setX($value)
+    public function setUptime($value = null)
     {
-        $this->x = $value;
+        $this->uptime = $value;
     }
 
     /**
-     * Check if 'y' has a value
-     *
-     * @return bool
-     */
-    public function hasY()
-    {
-        return $this->y !== null;
-    }
-
-    /**
-     * Get 'y' value
-     *
-     * @return float
-     */
-    public function getY()
-    {
-        return $this->y;
-    }
-
-    /**
-     * Set 'y' value
-     *
-     * @param float $value
-     */
-    public function setY($value)
-    {
-        $this->y = $value;
-    }
-
-    /**
-     * Check if 'z' has a value
+     * Check if 'adv_cnt' has a value
      *
      * @return bool
      */
-    public function hasZ()
+    public function hasAdvCnt()
     {
-        return $this->z !== null;
+        return $this->adv_cnt !== null;
     }
 
     /**
-     * Get 'z' value
+     * Get 'adv_cnt' value
      *
-     * @return float
+     * @return int
      */
-    public function getZ()
+    public function getAdvCnt()
     {
-        return $this->z;
+        return $this->adv_cnt;
     }
 
     /**
-     * Set 'z' value
+     * Set 'adv_cnt' value
      *
-     * @param float $value
+     * @param int $value
      */
-    public function setZ($value)
+    public function setAdvCnt($value = null)
     {
-        $this->z = $value;
+        $this->adv_cnt = $value;
     }
 
     /**
-     * Check if 'status' has a value
+     * Check if 'seq_nr' has a value
      *
      * @return bool
      */
-    public function hasStatus()
+    public function hasSeqNr()
     {
-        return $this->status !== null;
+        return $this->seq_nr !== null;
     }
 
     /**
-     * Get 'status' value
+     * Get 'seq_nr' value
      *
-     * @return \aruba_telemetry\AccelStatus
+     * @return int
      */
-    public function getStatus()
+    public function getSeqNr()
     {
-        return $this->status;
+        return $this->seq_nr;
     }
 
     /**
-     * Set 'status' value
+     * Set 'seq_nr' value
      *
-     * @param \aruba_telemetry\AccelStatus $value
+     * @param int $value
      */
-    public function setStatus(\aruba_telemetry\AccelStatus $value = null)
+    public function setSeqNr($value = null)
     {
-        $this->status = $value;
+        $this->seq_nr = $value;
+    }
+
+    /**
+     * Check if 'frame_cnt' has a value
+     *
+     * @return bool
+     */
+    public function hasFrameCnt()
+    {
+        return $this->frame_cnt !== null;
+    }
+
+    /**
+     * Get 'frame_cnt' value
+     *
+     * @return int
+     */
+    public function getFrameCnt()
+    {
+        return $this->frame_cnt;
+    }
+
+    /**
+     * Set 'frame_cnt' value
+     *
+     * @param int $value
+     */
+    public function setFrameCnt($value)
+    {
+        $this->frame_cnt = $value;
     }
 
     /**
@@ -205,27 +205,21 @@ class Accelerometer extends \Protobuf\AbstractMessage
      */
     public static function fromArray(array $values)
     {
-        if ( ! isset($values['x'])) {
-            throw new \InvalidArgumentException('Field "x" (tag 1) is required but has no value.');
-        }
-
-        if ( ! isset($values['y'])) {
-            throw new \InvalidArgumentException('Field "y" (tag 2) is required but has no value.');
-        }
-
-        if ( ! isset($values['z'])) {
-            throw new \InvalidArgumentException('Field "z" (tag 3) is required but has no value.');
+        if ( ! isset($values['frame_cnt'])) {
+            throw new \InvalidArgumentException('Field "frame_cnt" (tag 4) is required but has no value.');
         }
 
         $message = new self();
         $values  = array_merge([
-            'status' => null
+            'uptime' => null,
+            'adv_cnt' => null,
+            'seq_nr' => null,
         ], $values);
 
-        $message->setX($values['x']);
-        $message->setY($values['y']);
-        $message->setZ($values['z']);
-        $message->setStatus($values['status']);
+        $message->setUptime($values['uptime']);
+        $message->setAdvCnt($values['adv_cnt']);
+        $message->setSeqNr($values['seq_nr']);
+        $message->setFrameCnt($values['frame_cnt']);
 
         return $message;
     }
@@ -236,32 +230,31 @@ class Accelerometer extends \Protobuf\AbstractMessage
     public static function descriptor()
     {
         return \google\protobuf\DescriptorProto::fromArray([
-            'name'      => 'Accelerometer',
+            'name'      => 'Stats',
             'field'     => [
                 \google\protobuf\FieldDescriptorProto::fromArray([
                     'number' => 1,
-                    'name' => 'x',
-                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_FLOAT(),
-                    'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_REQUIRED()
+                    'name' => 'uptime',
+                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_UINT64(),
+                    'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_OPTIONAL()
                 ]),
                 \google\protobuf\FieldDescriptorProto::fromArray([
                     'number' => 2,
-                    'name' => 'y',
-                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_FLOAT(),
-                    'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_REQUIRED()
+                    'name' => 'adv_cnt',
+                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_UINT64(),
+                    'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_OPTIONAL()
                 ]),
                 \google\protobuf\FieldDescriptorProto::fromArray([
                     'number' => 3,
-                    'name' => 'z',
-                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_FLOAT(),
-                    'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_REQUIRED()
+                    'name' => 'seq_nr',
+                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_UINT32(),
+                    'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_OPTIONAL()
                 ]),
                 \google\protobuf\FieldDescriptorProto::fromArray([
                     'number' => 4,
-                    'name' => 'status',
-                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_ENUM(),
-                    'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_OPTIONAL(),
-                    'type_name' => '.aruba_telemetry.AccelStatus'
+                    'name' => 'frame_cnt',
+                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_UINT32(),
+                    'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_REQUIRED()
                 ]),
             ],
         ]);
@@ -291,36 +284,28 @@ class Accelerometer extends \Protobuf\AbstractMessage
         $writer      = $context->getWriter();
         $sizeContext = $context->getComputeSizeContext();
 
-        if ($this->x === null) {
-            throw new \UnexpectedValueException('Field "\\aruba_telemetry\\Accelerometer#x" (tag 1) is required but has no value.');
+        if ($this->frame_cnt === null) {
+            throw new \UnexpectedValueException('Field "\\aruba_telemetry\\Stats#frame_cnt" (tag 4) is required but has no value.');
         }
 
-        if ($this->y === null) {
-            throw new \UnexpectedValueException('Field "\\aruba_telemetry\\Accelerometer#y" (tag 2) is required but has no value.');
+        if ($this->uptime !== null) {
+            $writer->writeVarint($stream, 8);
+            $writer->writeVarint($stream, $this->uptime);
         }
 
-        if ($this->z === null) {
-            throw new \UnexpectedValueException('Field "\\aruba_telemetry\\Accelerometer#z" (tag 3) is required but has no value.');
+        if ($this->adv_cnt !== null) {
+            $writer->writeVarint($stream, 16);
+            $writer->writeVarint($stream, $this->adv_cnt);
         }
 
-        if ($this->x !== null) {
-            $writer->writeVarint($stream, 13);
-            $writer->writeFloat($stream, $this->x);
+        if ($this->seq_nr !== null) {
+            $writer->writeVarint($stream, 24);
+            $writer->writeVarint($stream, $this->seq_nr);
         }
 
-        if ($this->y !== null) {
-            $writer->writeVarint($stream, 21);
-            $writer->writeFloat($stream, $this->y);
-        }
-
-        if ($this->z !== null) {
-            $writer->writeVarint($stream, 29);
-            $writer->writeFloat($stream, $this->z);
-        }
-
-        if ($this->status !== null) {
+        if ($this->frame_cnt !== null) {
             $writer->writeVarint($stream, 32);
-            $writer->writeVarint($stream, $this->status->value());
+            $writer->writeVarint($stream, $this->frame_cnt);
         }
 
         if ($this->extensions !== null) {
@@ -358,33 +343,33 @@ class Accelerometer extends \Protobuf\AbstractMessage
             }
 
             if ($tag === 1) {
-                \Protobuf\WireFormat::assertWireType($wire, 2);
+                \Protobuf\WireFormat::assertWireType($wire, 4);
 
-                $this->x = $reader->readFloat($stream);
+                $this->uptime = $reader->readVarint($stream);
 
                 continue;
             }
 
             if ($tag === 2) {
-                \Protobuf\WireFormat::assertWireType($wire, 2);
+                \Protobuf\WireFormat::assertWireType($wire, 4);
 
-                $this->y = $reader->readFloat($stream);
+                $this->adv_cnt = $reader->readVarint($stream);
 
                 continue;
             }
 
             if ($tag === 3) {
-                \Protobuf\WireFormat::assertWireType($wire, 2);
+                \Protobuf\WireFormat::assertWireType($wire, 13);
 
-                $this->z = $reader->readFloat($stream);
+                $this->seq_nr = $reader->readVarint($stream);
 
                 continue;
             }
 
             if ($tag === 4) {
-                \Protobuf\WireFormat::assertWireType($wire, 14);
+                \Protobuf\WireFormat::assertWireType($wire, 13);
 
-                $this->status = \aruba_telemetry\AccelStatus::valueOf($reader->readVarint($stream));
+                $this->frame_cnt = $reader->readVarint($stream);
 
                 continue;
             }
@@ -418,24 +403,24 @@ class Accelerometer extends \Protobuf\AbstractMessage
         $calculator = $context->getSizeCalculator();
         $size       = 0;
 
-        if ($this->x !== null) {
+        if ($this->uptime !== null) {
             $size += 1;
-            $size += 4;
+            $size += $calculator->computeVarintSize($this->uptime);
         }
 
-        if ($this->y !== null) {
+        if ($this->adv_cnt !== null) {
             $size += 1;
-            $size += 4;
+            $size += $calculator->computeVarintSize($this->adv_cnt);
         }
 
-        if ($this->z !== null) {
+        if ($this->seq_nr !== null) {
             $size += 1;
-            $size += 4;
+            $size += $calculator->computeVarintSize($this->seq_nr);
         }
 
-        if ($this->status !== null) {
+        if ($this->frame_cnt !== null) {
             $size += 1;
-            $size += $calculator->computeVarintSize($this->status->value());
+            $size += $calculator->computeVarintSize($this->frame_cnt);
         }
 
         if ($this->extensions !== null) {
@@ -450,10 +435,10 @@ class Accelerometer extends \Protobuf\AbstractMessage
      */
     public function clear()
     {
-        $this->x = null;
-        $this->y = null;
-        $this->z = null;
-        $this->status = null;
+        $this->uptime = null;
+        $this->adv_cnt = null;
+        $this->seq_nr = null;
+        $this->frame_cnt = null;
     }
 
     /**
@@ -461,14 +446,14 @@ class Accelerometer extends \Protobuf\AbstractMessage
      */
     public function merge(\Protobuf\Message $message)
     {
-        if ( ! $message instanceof \aruba_telemetry\Accelerometer) {
+        if ( ! $message instanceof \aruba_telemetry\Stats) {
             throw new \InvalidArgumentException(sprintf('Argument 1 passed to %s must be a %s, %s given', __METHOD__, __CLASS__, get_class($message)));
         }
 
-        $this->x = ($message->x !== null) ? $message->x : $this->x;
-        $this->y = ($message->y !== null) ? $message->y : $this->y;
-        $this->z = ($message->z !== null) ? $message->z : $this->z;
-        $this->status = ($message->status !== null) ? $message->status : $this->status;
+        $this->uptime = ($message->uptime !== null) ? $message->uptime : $this->uptime;
+        $this->adv_cnt = ($message->adv_cnt !== null) ? $message->adv_cnt : $this->adv_cnt;
+        $this->seq_nr = ($message->seq_nr !== null) ? $message->seq_nr : $this->seq_nr;
+        $this->frame_cnt = ($message->frame_cnt !== null) ? $message->frame_cnt : $this->frame_cnt;
     }
 
 

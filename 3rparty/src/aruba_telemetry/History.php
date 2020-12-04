@@ -9,9 +9,9 @@
 namespace aruba_telemetry;
 
 /**
- * Protobuf message : aruba_telemetry.Accelerometer
+ * Protobuf message : aruba_telemetry.History
  */
-class Accelerometer extends \Protobuf\AbstractMessage
+class History extends \Protobuf\AbstractMessage
 {
 
     /**
@@ -25,151 +25,151 @@ class Accelerometer extends \Protobuf\AbstractMessage
     protected $extensions = null;
 
     /**
-     * x required float = 1
+     * time required uint64 = 1
      *
-     * @var float
+     * @var int
      */
-    protected $x = null;
+    protected $time = null;
 
     /**
-     * y required float = 2
+     * rssi required sint32 = 2
      *
-     * @var float
+     * @var int
      */
-    protected $y = null;
+    protected $rssi = null;
 
     /**
-     * z required float = 3
+     * rxRadioId optional int32 = 3
      *
-     * @var float
+     * @var int
      */
-    protected $z = null;
+    protected $rxRadioId = null;
 
     /**
-     * status optional enum = 4
+     * antenna optional int32 = 4
      *
-     * @var \aruba_telemetry\AccelStatus
+     * @var int
      */
-    protected $status = null;
+    protected $antenna = null;
 
     /**
-     * Check if 'x' has a value
+     * Check if 'time' has a value
      *
      * @return bool
      */
-    public function hasX()
+    public function hasTime()
     {
-        return $this->x !== null;
+        return $this->time !== null;
     }
 
     /**
-     * Get 'x' value
+     * Get 'time' value
      *
-     * @return float
+     * @return int
      */
-    public function getX()
+    public function getTime()
     {
-        return $this->x;
+        return $this->time;
     }
 
     /**
-     * Set 'x' value
+     * Set 'time' value
      *
-     * @param float $value
+     * @param int $value
      */
-    public function setX($value)
+    public function setTime($value)
     {
-        $this->x = $value;
+        $this->time = $value;
     }
 
     /**
-     * Check if 'y' has a value
-     *
-     * @return bool
-     */
-    public function hasY()
-    {
-        return $this->y !== null;
-    }
-
-    /**
-     * Get 'y' value
-     *
-     * @return float
-     */
-    public function getY()
-    {
-        return $this->y;
-    }
-
-    /**
-     * Set 'y' value
-     *
-     * @param float $value
-     */
-    public function setY($value)
-    {
-        $this->y = $value;
-    }
-
-    /**
-     * Check if 'z' has a value
+     * Check if 'rssi' has a value
      *
      * @return bool
      */
-    public function hasZ()
+    public function hasRssi()
     {
-        return $this->z !== null;
+        return $this->rssi !== null;
     }
 
     /**
-     * Get 'z' value
+     * Get 'rssi' value
      *
-     * @return float
+     * @return int
      */
-    public function getZ()
+    public function getRssi()
     {
-        return $this->z;
+        return $this->rssi;
     }
 
     /**
-     * Set 'z' value
+     * Set 'rssi' value
      *
-     * @param float $value
+     * @param int $value
      */
-    public function setZ($value)
+    public function setRssi($value)
     {
-        $this->z = $value;
+        $this->rssi = $value;
     }
 
     /**
-     * Check if 'status' has a value
+     * Check if 'rxRadioId' has a value
      *
      * @return bool
      */
-    public function hasStatus()
+    public function hasRxRadioId()
     {
-        return $this->status !== null;
+        return $this->rxRadioId !== null;
     }
 
     /**
-     * Get 'status' value
+     * Get 'rxRadioId' value
      *
-     * @return \aruba_telemetry\AccelStatus
+     * @return int
      */
-    public function getStatus()
+    public function getRxRadioId()
     {
-        return $this->status;
+        return $this->rxRadioId;
     }
 
     /**
-     * Set 'status' value
+     * Set 'rxRadioId' value
      *
-     * @param \aruba_telemetry\AccelStatus $value
+     * @param int $value
      */
-    public function setStatus(\aruba_telemetry\AccelStatus $value = null)
+    public function setRxRadioId($value = null)
     {
-        $this->status = $value;
+        $this->rxRadioId = $value;
+    }
+
+    /**
+     * Check if 'antenna' has a value
+     *
+     * @return bool
+     */
+    public function hasAntenna()
+    {
+        return $this->antenna !== null;
+    }
+
+    /**
+     * Get 'antenna' value
+     *
+     * @return int
+     */
+    public function getAntenna()
+    {
+        return $this->antenna;
+    }
+
+    /**
+     * Set 'antenna' value
+     *
+     * @param int $value
+     */
+    public function setAntenna($value = null)
+    {
+        $this->antenna = $value;
     }
 
     /**
@@ -205,27 +205,24 @@ class Accelerometer extends \Protobuf\AbstractMessage
      */
     public static function fromArray(array $values)
     {
-        if ( ! isset($values['x'])) {
-            throw new \InvalidArgumentException('Field "x" (tag 1) is required but has no value.');
+        if ( ! isset($values['time'])) {
+            throw new \InvalidArgumentException('Field "time" (tag 1) is required but has no value.');
         }
 
-        if ( ! isset($values['y'])) {
-            throw new \InvalidArgumentException('Field "y" (tag 2) is required but has no value.');
-        }
-
-        if ( ! isset($values['z'])) {
-            throw new \InvalidArgumentException('Field "z" (tag 3) is required but has no value.');
+        if ( ! isset($values['rssi'])) {
+            throw new \InvalidArgumentException('Field "rssi" (tag 2) is required but has no value.');
         }
 
         $message = new self();
         $values  = array_merge([
-            'status' => null
+            'rxRadioId' => null,
+            'antenna' => null
         ], $values);
 
-        $message->setX($values['x']);
-        $message->setY($values['y']);
-        $message->setZ($values['z']);
-        $message->setStatus($values['status']);
+        $message->setTime($values['time']);
+        $message->setRssi($values['rssi']);
+        $message->setRxRadioId($values['rxRadioId']);
+        $message->setAntenna($values['antenna']);
 
         return $message;
     }
@@ -236,32 +233,31 @@ class Accelerometer extends \Protobuf\AbstractMessage
     public static function descriptor()
     {
         return \google\protobuf\DescriptorProto::fromArray([
-            'name'      => 'Accelerometer',
+            'name'      => 'History',
             'field'     => [
                 \google\protobuf\FieldDescriptorProto::fromArray([
                     'number' => 1,
-                    'name' => 'x',
-                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_FLOAT(),
+                    'name' => 'time',
+                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_UINT64(),
                     'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_REQUIRED()
                 ]),
                 \google\protobuf\FieldDescriptorProto::fromArray([
                     'number' => 2,
-                    'name' => 'y',
-                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_FLOAT(),
+                    'name' => 'rssi',
+                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_SINT32(),
                     'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_REQUIRED()
                 ]),
                 \google\protobuf\FieldDescriptorProto::fromArray([
                     'number' => 3,
-                    'name' => 'z',
-                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_FLOAT(),
-                    'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_REQUIRED()
+                    'name' => 'rxRadioId',
+                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_INT32(),
+                    'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_OPTIONAL()
                 ]),
                 \google\protobuf\FieldDescriptorProto::fromArray([
                     'number' => 4,
-                    'name' => 'status',
-                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_ENUM(),
-                    'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_OPTIONAL(),
-                    'type_name' => '.aruba_telemetry.AccelStatus'
+                    'name' => 'antenna',
+                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_INT32(),
+                    'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_OPTIONAL()
                 ]),
             ],
         ]);
@@ -291,36 +287,32 @@ class Accelerometer extends \Protobuf\AbstractMessage
         $writer      = $context->getWriter();
         $sizeContext = $context->getComputeSizeContext();
 
-        if ($this->x === null) {
-            throw new \UnexpectedValueException('Field "\\aruba_telemetry\\Accelerometer#x" (tag 1) is required but has no value.');
+        if ($this->time === null) {
+            throw new \UnexpectedValueException('Field "\\aruba_telemetry\\History#time" (tag 1) is required but has no value.');
         }
 
-        if ($this->y === null) {
-            throw new \UnexpectedValueException('Field "\\aruba_telemetry\\Accelerometer#y" (tag 2) is required but has no value.');
+        if ($this->rssi === null) {
+            throw new \UnexpectedValueException('Field "\\aruba_telemetry\\History#rssi" (tag 2) is required but has no value.');
         }
 
-        if ($this->z === null) {
-            throw new \UnexpectedValueException('Field "\\aruba_telemetry\\Accelerometer#z" (tag 3) is required but has no value.');
+        if ($this->time !== null) {
+            $writer->writeVarint($stream, 8);
+            $writer->writeVarint($stream, $this->time);
         }
 
-        if ($this->x !== null) {
-            $writer->writeVarint($stream, 13);
-            $writer->writeFloat($stream, $this->x);
+        if ($this->rssi !== null) {
+            $writer->writeVarint($stream, 16);
+            $writer->writeZigzag32($stream, $this->rssi);
         }
 
-        if ($this->y !== null) {
-            $writer->writeVarint($stream, 21);
-            $writer->writeFloat($stream, $this->y);
+        if ($this->rxRadioId !== null) {
+            $writer->writeVarint($stream, 24);
+            $writer->writeVarint($stream, $this->rxRadioId);
         }
 
-        if ($this->z !== null) {
-            $writer->writeVarint($stream, 29);
-            $writer->writeFloat($stream, $this->z);
-        }
-
-        if ($this->status !== null) {
+        if ($this->antenna !== null) {
             $writer->writeVarint($stream, 32);
-            $writer->writeVarint($stream, $this->status->value());
+            $writer->writeVarint($stream, $this->antenna);
         }
 
         if ($this->extensions !== null) {
@@ -358,33 +350,33 @@ class Accelerometer extends \Protobuf\AbstractMessage
             }
 
             if ($tag === 1) {
-                \Protobuf\WireFormat::assertWireType($wire, 2);
+                \Protobuf\WireFormat::assertWireType($wire, 4);
 
-                $this->x = $reader->readFloat($stream);
+                $this->time = $reader->readVarint($stream);
 
                 continue;
             }
 
             if ($tag === 2) {
-                \Protobuf\WireFormat::assertWireType($wire, 2);
+                \Protobuf\WireFormat::assertWireType($wire, 17);
 
-                $this->y = $reader->readFloat($stream);
+                $this->rssi = $reader->readZigzag($stream);
 
                 continue;
             }
 
             if ($tag === 3) {
-                \Protobuf\WireFormat::assertWireType($wire, 2);
+                \Protobuf\WireFormat::assertWireType($wire, 5);
 
-                $this->z = $reader->readFloat($stream);
+                $this->rxRadioId = $reader->readVarint($stream);
 
                 continue;
             }
 
             if ($tag === 4) {
-                \Protobuf\WireFormat::assertWireType($wire, 14);
+                \Protobuf\WireFormat::assertWireType($wire, 5);
 
-                $this->status = \aruba_telemetry\AccelStatus::valueOf($reader->readVarint($stream));
+                $this->antenna = $reader->readVarint($stream);
 
                 continue;
             }
@@ -418,24 +410,24 @@ class Accelerometer extends \Protobuf\AbstractMessage
         $calculator = $context->getSizeCalculator();
         $size       = 0;
 
-        if ($this->x !== null) {
+        if ($this->time !== null) {
             $size += 1;
-            $size += 4;
+            $size += $calculator->computeVarintSize($this->time);
         }
 
-        if ($this->y !== null) {
+        if ($this->rssi !== null) {
             $size += 1;
-            $size += 4;
+            $size += $calculator->computeZigzag32Size($this->rssi);
         }
 
-        if ($this->z !== null) {
+        if ($this->rxRadioId !== null) {
             $size += 1;
-            $size += 4;
+            $size += $calculator->computeVarintSize($this->rxRadioId);
         }
 
-        if ($this->status !== null) {
+        if ($this->antenna !== null) {
             $size += 1;
-            $size += $calculator->computeVarintSize($this->status->value());
+            $size += $calculator->computeVarintSize($this->antenna);
         }
 
         if ($this->extensions !== null) {
@@ -450,10 +442,10 @@ class Accelerometer extends \Protobuf\AbstractMessage
      */
     public function clear()
     {
-        $this->x = null;
-        $this->y = null;
-        $this->z = null;
-        $this->status = null;
+        $this->time = null;
+        $this->rssi = null;
+        $this->rxRadioId = null;
+        $this->antenna = null;
     }
 
     /**
@@ -461,14 +453,14 @@ class Accelerometer extends \Protobuf\AbstractMessage
      */
     public function merge(\Protobuf\Message $message)
     {
-        if ( ! $message instanceof \aruba_telemetry\Accelerometer) {
+        if ( ! $message instanceof \aruba_telemetry\History) {
             throw new \InvalidArgumentException(sprintf('Argument 1 passed to %s must be a %s, %s given', __METHOD__, __CLASS__, get_class($message)));
         }
 
-        $this->x = ($message->x !== null) ? $message->x : $this->x;
-        $this->y = ($message->y !== null) ? $message->y : $this->y;
-        $this->z = ($message->z !== null) ? $message->z : $this->z;
-        $this->status = ($message->status !== null) ? $message->status : $this->status;
+        $this->time = ($message->time !== null) ? $message->time : $this->time;
+        $this->rssi = ($message->rssi !== null) ? $message->rssi : $this->rssi;
+        $this->rxRadioId = ($message->rxRadioId !== null) ? $message->rxRadioId : $this->rxRadioId;
+        $this->antenna = ($message->antenna !== null) ? $message->antenna : $this->antenna;
     }
 
 
