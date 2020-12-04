@@ -31,3 +31,13 @@ transportInterval 60
 
 iot useTransportProfile Test
 ```
+
+### Change Logs
+
+Release v0.2 (beta) :
+- Adding support for inlusion mode of scanned devices
+- Improve start/stop of websocket daemon
+- Add an API communication channel between jeedom plugin and websocket daemon
+
+Release v0.1 :
+- First release
