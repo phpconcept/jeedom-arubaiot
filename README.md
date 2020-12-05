@@ -32,7 +32,12 @@ transportInterval 60
 iot useTransportProfile Test
 ```
 
-### Change Logs
+## Change Logs
+
+Release v0.3 (beta) :
+- Adding systematic auto-add of commands for an equipement, when receiving the corresponding telemetry data
+- Adding a filtering capabilities to deny some commands for specific object classes (no auto-add). Today static in method isAllowedCmdForClass()
+
 
 Release v0.2 (beta) :
 - Adding support for inlusion mode of scanned devices
