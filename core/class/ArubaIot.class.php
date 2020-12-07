@@ -95,9 +95,15 @@ class ArubaIot extends eqLogic {
 
       // ----- Default values if configuration is empty
       if ($this->getConfiguration('mac_address', '') == '')
+      {
+        log::add('ArubaIot', 'debug', 'MAC is empty, change to 00:00:00:00:00:00');
         $this->setConfiguration('mac_address', '00:00:00:00:00:00');
+      }
       if ($this->getConfiguration('class_type', '') == '')
+      {
+        log::add('ArubaIot', 'debug', 'class_type is empty, change to auto');
         $this->setConfiguration('class_type', 'auto');
+      }
 
     }
 
@@ -119,6 +125,8 @@ class ArubaIot extends eqLogic {
 
       $v_class_type = $this->getConfiguration('class_type');
 
+
+      /*
       // ----- Default cmd for all
       $info = $this->getCmd(null, 'rssi');
       if (!is_object($info)) {
@@ -184,6 +192,32 @@ class ArubaIot extends eqLogic {
         }
 
       }
+      */
+
+
+      // ----- Call only if not in inclusion mode, because then the daemon is awware of all the new devices
+      // I had to make a trick by using a device attribute to flag not to send back an api when in inclusion mode, because the
+      // global att do not seems to be updated here ...
+      $v_trick_save_from_daemon = $this->getConfiguration('trick_save_from_daemon');
+      log::add('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon."");
+      if ( ($v_trick_save_from_daemon == '') || ($v_trick_save_from_daemon == 'off') ) {
+//      $v_include_mode = config::byKey('include_mode', 'ArubaIot');
+//      if ($v_include_mode == 0) {
+        log::add('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", send refresh api message");
+        $v_id = $this->getId();
+        $v_mac = $this->getConfiguration('mac_address');
+        log::add('ArubaIot', 'debug', "MAC is :".$v_mac);
+        if (($v_mac != '00:00:00:00:00:00') && ($v_mac != '')) {
+          $v_data = array('mac_address' => $v_mac, 'id' => $v_id );
+          self::talkToWebsocket('device_refresh', $v_data);
+        }
+        else {
+          log::add('ArubaIot', 'debug', "MAC is null or empty, don't send refresh api message");
+        }
+      }
+      else {
+        log::add('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", don't send refresh api message");
+      }
 
     }
 
@@ -197,6 +231,9 @@ class ArubaIot extends eqLogic {
 
     public function preRemove() {
         
+      $v_mac = $this->getConfiguration('mac_address');
+      $v_data = array('mac_address' => $v_mac );
+      self::talkToWebsocket('device_remove', $v_data);
     }
 
     public function postRemove() {
@@ -314,6 +351,8 @@ class ArubaIot extends eqLogic {
 	public static function supportedDeviceType($p_format='list' ) {
 
       $v_result = array();
+
+      /*
       $v_class_list = array();
       $v_class_list['auto'] = 'Découvrir automatiquement';
       $v_class_list['enoceanSwitch'] = 'enoceanSwitch';
@@ -322,6 +361,17 @@ class ArubaIot extends eqLogic {
       $v_class_list['arubaBeacon'] = 'arubaBeacon';
       $v_class_list['iBeacon'] = 'iBeacon';
       $v_class_list['generic'] = 'generic';
+        */
+
+
+      $v_class_list = array('auto' => 'Découvrir automatiquement',
+                            'enoceanSwitch' => 'enoceanSwitch',
+                            'enoceanSensor' => 'enoceanSensor',
+                            'arubaTag' => 'arubaTag',
+                            'arubaBeacon' => 'arubaBeacon',
+                            'iBeacon' => 'iBeacon',
+                            'generic' => 'generic'
+                            );
 
       if ($p_format == 'description') {
         $v_result = $v_class_list;
@@ -352,6 +402,98 @@ class ArubaIot extends eqLogic {
       }
       return($v_result);
     }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : isAllowedCmdForClass()
+     * Description :
+     * Parameters :
+     *   $p_cmd_id : Command ID
+     *   $p_class_name : Name of the class
+     * Returned value : true if accepted, false if not.
+     *   If cmd_id is unknown or class_name is unknown, then it will return true.
+     * ---------------------------------------------------------------------------
+     */
+    public static function isAllowedCmdForClass($p_cmd_id, $p_class_name) {
+
+      // ----- Here is a code-static list of command than can not be
+      // automatically added to an object of this class
+      // For exemple : no sense to have a presence information for an enocean sensor
+      $v_deny_list = array('auto' => '__none',
+                           'enoceanSwitch' => 'presence,rssi', // comma separated list
+                           'enoceanSensor' => 'presence',
+                           'arubaTag' => '',
+                           'arubaBeacon' => 'presence',
+                           'iBeacon' => '',
+                           'generic' => '__none'
+                           );
+
+      if (isset($v_deny_list[$p_class_name])) {
+        if ($v_deny_list[$p_class_name] == '__none')
+          return(true);
+
+        $v_list = explode(',', $v_deny_list[$p_class_name]);
+        if (in_array($p_cmd_id, $v_list)) {
+          return(false);
+        }
+      }
+
+      return(true);
+    }
+    /* -------------------------------------------------------------------------*/
+
+
+
+
+    /**---------------------------------------------------------------------------
+     * Method : createAndUpdateCmd()
+     * Description :
+     * Parameters :
+     *   $p_cmd_id : Command ID
+     *   $p_cmd_value : Value to be updated for the command
+     *   $p_cmd_name : Name of the command (in case of creation need)
+     *   $p_cmd_type : 'info', 'action'
+     *   $p_cmd_subtype :  'numeric', 'binary', 'string', ...
+     *   $p_cmd_isHistorized : true, false
+     * Returned value : true on changed value, false otherwise.
+     * ---------------------------------------------------------------------------
+     */
+    public function createAndUpdateCmd($p_cmd_id, $p_cmd_value, $p_cmd_name='', $p_cmd_type='info', $p_cmd_subtype='string', $p_cmd_isHistorized=false) {
+
+      // ----- Get class_name of object
+      $v_class_name = $this->getConfiguration('class_type');
+
+      // ----- Look if this command is allowed for this class_name
+      if (!ArubaIot::isAllowedCmdForClass($p_cmd_id, $v_class_name)) {
+        ArubaIotTool::log('debug', "Command '".$p_cmd_id."' not allowed for this class_name '".$v_class_name."'. Look at settings.");
+        return(false);
+      }
+
+      // ----- Look for existing command
+      $v_cmd = $this->getCmd(null, $p_cmd_id);
+
+      // ----- Look if command need to be created
+      // TBC : could add a flag to lock the new command creation
+      if (!is_object($v_cmd)) {
+        log::add('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
+        $v_cmd = new arubacentralCmd();
+        $v_cmd->setName(__($p_cmd_name, __FILE__));
+
+        $v_cmd->setLogicalId($p_cmd_id);
+        $v_cmd->setEqLogic_id($this->getId());
+        $v_cmd->setType($p_cmd_type);
+        $v_cmd->setSubType($p_cmd_subtype);
+        $v_cmd->setIsHistorized($p_cmd_isHistorized);
+        $v_cmd->save();
+      }
+
+      // ----- Set the value and update the flag
+      $v_changed_flag = $this->checkAndUpdateCmd($p_cmd_id, $p_cmd_value);
+
+      return($v_changed_flag);
+    }
+    /* -------------------------------------------------------------------------*/
+
 
 
 
