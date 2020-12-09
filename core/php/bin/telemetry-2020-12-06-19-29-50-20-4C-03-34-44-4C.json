@@ -1,0 +1,369 @@
+Reporter (20:4C:03:34:44:4C) :
+name: "20:4c:03:34:44:4c"
+mac: " L\u00034DL"
+ipv4: "192.168.99.137"
+hwType: "AP-303H"
+swVersion: "8.7.1.0-8.7.1.0"
+swBuild: "77203"
+time: 1607279390
+
+
+Device (E2:15:00:00:C6:14) :
+mac: 
+deviceClass: enoceanSwitch
+lastSeen: 1607277536
+bevent {
+  event: update
+}
+stats {
+  frame_cnt: 0
+}
+inputs {
+  rocker {
+    id: "switch bank 1: idle"
+    state: idle
+  }
+  rocker {
+    id: "switch bank 2: idle"
+    state: idle
+  }
+}
+
+Device (CC:78:AB:9D:BC:91) :
+mac: 
+deviceClass: iBeacon
+deviceClass: arubaBeacon
+model: "LS-BT20"
+firmware {
+  bankA: "1.2-9"
+}
+lastSeen: 1607279390
+bevent {
+  event: update
+}
+rssi {
+  avg: -62
+}
+beacons {
+  ibeacon {
+    uuid: 
+    major: 1000
+    minor: 7787
+    power: -60
+  }
+}
+txpower: 14
+sensors {
+  battery: 95
+}
+stats {
+  uptime: 510
+  frame_cnt: 137
+}
+vendorName: "Aruba"
+
+Device (CC:78:AB:9D:BC:A4) :
+mac: 
+deviceClass: iBeacon
+deviceClass: arubaBeacon
+model: "LS-BT20"
+firmware {
+  bankA: "1.2-9"
+}
+lastSeen: 1607279389
+bevent {
+  event: update
+}
+rssi {
+  avg: -74
+}
+beacons {
+  ibeacon {
+    uuid: 
+    major: 1000
+    minor: 1022
+    power: -60
+  }
+}
+txpower: 14
+sensors {
+  battery: 100
+}
+stats {
+  uptime: 8190
+  frame_cnt: 118
+}
+vendorName: "Aruba"
+
+Device (CC:78:AB:9D:BC:C1) :
+mac: 
+deviceClass: iBeacon
+deviceClass: arubaBeacon
+model: "NA"
+lastSeen: 1607279360
+bevent {
+  event: update
+}
+rssi {
+  avg: -85
+}
+beacons {
+  ibeacon {
+    uuid: 
+    major: 1000
+    minor: 1187
+    power: -60
+  }
+}
+stats {
+  frame_cnt: 1
+}
+vendorName: "Aruba"
+
+Device (CC:78:AB:9D:BE:CB) :
+mac: 
+deviceClass: iBeacon
+deviceClass: arubaBeacon
+model: "LS-BT20"
+firmware {
+  bankA: "1.2-9"
+}
+lastSeen: 1607279389
+bevent {
+  event: update
+}
+rssi {
+  avg: -62
+}
+beacons {
+  ibeacon {
+    uuid: 
+    major: 1000
+    minor: 7788
+    power: -60
+  }
+}
+txpower: 14
+sensors {
+  battery: 95
+}
+stats {
+  uptime: 9570
+  frame_cnt: 146
+}
+vendorName: "Aruba"
+
+Device (E6:FE:37:0D:A4:D7) :
+mac: 
+deviceClass: unclassified
+lastSeen: 1607279389
+bevent {
+  event: update
+}
+rssi {
+  avg: -70
+}
+stats {
+  frame_cnt: 30
+}
+localName: "Jinou_Sensor_HumiTemp"
+
+Device (CC:78:AB:9D:C6:ED) :
+mac: 
+deviceClass: iBeacon
+deviceClass: arubaBeacon
+model: "LS-BT20"
+firmware {
+  bankA: "1.2-9"
+}
+lastSeen: 1607279390
+bevent {
+  event: update
+}
+rssi {
+  avg: -63
+}
+beacons {
+  ibeacon {
+    uuid: 
+    major: 1000
+    minor: 1070
+    power: -56
+  }
+}
+txpower: 15
+sensors {
+  battery: 90
+}
+stats {
+  uptime: 27660
+  frame_cnt: 115
+}
+vendorName: "Aruba"
+
+Device (20:4C:03:3E:EB:19) :
+mac: 
+deviceClass: iBeacon
+deviceClass: arubaBeacon
+model: "BT-AP510"
+firmware {
+  bankA: "0.0-0"
+  bankB: "1.3-69"
+}
+lastSeen: 1607279390
+bevent {
+  event: update
+}
+rssi {
+  avg: -42
+}
+beacons {
+  ibeacon {
+    uuid: 
+    major: 0
+    minor: 0
+    power: -56
+  }
+}
+txpower: 14
+sensors {
+  battery: -101
+}
+stats {
+  uptime: 8850
+  frame_cnt: 148
+}
+vendorName: "Aruba"
+
+Device (B0:91:22:D8:EB:4F) :
+mac: 
+deviceClass: iBeacon
+deviceClass: arubaBeacon
+model: "LS-BT20"
+firmware {
+  bankA: "1.2-9"
+}
+lastSeen: 1607279389
+bevent {
+  event: update
+}
+rssi {
+  avg: -66
+}
+beacons {
+  ibeacon {
+    uuid: 
+    major: 1000
+    minor: 1031
+    power: -60
+  }
+}
+txpower: 14
+sensors {
+  battery: 100
+}
+stats {
+  uptime: 35490
+  frame_cnt: 134
+}
+vendorName: "Aruba"
+
+Device (CC:78:AB:9D:BB:50) :
+mac: 
+deviceClass: iBeacon
+deviceClass: arubaBeacon
+model: "LS-BT20"
+firmware {
+  bankA: "1.2-9"
+}
+lastSeen: 1607276173
+bevent {
+  event: update
+}
+beacons {
+  ibeacon {
+    uuid: 
+    major: 16005
+    minor: 22558
+    power: -60
+  }
+}
+txpower: 14
+sensors {
+  battery: 95
+}
+stats {
+  uptime: 79440
+  frame_cnt: 0
+}
+vendorName: "Aruba"
+
+Device (54:6C:0E:05:A3:59) :
+mac: 
+deviceClass: arubaTag
+firmware {
+  bankA: "1.2-15"
+}
+assetId: "0000-0000-0000"
+lastSeen: 1607279389
+bevent {
+  event: update
+}
+rssi {
+  avg: -58
+}
+sensors {
+  battery: 42
+}
+stats {
+  uptime: 6900
+  frame_cnt: 8
+}
+vendorName: "Aruba"
+
+Device (54:6C:0E:05:A1:69) :
+mac: 
+deviceClass: arubaTag
+firmware {
+  bankA: "1.2-15"
+}
+assetId: "0000-0000-0000"
+lastSeen: 1607279372
+bevent {
+  event: update
+}
+rssi {
+  avg: -70
+}
+sensors {
+  battery: 79
+}
+stats {
+  uptime: 72240
+  frame_cnt: 4
+}
+vendorName: "Aruba"
+
+Device (E5:00:00:00:03:F7) :
+mac: 
+deviceClass: enoceanSensor
+lastSeen: 1607279377
+bevent {
+  event: update
+}
+rssi {
+  avg: -52
+}
+sensors {
+  battery: 99
+  illumination: 65
+  occupancy {
+    level: 50
+  }
+}
+stats {
+  seq_nr: 231104
+  frame_cnt: 1
+}
+
+
