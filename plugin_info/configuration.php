@@ -37,6 +37,12 @@ if (!isConnect()) {
             </div>
         </div>
         <div class="form-group">
+            <label class="col-lg-4 control-label">{{Reporters Access Token}}</label>
+            <div class="col-lg-2">
+                <input class="configKey form-control" data-l1key="access_token" value="" />
+            </div>
+        </div>
+        <div class="form-group">
             <label class="col-lg-4 control-label">{{Reporters Allow List}}</label>
             <div class="col-lg-2">
                 <input class="configKey form-control" data-l1key="reporters_allow_list" value="" />
