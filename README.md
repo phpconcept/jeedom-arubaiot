@@ -16,6 +16,9 @@ To Be Completed
 
 ### Aruba IOT Configuration Example
 
+Please notice that URI "/telemetry" is used for the endpointURL. For all other attributes of the transportProfile, please refer to Aruba documentation. The right configuration will improve the load on the Jeedom box.
+
+
 ```cli
 iot radio-profile Test
 radio-mode ble
@@ -37,6 +40,9 @@ iot useTransportProfile Test
 Release v0.3 (beta) :
 - Adding systematic auto-add of commands for an equipement, when receiving the corresponding telemetry data
 - Adding a filtering capabilities to deny some commands for specific object classes (no auto-add). Today static in method isAllowedCmdForClass()
+- Adding support of comma separated list of reporters' mac@ allowed. If list is empty then all reporters are allowed.
+- Adding support for multiple connections coming from same AP. This will allow future use of Telemetry/RTLS data including WiFi device connectivity.
+- Modify the way presence/absence is updated
 
 
 Release v0.2 (beta) :
@@ -54,7 +60,7 @@ As of Release v0.2, known caveats are :
 - /!\ Only ws:// is supported today by the websocket daemon, which means communication is in clear. No support yet of wss:// with certificate.
 - Reporter endpointToken is not checked, all reporters are accepted by default.
 - Do not manage receiveing the same payload from different "reporters", which may lead to duplicate events like transition up/down for switche's buttons.
-
+- The plugin is managing only part of the north bound Aruba API, it doesn't work with the south bound API.
 
 ## Behind the Scene
 

@@ -123,77 +123,10 @@ class ArubaIot extends eqLogic {
 
     public function postSave() {
 
+      // ----- Create default cmd (if needed) for this class
+      $this->createAllCmd();
+
       $v_class_type = $this->getConfiguration('class_type');
-
-
-      /*
-      // ----- Default cmd for all
-      $info = $this->getCmd(null, 'rssi');
-      if (!is_object($info)) {
-        log::add('ArubaIot',  'debug', "Activate Cmd 'RSSI' for device.");
-        $info = new arubacentralCmd();
-        $info->setName(__('RSSI', __FILE__));
-
-        $info->setLogicalId('rssi');
-        $info->setEqLogic_id($this->getId());
-        $info->setType('info');
-        $info->setSubType('string');
-        $info->save();
-      }
-
-      // ----- Look for commands to add depending of class_type
-      if ($v_class_type == "enoceanSensor") {
-
-        $info = $this->getCmd(null, 'illumination');
-        if (!is_object($info)) {
-          log::add('ArubaIot',  'debug', "Activate Cmd 'illumination' for device.");
-          $info = new arubacentralCmd();
-          $info->setName(__('Illumination', __FILE__));
-
-          $info->setLogicalId('illumination');
-          $info->setEqLogic_id($this->getId());
-          $info->setType('info');
-          $info->setSubType('numeric');
-          $info->setIsHistorized(true);
-          $info->save();
-        }
-
-        $info = $this->getCmd(null, 'occupancy');
-        if (!is_object($info)) {
-          log::add('ArubaIot',  'debug', "Activate Cmd 'occupancy' for device.");
-          $info = new arubacentralCmd();
-          $info->setName(__('Occupancy', __FILE__));
-
-          $info->setLogicalId('occupancy');
-          $info->setEqLogic_id($this->getId());
-          $info->setType('info');
-          $info->setSubType('numeric');
-          $info->setIsHistorized(true);
-          $info->save();
-        }
-
-      }
-
-      // ----- Look for commands to add depending of class_type
-      if (($v_class_type == "arubaTag") || ($v_class_type == "generic")) {
-
-        $info = $this->getCmd(null, 'presence');
-        if (!is_object($info)) {
-          log::add('ArubaIot',  'debug', "Activate Cmd 'presence' for device.");
-          $info = new arubacentralCmd();
-          $info->setName(__('Presence', __FILE__));
-
-          $info->setLogicalId('presence');
-          $info->setEqLogic_id($this->getId());
-          $info->setType('info');
-          $info->setSubType('binary');
-          $info->setIsHistorized(true);
-          $info->save();
-        }
-
-      }
-      */
-
 
       // ----- Call only if not in inclusion mode, because then the daemon is awware of all the new devices
       // I had to make a trick by using a device attribute to flag not to send back an api when in inclusion mode, because the
@@ -446,11 +379,45 @@ class ArubaIot extends eqLogic {
 
 
     /**---------------------------------------------------------------------------
-     * Method : createAndUpdateCmd()
+     * Method : createAllCmd()
+     * Description :
+     * Parameters :
+     * Returned value : true if ok.
+     * ---------------------------------------------------------------------------
+     */
+    public function createAllCmd() {
+
+      // ----- Get class_name of object
+      $v_class_name = $this->getConfiguration('class_type');
+
+      switch ($v_class_name) {
+        case 'arubaTag' :
+          $this->createCmd('presence', 'Presence', 'info', 'binary', true);
+          $this->createCmd('rssi', 'RSSI', 'info', 'numeric', true);
+          //$this->createCmd('nearest_ap', 'Nearest AP', 'info', 'string', true);
+        break;
+        case 'arubaBeacon' :
+          // Battery is by default;
+        break;
+        case 'enoceanSensor' :
+          $this->createCmdIllumination();
+          $this->createCmdOccupancy();
+        break;
+        case 'enoceanSwitch' :
+          // will be learn depending of switch type
+        break;
+        default:
+      }
+
+      return(true);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : createCmd()
      * Description :
      * Parameters :
      *   $p_cmd_id : Command ID
-     *   $p_cmd_value : Value to be updated for the command
      *   $p_cmd_name : Name of the command (in case of creation need)
      *   $p_cmd_type : 'info', 'action'
      *   $p_cmd_subtype :  'numeric', 'binary', 'string', ...
@@ -458,7 +425,7 @@ class ArubaIot extends eqLogic {
      * Returned value : true on changed value, false otherwise.
      * ---------------------------------------------------------------------------
      */
-    public function createAndUpdateCmd($p_cmd_id, $p_cmd_value, $p_cmd_name='', $p_cmd_type='info', $p_cmd_subtype='string', $p_cmd_isHistorized=false) {
+    public function createCmd($p_cmd_id, $p_cmd_name='', $p_cmd_type='info', $p_cmd_subtype='string', $p_cmd_isHistorized=false) {
 
       // ----- Get class_name of object
       $v_class_name = $this->getConfiguration('class_type');
@@ -473,7 +440,6 @@ class ArubaIot extends eqLogic {
       $v_cmd = $this->getCmd(null, $p_cmd_id);
 
       // ----- Look if command need to be created
-      // TBC : could add a flag to lock the new command creation
       if (!is_object($v_cmd)) {
         log::add('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
         $v_cmd = new arubacentralCmd();
@@ -487,13 +453,115 @@ class ArubaIot extends eqLogic {
         $v_cmd->save();
       }
 
+      return(true);
+    }
+    /* -------------------------------------------------------------------------*/
+
+
+    /**---------------------------------------------------------------------------
+     * Method : createCmdIllumination()
+     * Description :
+     * Parameters :
+     * Returned value : true on changed value, false otherwise.
+     * ---------------------------------------------------------------------------
+     */
+    public function createCmdIllumination() {
+
+      // ----- Look if this command is allowed for this class_name
+      $p_cmd_id = 'illumination';
+      $v_class_name = $this->getConfiguration('class_type');
+      if (!ArubaIot::isAllowedCmdForClass($p_cmd_id, $v_class_name)) {
+        ArubaIotTool::log('debug', "Command '".$p_cmd_id."' not allowed for this class_name '".$v_class_name."'. Look at settings.");
+        return(false);
+      }
+
+      // ----- Look for existing command
+      $v_cmd = $this->getCmd(null, 'illumination');
+
+      // ----- Look if command need to be created
+      if (!is_object($v_cmd)) {
+        log::add('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
+        $v_cmd = new arubacentralCmd();
+        $v_cmd->setName(__("Illumination", __FILE__));
+
+        $v_cmd->setLogicalId('illumination');
+        $v_cmd->setEqLogic_id($this->getId());
+        $v_cmd->setType('info');
+        $v_cmd->setSubType('numeric');
+        $v_cmd->setIsHistorized(true);
+        $v_cmd->save();
+      }
+
+      return(true);
+    }
+    /* -------------------------------------------------------------------------*/
+
+
+    /**---------------------------------------------------------------------------
+     * Method : createCmdOccupancy()
+     * Description :
+     * Parameters :
+     * Returned value : true on changed value, false otherwise.
+     * ---------------------------------------------------------------------------
+     */
+    public function createCmdOccupancy() {
+
+      // ----- Look if this command is allowed for this class_name
+      $p_cmd_id = 'occupancy';
+      $v_class_name = $this->getConfiguration('class_type');
+      if (!ArubaIot::isAllowedCmdForClass($p_cmd_id, $v_class_name)) {
+        ArubaIotTool::log('debug', "Command '".$p_cmd_id."' not allowed for this class_name '".$v_class_name."'. Look at settings.");
+        return(false);
+      }
+
+      // ----- Look for existing command
+      $v_cmd = $this->getCmd(null, 'occupancy');
+
+      // ----- Look if command need to be created
+      if (!is_object($v_cmd)) {
+        log::add('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
+        $v_cmd = new arubacentralCmd();
+        $v_cmd->setName(__("Occupancy", __FILE__));
+
+        $v_cmd->setLogicalId('occupancy');
+        $v_cmd->setEqLogic_id($this->getId());
+        $v_cmd->setType('info');
+        $v_cmd->setSubType('numeric');
+        $v_cmd->setIsHistorized(true);
+        $v_cmd->save();
+      }
+
+      return(true);
+    }
+    /* -------------------------------------------------------------------------*/
+
+
+    /**---------------------------------------------------------------------------
+     * Method : createAndUpdateCmd()
+     * Description :
+     * Parameters :
+     *   $p_cmd_id : Command ID
+     *   $p_cmd_value : Value to be updated for the command
+     *   $p_cmd_name : Name of the command (in case of creation need)
+     *   $p_cmd_type : 'info', 'action'
+     *   $p_cmd_subtype :  'numeric', 'binary', 'string', ...
+     *   $p_cmd_isHistorized : true, false
+     * Returned value : true on changed value, false otherwise.
+     * ---------------------------------------------------------------------------
+     */
+    public function createAndUpdateCmd($p_cmd_id, $p_cmd_value, $p_cmd_name='', $p_cmd_type='info', $p_cmd_subtype='string', $p_cmd_isHistorized=false) {
+
+      // ----- Look if cmd or crete it
+      if (!$this->createCmd($p_cmd_id, $p_cmd_name, $p_cmd_type, $p_cmd_subtype, $p_cmd_isHistorized)) {
+        return(false);
+      }
+
       // ----- Set the value and update the flag
       $v_changed_flag = $this->checkAndUpdateCmd($p_cmd_id, $p_cmd_value);
 
       return($v_changed_flag);
     }
     /* -------------------------------------------------------------------------*/
-
 
 
 
