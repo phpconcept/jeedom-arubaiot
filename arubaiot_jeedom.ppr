@@ -1,0 +1,183 @@
+[Config]
+Compilator.SaveAll=0
+Compilator.Capture=0
+Compilator.CompileOnBackground=0
+Compilator.ProgSaveAll=0
+Compilator.ProgRunSelection=0
+Compilator.LogType=0
+DefaultCP=0
+LogtoEnd=1
+DontOpen=0
+AbsolutePath=0
+FileFormat=0
+ProjectFilesOnly=0
+HTServer=localhost
+[Project tree]
+arubaiot_jeedom
+	+docs
+		README.md
+		ToDo.txt
+	+Telemetry
+		3rparty\src\aruba_telemetry\Sensors.php
+		3rparty\src\aruba_telemetry\Reported.php
+		3rparty\src\aruba_telemetry\RockerSwitch.php
+		3rparty\src\aruba_telemetry\rockerSwitchPosition.php
+		3rparty\src\aruba_telemetry\Telemetry.php
+		3rparty\src\aruba_telemetry\WiFiData.php
+	+resources
+		resources\ArubaIot-websocket.service
+	+plugin_info
+		plugin_info\install.php
+		plugin_info\configuration.php
+		plugin_info\info.json
+		3rparty\src\aruba_telemetry\Inputs.php
+	+desktop
+		+js
+			desktop\js\ArubaIot.js
+			desktop\js\ArubaIot_Configuration.js
+		+modal
+			desktop\modal\modal.ArubaIot.php
+		+php
+			desktop\php\ArubaIot.php
+	+core
+		+ajax
+			core\ajax\ArubaIot.ajax.php
+		+php
+			+bin
+				core\php\bin\aruba-ws-server.php
+			core\php\ArubaIot.inc.php
+		+i18n
+			core\i18n\fr_FR.json
+			core\i18n\en_US.json
+		+class
+			core\class\ArubaIot.class.php
+[Open project files]
+0=core\class\ArubaIot.class.php
+1=core\i18n\en_US.json
+2=core\i18n\fr_FR.json
+3=core\php\ArubaIot.inc.php
+4=desktop\php\ArubaIot.php
+5=desktop\modal\modal.ArubaIot.php
+6=desktop\js\ArubaIot.js
+7=plugin_info\install.php
+8=plugin_info\configuration.php
+9=plugin_info\info.json
+10=core\php\bin\aruba-ws-server.php
+11=3rparty\vendor\react\socket\src\ConnectionInterface.php
+12=..\rfxcom\plugin_info\configuration.php
+13=core\ajax\ArubaIot.ajax.php
+14=3rparty\src\aruba_telemetry\Sensors.php
+15=3rparty\src\aruba_telemetry\Reported.php
+16=3rparty\src\aruba_telemetry\Rssi.php
+17=resources\ArubaIot-websocket.service
+18=3rparty\src\aruba_telemetry\Telemetry.php
+19=3rparty\src\aruba_telemetry\RockerSwitch.php
+20=3rparty\src\aruba_telemetry\rockerSwitchPosition.php
+21=3rparty\src\aruba_telemetry\Inputs.php
+22=README.md
+23=C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-nb-telemetry.proto
+24=3rparty\src\aruba_telemetry\switchState.php
+25=3rparty\vendor\protobuf-php\protobuf\src\Enum.php
+26=C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-nb.proto
+27=C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-types.proto
+28=3rparty\src\aruba_telemetry\WiFiData.php
+29=desktop\js\ArubaIot_Configuration.js
+[Selected Project Files]
+Main=
+Selected=plugin_info\configuration.php
+[core\class\ArubaIot.class.php]
+TopLine=372
+Caret=13,397
+[core\i18n\en_US.json]
+TopLine=1
+Caret=49,18
+[core\i18n\fr_FR.json]
+TopLine=1
+Caret=1,1
+[core\php\ArubaIot.inc.php]
+TopLine=1
+Caret=1,1
+[desktop\php\ArubaIot.php]
+TopLine=1
+Caret=49,10
+[desktop\modal\modal.ArubaIot.php]
+TopLine=1
+Caret=15,7
+[desktop\js\ArubaIot.js]
+TopLine=63
+Caret=23,63
+[plugin_info\install.php]
+TopLine=16
+Caret=1,47
+[plugin_info\configuration.php]
+TopLine=73
+Caret=136,97
+[plugin_info\info.json]
+TopLine=1
+Caret=20,11
+[core\php\bin\aruba-ws-server.php]
+TopLine=589
+Caret=11,608
+Mark1=1,813
+Mark2=43,1679
+Mark3=13,778
+Mark4=69,591
+Mark5=1,723
+Mark6=64,1083
+[3rparty\vendor\react\socket\src\ConnectionInterface.php]
+TopLine=1
+Caret=42,35
+[..\rfxcom\plugin_info\configuration.php]
+TopLine=9
+Caret=1,35
+[core\ajax\ArubaIot.ajax.php]
+TopLine=15
+Caret=9,30
+[3rparty\src\aruba_telemetry\Sensors.php]
+TopLine=317
+Caret=1,335
+[3rparty\src\aruba_telemetry\Reported.php]
+TopLine=613
+Caret=30,631
+[3rparty\src\aruba_telemetry\Rssi.php]
+TopLine=79
+Caret=1,97
+[resources\ArubaIot-websocket.service]
+TopLine=1
+Caret=43,9
+[3rparty\src\aruba_telemetry\Telemetry.php]
+TopLine=313
+Caret=36,331
+[3rparty\src\aruba_telemetry\RockerSwitch.php]
+TopLine=5
+Caret=1,1
+[3rparty\src\aruba_telemetry\rockerSwitchPosition.php]
+TopLine=1
+Caret=1,1
+[3rparty\src\aruba_telemetry\Inputs.php]
+TopLine=72
+Caret=39,90
+[README.md]
+TopLine=27
+Caret=1,62
+[C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-nb-telemetry.proto]
+TopLine=156
+Caret=26,169
+[3rparty\src\aruba_telemetry\switchState.php]
+TopLine=14
+Caret=1,14
+[3rparty\vendor\protobuf-php\protobuf\src\Enum.php]
+TopLine=25
+Caret=1,51
+[C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-nb.proto]
+TopLine=1
+Caret=1,12
+[C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-types.proto]
+TopLine=56
+Caret=1,1
+[3rparty\src\aruba_telemetry\WiFiData.php]
+TopLine=1
+Caret=55,12
+[desktop\js\ArubaIot_Configuration.js]
+TopLine=1
+Caret=3,20

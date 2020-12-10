@@ -1,0 +1,26 @@
+# Credits and Thanks
+
+A warm thanks to all the following persons (and also those that I forget to put the name ...) for sharing their code arround Jeedom. This helps to understand how Jeedom is working but also to get good ideas on how to have better displays and to get some very smart piece of code to improve ArubaIot.
+
+## Arround Jeedom Pugings
+
+#### Scan.Ip - Ynats
+For the great plugin, and for some piece of smart code to improve display.
+https://ynats.github.io/jeedom-plugin-scan.ip/fr_FR/
+
+#### Networks
+
+
+#### RfxCom
+
+
+## Arround Libraries
+
+#### RatchetPHP - C.Boden
+For the websocket code in PHP.
+https://github.com/ratchetphp
+
+#### Protobuf PHP - Fabio Silva
+For the PHP Library to manage Protobuf description files in PHP.
+https://github.com/protobuf-php/protobuf
+
