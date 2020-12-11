@@ -192,15 +192,14 @@ class ArubaIot extends eqLogic {
     }
      */
 
-     /*      A modifier en fonction des devices IoT
-	public static function getImage() {
-		$file = 'plugins/ArubaIot/core/config/devices/' . self::getImgFilePath($this->getConfiguration('device'));
+	public function getImage() {
+        $v_class = $this->getConfiguration('class_type', '');
+	  	$file = 'plugins/ArubaIot/desktop/images/'.$v_class.'.png';
 		if(!file_exists(__DIR__.'/../../../../'.$file)){
 			return 'plugins/ArubaIot/plugin_info/ArubaIot_icon.png';
 		}
 		return $file;
 	}
-    */
 
 
 

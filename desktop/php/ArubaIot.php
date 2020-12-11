@@ -50,18 +50,55 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
   </div>
   <legend><i class="fas fa-table"></i> {{Mes ArubaIots}}</legend>
 	   <input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic" />
+  <legend><i class="fas fa-table"></i> {{Equipements Enocean}}</legend>
 <div class="eqLogicThumbnailContainer">
     <?php
 foreach ($eqLogics as $eqLogic) {
-	$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-	echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
-	echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
-	echo '<br>';
-	echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
-	echo '</div>';
+    $v_class = $eqLogic->getConfiguration('class_type', '');
+    if (($v_class == 'enoceanSensor') || ($v_class == 'enoceanSwitch')) {
+    	$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
+    	echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
+    	echo '<img src="' . $eqLogic->getImage() . '"/>';
+    	echo '<br>';
+    	echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
+    	echo '</div>';
+    }
 }
 ?>
 </div>
+  <legend><i class="fas fa-table"></i> {{Tags Aruba}}</legend>
+<div class="eqLogicThumbnailContainer">
+    <?php
+foreach ($eqLogics as $eqLogic) {
+    $v_class = $eqLogic->getConfiguration('class_type', '');
+    if ($v_class == 'arubaTag') {
+    	$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
+    	echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
+    	echo '<img src="' . $eqLogic->getImage() . '"/>';
+    	echo '<br>';
+    	echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
+    	echo '</div>';
+    }
+}
+?>
+</div>
+  <legend><i class="fas fa-table"></i> {{IOT Autres}}</legend>
+<div class="eqLogicThumbnailContainer">
+    <?php
+foreach ($eqLogics as $eqLogic) {
+    $v_class = $eqLogic->getConfiguration('class_type', '');
+    if (($v_class != 'arubaTag') && ($v_class != 'enoceanSensor') && ($v_class != 'enoceanSwitch')) {
+    	$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
+    	echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
+    	echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
+    	echo '<br>';
+    	echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
+    	echo '</div>';
+    }
+}
+?>
+</div>
+
 </div>
 
 <div class="col-xs-12 eqLogic" style="display: none;">

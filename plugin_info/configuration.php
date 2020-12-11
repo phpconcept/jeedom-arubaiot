@@ -22,57 +22,134 @@ if (!isConnect()) {
     die();
 }
 ?>
+
+
 <form class="form-horizontal">
+
+    <div class="form-group">
+        <div class="col-lg-2" style="right:15px; position: absolute;">
+            <select onchange="fct_arubaiot_display_mode(); " class="configKey form-control" data-l1key="config_display_mode" id="arubaiot_display_mode">
+                <option value="normal">{{Mode normal}}</option>
+                <option value="advanced">{{Mode avancé}}</option>
+                <option value="debug">{{Mode debug}}</option>
+            </select>
+        </div>
+    </div>
+
+
     <fieldset>
+
         <div class="form-group">
-            <label class="col-lg-4 control-label">{{Websocket IP Address}}</label>
-            <div class="col-lg-2">
-                <input class="configKey form-control" data-l1key="ws_ip_address" value="0.0.0.0"/> (0.0.0.0 {{pour adresse locale}})
+            <div class="col-sm-4"></div>
+            <div class="col-sm-5">
+                   <div style="background-color: #039be5; padding: 2px 5px; color: white; margin: 10px 0; font-weight: bold;">{{Devices}}</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-lg-4 control-label">{{Device Types Allow List}}
+            <sup><i class="fa fa-question-circle tooltips" title="{{Types d'objects qui seront pris en compte lors du mode inclusion.}}"></i></sup>
+            </label>
+            <div class="col-lg-5">
+                <input class="configKey form-control" data-l1key="device_type_allow_list" value="" />
             </div>
         </div>
         <div class="form-group">
-            <label class="col-lg-4 control-label">{{Websocket TCP Port}}</label>
-            <div class="col-lg-2">
-                <input class="configKey form-control" data-l1key="ws_port" value="8081" />
+            <label class="col-lg-4 control-label">{{Delais detection d'absence (sec)}}
+            <sup><i class="fa fa-question-circle tooltips" title="{{Temps minimum d'attente avant de déclarer l'objet absent (10 sec min).}}"></i></sup>
+            </label>
+            <div class="col-lg-5">
+                <input class="configKey form-control" data-l1key="presence_timeout" />
             </div>
         </div>
+
+        <div class="form-group">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-5">
+                   <div style="background-color: #039be5; padding: 2px 5px; color: white; margin: 10px 0; font-weight: bold;">{{Reporters}}</div>
+            </div>
+        </div>
+
+
         <div class="form-group">
             <label class="col-lg-4 control-label">{{Reporters Access Token}}</label>
-            <div class="col-lg-2">
+            <div class="col-lg-5">
                 <input class="configKey form-control" data-l1key="access_token" value="" />
             </div>
         </div>
         <div class="form-group">
             <label class="col-lg-4 control-label">{{Reporters Allow List}}</label>
-            <div class="col-lg-2">
+            <div class="col-lg-5">
                 <input class="configKey form-control" data-l1key="reporters_allow_list" value="" />
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-lg-4 control-label">{{AP transport interval}}</label>
-            <div class="col-lg-2">
-                <input class="configKey form-control" data-l1key="ap_transport_interval" value="" />
-            </div>
+
+        <div id="show_avance" style="display:none;">
+
+          <div class="form-group">
+              <label class="col-lg-4 control-label">{{AP transport interval}}</label>
+              <div class="col-lg-5">
+                  <input class="configKey form-control" data-l1key="ap_transport_interval" value="" />
+              </div>
+          </div>
+          <div class="form-group">
+              <label class="col-lg-4 control-label">{{AP aging time}}</label>
+              <div class="col-lg-5">
+                  <input class="configKey form-control" data-l1key="ap_aging time" value="" />
+              </div>
+          </div>
+
         </div>
+
         <div class="form-group">
-            <label class="col-lg-4 control-label">{{AP aging time}}</label>
-            <div class="col-lg-2">
-                <input class="configKey form-control" data-l1key="ap_aging time" value="" />
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-lg-4 control-label">{{Device Types Allow List}}</label>
-            <div class="col-lg-2">
-                <input class="configKey form-control" data-l1key="device_type_allow_list" value="" />
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-lg-4 control-label">{{Delais detection d'absence (sec)}}</label>
-            <div class="col-lg-2">
-                <input class="configKey form-control" data-l1key="presence_timeout" />
+            <div class="col-sm-4"></div>
+            <div class="col-sm-5">
+                   <div style="background-color: #039be5; padding: 2px 5px; color: white; margin: 10px 0; font-weight: bold;">{{Websocket}}</div>
             </div>
         </div>
 
+        <div class="form-group">
+            <label class="col-lg-4 control-label">{{Websocket IP Address}}</label>
+            <div class="col-lg-5">
+                <input class="configKey form-control" data-l1key="ws_ip_address" value="0.0.0.0"/> (0.0.0.0 {{pour adresse locale}})
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-lg-4 control-label">{{Websocket TCP Port}}</label>
+            <div class="col-lg-5">
+                <input class="configKey form-control" data-l1key="ws_port" value="8081" />
+            </div>
+        </div>
+
+        <div id="show_debug" style="display:none;">
+
+          <div class="form-group">
+              <div class="col-sm-4"></div>
+              <div class="col-sm-5">
+                     <div style="background-color: #039be5; padding: 2px 5px; color: white; margin: 10px 0; font-weight: bold;">{{Debug}}</div>
+              </div>
+          </div>
+
+<?php if (0) { ?>
+          <div class="form-group">
+              <label class="col-lg-4 control-label">{{AP transport interval}}</label>
+              <div class="col-lg-5">
+                  <input class="configKey form-control" data-l1key="ap_transport_interval" value="" />
+              </div>
+          </div>
+          <div class="form-group">
+              <label class="col-lg-4 control-label">{{AP aging time}}</label>
+              <div class="col-lg-5">
+                  <input class="configKey form-control" data-l1key="ap_aging time" value="" />
+              </div>
+          </div>
+<?php /*endif (0) */ } ?>
+
+        </div>
+
+
 </fieldset>
 </form>
+
+<?php include_file('desktop', 'ArubaIot_Configuration', 'js', 'ArubaIot'); ?>
 
