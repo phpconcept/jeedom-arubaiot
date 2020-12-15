@@ -7,8 +7,8 @@
   ini_set('display_errors', '1');
 
   // ----- Jeedom include
-  //require_once dirname(__FILE__) . '/../../../../../core/php/core.inc.php';
-  require_once dirname(__FILE__) . "/../../../../../plugins/ArubaIot/core/php/ArubaIot.inc.php";
+  require_once dirname(__FILE__) . '/../../../../../core/php/core.inc.php';
+  require_once dirname(__FILE__) . '/../../../../../plugins/ArubaIot/core/php/ArubaIot.inc.php';
 
   // ----- 3rd Part libraries includes
   $loader = require __DIR__ . '/../../../3rparty/vendor/autoload.php';
@@ -87,11 +87,11 @@
 
 
   /**---------------------------------------------------------------------------
-   * Class : ArubaIotReporter
+   * Class : ArubaIotWebsocketReporter
    * Description :
    * ---------------------------------------------------------------------------
    */
-  class ArubaIotReporter {
+  class ArubaIotWebsocketReporter {
     protected $mac_address;
     protected $connection_id_list;
     protected $status;
@@ -1066,7 +1066,7 @@ fwrite($fd, "\n");
         ArubaIotTool::log('info', "Creating new reporter with MAC@ : ".$v_mac."");
 
         // ----- Create a new reporter
-        $v_reporter = new ArubaIotReporter($v_mac);
+        $v_reporter = new ArubaIotWebsocketReporter($v_mac);
 
         // ----- Set additional attributes
         $v_reporter->setName($v_at_reporter->getName());
@@ -1087,6 +1087,8 @@ fwrite($fd, "\n");
 
         // ----- Update connection custom attributes
         $p_connection->my_status = 'active';
+
+
       }
       // ----- Look for new connection with existing reporter
       else if ( ($p_connection->my_status == 'initiated') && ($v_reporter !== null) ) {
