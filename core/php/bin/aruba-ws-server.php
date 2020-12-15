@@ -182,6 +182,30 @@
     }
 
     /**---------------------------------------------------------------------------
+     * Method : hasTelemetryCnx()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function hasTelemetryCnx() {
+      foreach ($this->connection_id_list as $v_connection) {
+        if ($v_connection['type'] == 'telemetry') return(1);
+      }
+      return(0);
+    }
+
+    /**---------------------------------------------------------------------------
+     * Method : hasRtlsCnx()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function hasRtlsCnx() {
+      foreach ($this->connection_id_list as $v_connection) {
+        if ($v_connection['type'] == 'rtls') return(1);
+      }
+      return(0);
+    }
+
+    /**---------------------------------------------------------------------------
      * Method : disconnect()
      * Description :
      * ---------------------------------------------------------------------------
@@ -606,6 +630,37 @@
         }
 
       }
+
+      return($v_response);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : apiEvent_reporter_list()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function apiEvent_reporter_list($p_data) {
+      $v_response = '';
+
+      ArubaIotTool::log('debug', "Send reporter list");
+
+      $v_response_array = array();
+      $i = 0;
+      foreach ($this->reporters_list as $v_reporter) {
+        $v_item = array();
+        $v_item['mac'] = $v_reporter->getMac();
+        $v_item['name'] = $v_reporter->getName();
+        $v_item['local_ip'] = $v_reporter->getLocalIp();
+        $v_item['remote_ip'] = $v_reporter->getRemoteIp();
+        $v_item['model'] = $v_reporter->getHardwareType();
+        $v_item['version'] = $v_reporter->getSoftwareVersion();
+        $v_item['telemetry'] = $v_reporter->hasTelemetryCnx();
+        $v_item['rtls'] = $v_reporter->hasRtlsCnx();
+        $v_response_array[] = $v_item;
+      }
+
+      $v_response = json_encode($v_response_array);
 
       return($v_response);
     }

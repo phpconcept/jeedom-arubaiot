@@ -23,7 +23,7 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
         <i class="fas fa-plus-circle"></i>
         <br>
         <span>{{Ajouter}}</span>
-    </div>
+      </div>
 
 			<?php
 			if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
@@ -42,11 +42,17 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
 			?>
 
 
+      <div class="cursor eqLogicAttr displayReporters logoSecondary" data-l1key="toto" >
+        <i class="fas fa-sitemap"></i>
+        <br>
+        <span>{{Reporters}}</span>
+      </div>
+
       <div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf">
-      <i class="fas fa-wrench"></i>
-    <br>
-    <span>{{Configuration}}</span>
-  </div>
+        <i class="fas fa-wrench"></i>
+        <br>
+        <span>{{Configuration}}</span>
+      </div>
   </div>
   <legend><i class="fas fa-table"></i> {{Mes ArubaIots}}</legend>
 	   <input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic" />

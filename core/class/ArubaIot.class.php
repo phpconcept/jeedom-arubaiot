@@ -226,13 +226,12 @@ class ArubaIot extends eqLogic {
       $v_return = $v_request_http->exec(15,2);
       if ($v_return === false) {
         log::add('ArubaIot', 'debug', 'Unable to fetch ' . $v_url);
-        return;
+        return('');
       } else {
         log::add('ArubaIot', 'debug', 'Post ' . $v_url);
         log::add('ArubaIot', 'debug', 'Result ' . $v_return);
+        return($v_return);
       }
-
-
 
 	}
 

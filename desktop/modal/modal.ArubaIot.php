@@ -21,5 +21,5 @@ if (!isConnect('admin')) {
 }
 ?>
 
-Exemple de modale
+Exemple de modale       :
 
