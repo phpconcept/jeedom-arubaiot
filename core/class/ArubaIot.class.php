@@ -17,7 +17,7 @@
  */
 
 /* * ***************************Includes********************************* */
-require_once __DIR__  . '/../../../../core/php/core.inc.php';
+require_once __DIR__ . "/../../../../plugins/ArubaIot/core/php/ArubaIot.inc.php";
 
 class ArubaIot extends eqLogic {
     /*     * *************************Attributs****************************** */

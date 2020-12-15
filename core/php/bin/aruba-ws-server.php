@@ -7,7 +7,8 @@
   ini_set('display_errors', '1');
 
   // ----- Jeedom include
-  require_once dirname(__FILE__) . '/../../../../../core/php/core.inc.php';
+  //require_once dirname(__FILE__) . '/../../../../../core/php/core.inc.php';
+  require_once dirname(__FILE__) . "/../../../../../plugins/ArubaIot/core/php/ArubaIot.inc.php";
 
   // ----- 3rd Part libraries includes
   $loader = require __DIR__ . '/../../../3rparty/vendor/autoload.php';
