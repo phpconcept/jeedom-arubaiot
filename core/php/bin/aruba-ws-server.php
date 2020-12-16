@@ -102,6 +102,7 @@
     protected $software_version;
     protected $software_build;
     protected $date_created;
+    protected $lastseen;
 
     public function __construct($p_mac) {
       $this->mac_address = filter_var(trim(strtoupper($p_mac)), FILTER_VALIDATE_MAC);
@@ -114,6 +115,7 @@
       $this->software_version = '';
       $this->software_build = '';
       $this->date_created = date("Y-m-d H:i:s");
+      $this->lastseen = 0;
     }
 
     public function setStatus($p_status) {
@@ -179,6 +181,14 @@
 
     public function getSoftwareBuild() {
       return($this->software_build);
+    }
+
+    public function setLastSeen($p_time) {
+      $this->lastseen = $p_time;
+    }
+
+    public function getLastSeen() {
+      return($this->lastseen);
     }
 
     /**---------------------------------------------------------------------------
@@ -668,6 +678,7 @@
         $v_item['version'] = $v_reporter->getSoftwareVersion();
         $v_item['telemetry'] = $v_reporter->hasTelemetryCnx();
         $v_item['rtls'] = $v_reporter->hasRtlsCnx();
+        $v_item['lastseen'] = $v_reporter->getLastSeen();
         $v_response_array['reporters'][] = $v_item;
       }
 
@@ -1141,6 +1152,7 @@ fwrite($fd, "\n");
         $v_reporter->setHardwareType($v_at_reporter->getHwType());
         $v_reporter->setSoftwareVersion($v_at_reporter->getSwVersion());
         $v_reporter->setSoftwareBuild($v_at_reporter->getSwBuild());
+        $v_reporter->setLastSeen($v_at_reporter->getTime());
         //$v_reporter->setLastUpdateTime(date("Y-m-d H:i:s", $v_at_reporter->getTime()));
 
         // ----- Attach to list
@@ -1206,6 +1218,9 @@ fwrite($fd, "\n");
         ArubaIotTool::log('info', "Reporter '".$v_reporter->getMac()."' changed software build '".$v_reporter->getSoftwareBuild()."' for '".$v_soft."'");
         $v_reporter->setSoftwareBuild($v_soft);
       }
+
+      // ----- Update last seen value
+      $v_reporter->setLastSeen($v_at_reporter->getTime());
 
       // ----- Parse data depending on nature
       if ($p_connection->my_type == 'telemetry') {

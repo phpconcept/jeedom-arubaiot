@@ -131,13 +131,13 @@ $v_list = (isset($v_result_array['reporters']) ? $v_result_array['reporters'] : 
                     <tr style="background-color: grey !important; color: white !important;">
                         <th data-sort="string" class="scanTd" style="width:200px;"><span class="scanHender"><b class="caret"></b> {{Nom}}</span></th>
                         <th data-sort="string" style="width:200px;" class="scanTd"><span class="scanHender"><b class="caret"></b> {{Adresse MAC}}</span></th>
-                        <th data-sort="int" class="scanTd" style="width:110px;"><span class="scanHender"><b class="caret"></b> {{ip}}</span></th>
+                        <th data-sort="string" class="scanTd" style="width:110px;"><span class="scanHender"><b class="caret"></b> {{Local IP}}</span></th>
+                        <th data-sort="string" class="scanTd" style="width:110px;"><span class="scanHender"><b class="caret"></b> {{Remote IP}}</span></th>
                         <th data-sort="string" class="scanTd" style="text-align: center; width:100px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{Telemetry}}</span></th>
                         <th data-sort="string" style="text-align: center; width:100px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{RTLS}}</span></th>
                         <th data-sort="string" style=" width:150px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{Modèle}}</span></th>
                         <th data-sort="string" style=" width:200px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{Version}}</span></th>
-                        <th data-sort="string" class="scanTd"><span class="scanHender"><b class="caret"></b> {{Commentaire}}</span></th>
-                        <th data-sort="int" class="scanTd" style="width:170px;"><span class="scanHender"><b class="caret"></b> {{Date de mise à jour}}</span></th>
+                        <th data-sort="string" class="scanTd" style="width:170px;"><span class="scanHender"><b class="caret"></b> {{Date de mise à jour}}</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -151,6 +151,7 @@ $v_list = (isset($v_result_array['reporters']) ? $v_result_array['reporters'] : 
         <td class="scanTd " style="text-overflow: ellipsis;"><span style="display:none;"></span><?php echo $v_reporter["name"]; ?></td>
         <td class="scanTd "><?php echo $v_reporter["mac"]; ?></td>
         <td class="scanTd "><span style="display:none;"></span><?php echo $v_reporter["local_ip"]; ?></td>
+        <td class="scanTd "><span style="display:none;"></span><?php echo $v_reporter["remote_ip"]; ?></td>
 <?php if ($v_reporter["telemetry"] == 1) { ?>
         <td class="scanTd" title="Telemetry connection is active" style="text-align:center;"><span style="display:none;"></span> <i  style="color: green;" class="fas fa-wifi"></i>  </td>
 <?php } else { ?>
@@ -163,8 +164,7 @@ $v_list = (isset($v_result_array['reporters']) ? $v_result_array['reporters'] : 
 <?php } ?>
         <td class="scanTd" ><span style="display:none;"></span> <?php echo $v_reporter["model"]; ?> </td>
         <td class="scanTd " ><span style="display:none;"></span> <?php echo $v_reporter["version"]; ?> </td>
-        <td class="scanTd "><span style="display:none;"></span></td>
-        <td class="scanTd "><span style="display:none;"></span></td>
+        <td class="scanTd "><span style="display:none;"></span> <?php echo date("d/m/Y H:i:s", $v_reporter["lastseen"]); ?></td>
       </tr>
 
 <?php
