@@ -102,3 +102,35 @@ $('.changeIncludeState').off('click').on('click', function () {
 });
 
 
+/*
+ * Display reporters modal
+ */
+$('.displayReporters').off('click').on('click', function () {
+
+  $('#md_modal').dialog({title: "Reporters List"});
+  $('#md_modal').load('index.php?v=d&plugin=ArubaIot&modal=modal.reporters&id=' + $('.eqLogicAttr[data-l1key=id]').value()).dialog('open');
+
+
+  return;
+
+  $.ajax({
+    type: "POST",
+    url: "plugins/ArubaIot/core/ajax/ArubaIot.ajax.php",
+    data: {
+      action: "changeIncludeState",
+      state: $(this).attr('data-state')
+    },
+    dataType: 'json',
+    error: function (request, status, error) {
+      handleAjaxError(request, status, error);
+    },
+    success: function (data) {
+      if (data.state != 'ok') {
+        $('#div_alert').showAlert({message: data.result, level: 'danger'});
+        return;
+      }
+    }
+  });
+});
+
+

@@ -17,7 +17,7 @@
  */
 
 /* * ***************************Includes********************************* */
-require_once __DIR__  . '/../../../../core/php/core.inc.php';
+require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
 class ArubaIot extends eqLogic {
     /*     * *************************Attributs****************************** */
@@ -226,13 +226,12 @@ class ArubaIot extends eqLogic {
       $v_return = $v_request_http->exec(15,2);
       if ($v_return === false) {
         log::add('ArubaIot', 'debug', 'Unable to fetch ' . $v_url);
-        return;
+        return('');
       } else {
         log::add('ArubaIot', 'debug', 'Post ' . $v_url);
         log::add('ArubaIot', 'debug', 'Result ' . $v_return);
+        return($v_return);
       }
-
-
 
 	}
 

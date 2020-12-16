@@ -8,6 +8,7 @@
 
   // ----- Jeedom include
   require_once dirname(__FILE__) . '/../../../../../core/php/core.inc.php';
+  require_once dirname(__FILE__) . '/../../../../../plugins/ArubaIot/core/php/ArubaIot.inc.php';
 
   // ----- 3rd Part libraries includes
   $loader = require __DIR__ . '/../../../3rparty/vendor/autoload.php';
@@ -86,11 +87,11 @@
 
 
   /**---------------------------------------------------------------------------
-   * Class : ArubaIotReporter
+   * Class : ArubaIotWebsocketReporter
    * Description :
    * ---------------------------------------------------------------------------
    */
-  class ArubaIotReporter {
+  class ArubaIotWebsocketReporter {
     protected $mac_address;
     protected $connection_id_list;
     protected $status;
@@ -101,6 +102,7 @@
     protected $software_version;
     protected $software_build;
     protected $date_created;
+    protected $lastseen;
 
     public function __construct($p_mac) {
       $this->mac_address = filter_var(trim(strtoupper($p_mac)), FILTER_VALIDATE_MAC);
@@ -113,6 +115,7 @@
       $this->software_version = '';
       $this->software_build = '';
       $this->date_created = date("Y-m-d H:i:s");
+      $this->lastseen = 0;
     }
 
     public function setStatus($p_status) {
@@ -178,6 +181,38 @@
 
     public function getSoftwareBuild() {
       return($this->software_build);
+    }
+
+    public function setLastSeen($p_time) {
+      $this->lastseen = $p_time;
+    }
+
+    public function getLastSeen() {
+      return($this->lastseen);
+    }
+
+    /**---------------------------------------------------------------------------
+     * Method : hasTelemetryCnx()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function hasTelemetryCnx() {
+      foreach ($this->connection_id_list as $v_connection) {
+        if ($v_connection['type'] == 'telemetry') return(1);
+      }
+      return(0);
+    }
+
+    /**---------------------------------------------------------------------------
+     * Method : hasRtlsCnx()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function hasRtlsCnx() {
+      foreach ($this->connection_id_list as $v_connection) {
+        if ($v_connection['type'] == 'rtls') return(1);
+      }
+      return(0);
     }
 
     /**---------------------------------------------------------------------------
@@ -254,6 +289,7 @@
     // ----- Attributes from configuration
     protected $ip_address;
     protected $tcp_port;
+    protected $up_time;
 
     // ----- Attributes to manage dynamic datas
     protected $connections_list;
@@ -281,6 +317,7 @@
       $this->device_type_allow_list = '';
       $this->access_token = '';
       $this->include_mode = false;
+      $this->up_time = 0;
     }
     /* -------------------------------------------------------------------------*/
 
@@ -357,6 +394,9 @@
      * ---------------------------------------------------------------------------
      */
     public function init() {
+
+      // ----- Store start time
+      $this->up_time = time();
 
       // ----- Initialize ip/port/etc ... from plugin configuration
       $this->setIpAddress(config::byKey('ws_ip_address', 'ArubaIot'));
@@ -605,6 +645,44 @@
         }
 
       }
+
+      return($v_response);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : apiEvent_reporter_list()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function apiEvent_reporter_list($p_data) {
+      $v_response = '';
+
+      ArubaIotTool::log('debug', "Send reporter list");
+
+      $v_response_array = array();
+      $v_response_array['websocket'] = array();
+      $v_response_array['websocket']['ip_address'] = $this->ip_address;
+      $v_response_array['websocket']['tcp_port'] = $this->tcp_port;
+      $v_response_array['websocket']['up_time'] = $this->up_time;
+
+      $v_response_array['reporters'] = array();
+      $i = 0;
+      foreach ($this->reporters_list as $v_reporter) {
+        $v_item = array();
+        $v_item['mac'] = $v_reporter->getMac();
+        $v_item['name'] = $v_reporter->getName();
+        $v_item['local_ip'] = $v_reporter->getLocalIp();
+        $v_item['remote_ip'] = $v_reporter->getRemoteIp();
+        $v_item['model'] = $v_reporter->getHardwareType();
+        $v_item['version'] = $v_reporter->getSoftwareVersion();
+        $v_item['telemetry'] = $v_reporter->hasTelemetryCnx();
+        $v_item['rtls'] = $v_reporter->hasRtlsCnx();
+        $v_item['lastseen'] = $v_reporter->getLastSeen();
+        $v_response_array['reporters'][] = $v_item;
+      }
+
+      $v_response = json_encode($v_response_array);
 
       return($v_response);
     }
@@ -1065,7 +1143,7 @@ fwrite($fd, "\n");
         ArubaIotTool::log('info', "Creating new reporter with MAC@ : ".$v_mac."");
 
         // ----- Create a new reporter
-        $v_reporter = new ArubaIotReporter($v_mac);
+        $v_reporter = new ArubaIotWebsocketReporter($v_mac);
 
         // ----- Set additional attributes
         $v_reporter->setName($v_at_reporter->getName());
@@ -1074,6 +1152,7 @@ fwrite($fd, "\n");
         $v_reporter->setHardwareType($v_at_reporter->getHwType());
         $v_reporter->setSoftwareVersion($v_at_reporter->getSwVersion());
         $v_reporter->setSoftwareBuild($v_at_reporter->getSwBuild());
+        $v_reporter->setLastSeen($v_at_reporter->getTime());
         //$v_reporter->setLastUpdateTime(date("Y-m-d H:i:s", $v_at_reporter->getTime()));
 
         // ----- Attach to list
@@ -1086,6 +1165,8 @@ fwrite($fd, "\n");
 
         // ----- Update connection custom attributes
         $p_connection->my_status = 'active';
+
+
       }
       // ----- Look for new connection with existing reporter
       else if ( ($p_connection->my_status == 'initiated') && ($v_reporter !== null) ) {
@@ -1137,6 +1218,9 @@ fwrite($fd, "\n");
         ArubaIotTool::log('info', "Reporter '".$v_reporter->getMac()."' changed software build '".$v_reporter->getSoftwareBuild()."' for '".$v_soft."'");
         $v_reporter->setSoftwareBuild($v_soft);
       }
+
+      // ----- Update last seen value
+      $v_reporter->setLastSeen($v_at_reporter->getTime());
 
       // ----- Parse data depending on nature
       if ($p_connection->my_type == 'telemetry') {
