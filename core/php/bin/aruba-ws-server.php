@@ -279,6 +279,7 @@
     // ----- Attributes from configuration
     protected $ip_address;
     protected $tcp_port;
+    protected $up_time;
 
     // ----- Attributes to manage dynamic datas
     protected $connections_list;
@@ -306,6 +307,7 @@
       $this->device_type_allow_list = '';
       $this->access_token = '';
       $this->include_mode = false;
+      $this->up_time = 0;
     }
     /* -------------------------------------------------------------------------*/
 
@@ -382,6 +384,9 @@
      * ---------------------------------------------------------------------------
      */
     public function init() {
+
+      // ----- Store start time
+      $this->up_time = time();
 
       // ----- Initialize ip/port/etc ... from plugin configuration
       $this->setIpAddress(config::byKey('ws_ip_address', 'ArubaIot'));
@@ -646,6 +651,12 @@
       ArubaIotTool::log('debug', "Send reporter list");
 
       $v_response_array = array();
+      $v_response_array['websocket'] = array();
+      $v_response_array['websocket']['ip_address'] = $this->ip_address;
+      $v_response_array['websocket']['tcp_port'] = $this->tcp_port;
+      $v_response_array['websocket']['up_time'] = $this->up_time;
+
+      $v_response_array['reporters'] = array();
       $i = 0;
       foreach ($this->reporters_list as $v_reporter) {
         $v_item = array();
@@ -657,7 +668,7 @@
         $v_item['version'] = $v_reporter->getSoftwareVersion();
         $v_item['telemetry'] = $v_reporter->hasTelemetryCnx();
         $v_item['rtls'] = $v_reporter->hasRtlsCnx();
-        $v_response_array[] = $v_item;
+        $v_response_array['reporters'][] = $v_item;
       }
 
       $v_response = json_encode($v_response_array);

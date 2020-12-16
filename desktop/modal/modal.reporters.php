@@ -26,9 +26,22 @@ require_once dirname(__FILE__) . "/../../../../plugins/ArubaIot/core/php/ArubaIo
 $v_data = array('tbd1' => '', 'tbd2' => '' );
 $v_result = ArubaIot::talkToWebsocket('reporter_list', $v_data);
 
-var_dump($v_result);
+//var_dump($v_result);
 
-$v_list = json_decode($v_result, true);
+$v_result_array = json_decode($v_result, true);
+
+if (isset($v_result_array['websocket'])) {
+  $v_websocket = $v_result_array['websocket'];
+  $v_websocket['status'] = "Up";
+}
+else {
+  $v_websocket = array();
+  $v_websocket['status'] = 'Down';
+  $v_websocket['ip_address'] = 'n/a';
+  $v_websocket['tcp_port'] = 'n/a';
+}
+
+$v_list = (isset($v_result_array['reporters']) ? $v_result_array['reporters'] : array());
 
 
 ?>
@@ -69,12 +82,21 @@ $v_list = json_decode($v_result, true);
         </div>
         <div class="panel-body">
             <div>
+                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Status : </label>
+<?php if ($v_websocket['status'] == "Up") {
+                echo '<div><i style="color: green;" class="fa fa-check"></i>&nbsp;&nbsp;Up since '.date("d/m/Y H:i:s", $v_websocket['up_time']).'</div>';
+ } else {
+                echo '<div><i style="color: red;" class="fa fa-info-circle"></i>&nbsp;&nbsp;Down</div>';
+
+ } ?>
+            </div>
+            <div>
                 <label class="col-sm-3 control-label" style="margin-bottom: 0;">IP Address : </label>
-                <div>MonIP</div>
+                <div><?php echo $v_websocket['ip_address']; ?></div>
             </div>
             <div>
                 <label class="col-sm-3 control-label" style="margin-bottom: 0;">Port TCP : </label>
-                <div>Ma MAC</div>
+                <div><?php echo $v_websocket['tcp_port']; ?></div>
             </div>
         </div>
         <br />
@@ -89,7 +111,7 @@ $v_list = json_decode($v_result, true);
         <div class="panel-body">
                 <div>
                     <label class="col-sm-3 control-label" style="margin-bottom: 0;">Nombre de Reporters : </label>
-                    <div>1</div>
+                    <div><?php echo sizeof($v_list); ?></div>
                 </div>
         </div>
         <br />
@@ -99,8 +121,8 @@ $v_list = json_decode($v_result, true);
 <div class="col-md-12">
     <div class="panel panel-primary">
         <div class="panel-heading">
-            <h3 class="panel-title">Les plages ip et adresses MAC du réseau (<?php echo $ipsReseau["infos"]["date"] ?>)
-            <a id="btSaveCommentaires" class="btn btn-success btn-xs pull-right" style="top: -2px !important; right: -6px !important;"><i class="far fa-check-circle icon-white"></i> {{Sauvegarder les commentaires}}</a>
+            <h3 class="panel-title">Liste des Rapporteurs identifiés
+            <a id="btSaveList" class="btn btn-success btn-xs pull-right" style="top: -2px !important; right: -6px !important;"><i class="far fa-check-circle icon-white"></i> {{Sauvegarder}}</a>
             </h3>
         </div>
         <div class="panel-body">
@@ -129,8 +151,16 @@ $v_list = json_decode($v_result, true);
         <td class="scanTd " style="text-overflow: ellipsis;"><span style="display:none;"></span><?php echo $v_reporter["name"]; ?></td>
         <td class="scanTd "><?php echo $v_reporter["mac"]; ?></td>
         <td class="scanTd "><span style="display:none;"></span><?php echo $v_reporter["local_ip"]; ?></td>
-        <td class="scanTd" title="Telemetry is active" style="text-align:center;"><span style="display:none;"></span><?php if ($v_reporter["telemetry"] == 1) { ?> <i  style="color: green;" class="fas fa-check"></i> <?php } ?> </td>
-        <td class="scanTd" title="RTLS is active" style="text-align:center;"><span style="display:none;"></span><?php if ($v_reporter["rtls"] == 1) { ?> <i  style="color: green;" class="fas fa-check"></i> <?php } ?> </td>
+<?php if ($v_reporter["telemetry"] == 1) { ?>
+        <td class="scanTd" title="Telemetry connection is active" style="text-align:center;"><span style="display:none;"></span> <i  style="color: green;" class="fas fa-wifi"></i>  </td>
+<?php } else { ?>
+        <td class="scanTd" title="Telemetry connection is inactive" style="text-align:center;"><span style="display:none;"></span> <i  style="color: grey;" class="fas fa-times"></i>  </td>
+<?php } ?>
+<?php if ($v_reporter["rtls"] == 1) { ?>
+        <td class="scanTd" title="RTLS connection is active" style="text-align:center;"><span style="display:none;"></span> <i  style="color: green;" class="fas fa-wifi"></i>  </td>
+<?php } else { ?>
+        <td class="scanTd" title="RTLS connection is inactive" style="text-align:center;"><span style="display:none;"></span> <i  style="color: grey;" class="fas fa-times"></i>  </td>
+<?php } ?>
         <td class="scanTd" ><span style="display:none;"></span> <?php echo $v_reporter["model"]; ?> </td>
         <td class="scanTd " ><span style="display:none;"></span> <?php echo $v_reporter["version"]; ?> </td>
         <td class="scanTd "><span style="display:none;"></span></td>
@@ -166,8 +196,8 @@ $v_list = json_decode($v_result, true);
 
 <script>
     
-    $("#btSaveCommentaires").click(function() {
-        btSaveCommentaires(<?php echo $list ?>);
+    $("#btSaveList").click(function() {
+        alert('For future use !');
     });
     
 
