@@ -629,7 +629,7 @@ class ArubaIot extends eqLogic {
 
       // ----- Get latest value
       $v_latest_value = $v_cmd->execCmd();
-      log::add('ArubaIot', 'debug', "Latest triangulation value is :".$v_latest_value);
+      ArubaIotLog::log('debug', "Latest triangulation value is :".$v_latest_value);
 
       // ----- To array
       $v_triangulation = json_decode($v_latest_value, true);
@@ -638,20 +638,24 @@ class ArubaIot extends eqLogic {
       }
 
       if (isset($v_triangulation[$p_reporter_mac])) {
-        log::add('ArubaIot', 'debug', "Updating RSSI value for this reporter :".$p_reporter_mac);
+        ArubaIotLog::log('debug', "Updating RSSI value for this reporter :".$p_reporter_mac);
       }
       else {
-        log::add('ArubaIot', 'debug', "New reporter for triangulation :".$p_reporter_mac);
+        ArubaIotLog::log('debug', "New reporter for triangulation :".$p_reporter_mac);
       }
       $v_triangulation[$p_reporter_mac]['rssi'] = $p_rssi;
       $v_triangulation[$p_reporter_mac]['timestamp'] = $p_timestamp;
 
-      // ----- Keep only 3rd best reporters, with best timestamp
+      // ----- Keep only X top best reporters, with best timestamp
+      $v_target_max = 3;  // TBC : put this in the advanced configuration
+      ArubaIotLog::log('debug', "Nb reporters for triangulation :".sizeof($v_triangulation));
       // TBC
+      if (sizeof($v_triangulation) > $v_target_max) {
+      }
 
       // ----- JSONify
       $v_value = json_encode($v_triangulation);
-      log::add('ArubaIot', 'debug', "New triangulation value :".$v_value);
+      ArubaIotLog::log('debug', "New triangulation value :".$v_value);
 
       // ----- Set the value and update the flag
       $v_changed_flag = $this->checkAndUpdateCmd('triangulation', $v_value);

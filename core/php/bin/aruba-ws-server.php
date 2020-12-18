@@ -25,6 +25,7 @@
 
   ArubaIotTool::log('info', "----- Starting ArubaIot Websocket Server Daemon (".date("Y-m-d H:i:s").")'");
 
+
   /**---------------------------------------------------------------------------
    * Class : ArubaIotTool
    * Description :
@@ -41,6 +42,8 @@
      * ---------------------------------------------------------------------------
      */
     public function log($p_level, $p_message) {
+              ArubaIotLog::log($p_level, $p_message);
+    /*
       global $argv;
 
 
@@ -57,6 +60,7 @@
             log::add('ArubaIot', $p_level, 'websocket: '.$p_message);
         }
       }
+      */
     }
     /* -------------------------------------------------------------------------*/
 
