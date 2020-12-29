@@ -25,6 +25,7 @@
 
   ArubaIotTool::log('info', "----- Starting ArubaIot Websocket Server Daemon (".date("Y-m-d H:i:s").")'");
 
+
   /**---------------------------------------------------------------------------
    * Class : ArubaIotTool
    * Description :
@@ -41,6 +42,8 @@
      * ---------------------------------------------------------------------------
      */
     public function log($p_level, $p_message) {
+              ArubaIotLog::log($p_level, $p_message);
+    /*
       global $argv;
 
 
@@ -57,6 +60,7 @@
             log::add('ArubaIot', $p_level, 'websocket: '.$p_message);
         }
       }
+      */
     }
     /* -------------------------------------------------------------------------*/
 
@@ -794,9 +798,10 @@
      * Description :
      * ---------------------------------------------------------------------------
      */
-    public function onMsgTelemetry(ConnectionInterface &$p_connection, $v_at_telemetry_msg) {
+    //public function onMsgTelemetry(ConnectionInterface &$p_connection, $v_at_telemetry_msg) {
+    public function onMsgTelemetry(&$p_reporter, $v_at_telemetry_msg) {
 
-      ArubaIotTool::log('debug',  "Received telemetry message from ".$p_connection->my_id."");
+      ArubaIotTool::log('debug',  "Received telemetry message from ".$p_reporter->getName()."");
 
       // ----- Look if there is a list of reported device
       if ($v_at_telemetry_msg->hasReportedList()) {
@@ -851,10 +856,11 @@
           // ----- Look for existing device and enabled
           if ($v_device != null) {
 
-            $v_device->checkFreshDataByCaching($p_connection->my_reporter_id, $v_object);
+            $v_device->checkFreshDataByCaching($p_reporter->getMac(), $v_object);
+            //$v_device->checkFreshDataByCaching($p_connection->my_reporter_id, $v_object);
 
             //if ($v_device->checkFreshDataByCaching($v_reporter, $v_object)) {
-              $v_device->updateTelemetryData($v_object, $v_class_name);
+              $v_device->updateTelemetryData($p_reporter, $v_object, $v_class_name);
             //}
 
             $v_msglog .= "|      active ";
@@ -901,7 +907,7 @@
             ArubaIotTool::log('debug', "add in list.");
 
               // ----- Update telemetry data, and class name and properties (because class set to auto)
-              $v_local_device->updateTelemetryData($v_object, $v_class_name);
+              $v_local_device->updateTelemetryData($p_reporter, $v_object, $v_class_name);
             ArubaIotTool::log('debug', "end telemetry update");
 
 
@@ -1088,7 +1094,22 @@ if (0) {
       ArubaIotTool::log('debug', "");
 
       // ----- Check Topic
-      // TBC : Need to check that nbTopic == telemetry
+      $v_topic = '';
+      if ($v_at_meta->hasNbTopic()) {
+        $v_topic = $v_at_meta->getNbTopic()->name();
+      }
+      if ($v_topic == ''){
+        ArubaIotTool::log('debug', "Missing nbTopic information, not a valid protobuf message ... ?");
+        // TBC : should I stop here ?
+      }
+      else if (($p_connection->my_type == 'telemetry') && ($v_topic != 'telemetry')) {
+        ArubaIotTool::log('debug', "Received none telemetry frame (nbTopic:'".$v_topic."') on Telemetry URI.");
+        // TBC : should I stop here ?
+      }
+      else if (($p_connection->my_type == 'rtls') && ($v_topic != 'wifiData')) {
+        ArubaIotTool::log('debug', "Received none wifiData frame (nbTopic:'".$v_topic."') on RTLS URI.");
+        // TBC : should I stop here ?
+      }
 
       // ----- Get report infos
       $v_at_reporter = $v_at_telemetry_msg->getReporter();
@@ -1224,7 +1245,8 @@ fwrite($fd, "\n");
 
       // ----- Parse data depending on nature
       if ($p_connection->my_type == 'telemetry') {
-        return $this->onMsgTelemetry($p_connection, $v_at_telemetry_msg);
+        //return $this->onMsgTelemetry($p_connection, $v_at_telemetry_msg);
+        return $this->onMsgTelemetry($v_reporter, $v_at_telemetry_msg);
       }
       else if ($p_connection->my_type == 'rtls') {
         return $this->onMsgWiFiRtls($p_connection, $v_at_telemetry_msg);
@@ -1530,6 +1552,38 @@ fwrite($fd, "\n");
     /* -------------------------------------------------------------------------*/
 
     /**---------------------------------------------------------------------------
+     * Method : updateTriangulation()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function updateTriangulation(&$p_reporter, &$p_jeedom_object, $p_telemetry, $p_class_name) {
+
+      ArubaIotTool::log('debug', "Update Triangulation data");
+
+      $p_changed_flag = false;
+
+      // ----- Look if this command is allowed for this class_name
+      if (!ArubaIot::isAllowedCmdForClass('triangulation', $p_class_name)) {
+        ArubaIotTool::log('debug', "Command 'triangulation' not allowed for this class_name '".$p_class_name."'. Look at settings");
+        return(false);
+      }
+
+      // ----- Update common telemetry data
+      $v_rssi = 0;
+      if ($p_telemetry->hasRSSI()) {
+        $v_val = explode(':', $p_telemetry->getRSSI());
+        $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : 0);
+      }
+      if ($v_rssi != 0) {
+        ArubaIotTool::log('debug', "RSSI changed for : ".$v_rssi);
+        $p_changed_flag = $p_jeedom_object->cmdUpdateTriangulation($p_reporter->getMac(), $v_rssi, $p_reporter->getLastSeen()) || $p_changed_flag;
+      }
+
+      return($p_changed_flag);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
      * Method : updateSensorTelemetry()
      * Description :
      * ---------------------------------------------------------------------------
@@ -1576,7 +1630,7 @@ fwrite($fd, "\n");
      * Description :
      * ---------------------------------------------------------------------------
      */
-    public function updateTelemetryData($p_telemetry, $p_class_name) {
+    public function updateTelemetryData(&$p_reporter, $p_telemetry, $p_class_name) {
 
       // ----- Get Jeedom object
       $v_jeedom_object = eqLogic::byId($this->getJeedomObjectId());
@@ -1650,29 +1704,10 @@ fwrite($fd, "\n");
         $v_changed_flag = $this->updateSensorTelemetry($v_jeedom_object, $p_telemetry) || $v_changed_flag;
       }
 
+      // ----- Update triangulation info
+      $v_changed_flag = $this->updateTriangulation($p_reporter, $v_jeedom_object, $p_telemetry, $p_class_name) || $v_changed_flag;
 
-      // ----- Update telemetry based on object class
-/*      if ($v_jeedom_class == 'enoceanSensor') {
-        $this->updateSensorTelemetry($v_jeedom_object, $p_telemetry, $v_changed_flag);
-      }
-      */
-
-      /*
-      if ($v_jeedom_class == 'enoceanSwitch') {
-        //$this->updateSensorTelemetry($v_jeedom_object, $p_telemetry, $v_changed_flag);
-      }
-      if ($v_jeedom_class == 'arubaTag') {
-        // ----- Update value regarding sensors (battery in this case)
-        $this->updateSensorTelemetry($v_jeedom_object, $p_telemetry, $v_changed_flag);
-        // ----- Update presence flag for the device
-        $this->updatePresenceTelemetry($v_jeedom_object, $p_telemetry, $v_changed_flag);
-      }
-      if ($v_jeedom_class == 'generic') {
-        // ----- Update presence for the device
-        $this->updatePresenceTelemetry($v_jeedom_object, $p_telemetry, $v_changed_flag);
-      }
-      */
-
+      // ----- Look for vendor data : Nothing to do now, but for future use
       if ($p_telemetry->hasVendorData()) {
         ArubaIotTool::log('debug', "This device has vendor data of size ".sizeof($p_telemetry->getVendorData()));
       }
@@ -1770,11 +1805,11 @@ fwrite($fd, "\n");
             return;
           }
           else if ($psrRequest->getUri()->getPath() === '/telemetry') {
-            ArubaIotTool::log('debug', "Received Telemetry connection");
+            ArubaIotTool::log('debug', "Received connection on Telemetry URI");
             $aruba_iot_websocket->onOpen($connection, 'telemetry');
           }
           else if ($psrRequest->getUri()->getPath() === '/rtls') {
-            ArubaIotTool::log('debug', "Received RTLS connection");
+            ArubaIotTool::log('debug', "Received connection on RTLS URI");
             $aruba_iot_websocket->onOpen($connection, 'rtls');
           }
           /* Need to add authentication for shutdown !!

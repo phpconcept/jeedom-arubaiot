@@ -89,122 +89,6 @@ class ArubaIot extends eqLogic {
     }
 
 
-    /*     * *********************Méthodes d'instance************************* */
-
-    public function preInsert() {
-
-      // ----- Default values if configuration is empty
-      if ($this->getConfiguration('mac_address', '') == '')
-      {
-        log::add('ArubaIot', 'debug', 'MAC is empty, change to 00:00:00:00:00:00');
-        $this->setConfiguration('mac_address', '00:00:00:00:00:00');
-      }
-      if ($this->getConfiguration('class_type', '') == '')
-      {
-        log::add('ArubaIot', 'debug', 'class_type is empty, change to auto');
-        $this->setConfiguration('class_type', 'auto');
-      }
-
-    }
-
-    public function postInsert() {
-        
-    }
-
-    public function preSave() {
-      //message::add('ArubaIot',  'PreSave ...' );
-
-      // ----- Change to uppercase
-      // Should check the value and through en error.
-      $v_val = $this->getConfiguration('mac_address', '');
-	  $this->setConfiguration('mac_address', strtoupper($v_val));
-
-    }
-
-    public function postSave() {
-
-      // ----- Create default cmd (if needed) for this class
-      $this->createAllCmd();
-
-      $v_class_type = $this->getConfiguration('class_type');
-
-      // ----- Call only if not in inclusion mode, because then the daemon is awware of all the new devices
-      // I had to make a trick by using a device attribute to flag not to send back an api when in inclusion mode, because the
-      // global att do not seems to be updated here ...
-      $v_trick_save_from_daemon = $this->getConfiguration('trick_save_from_daemon');
-      log::add('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon."");
-      if ( ($v_trick_save_from_daemon == '') || ($v_trick_save_from_daemon == 'off') ) {
-//      $v_include_mode = config::byKey('include_mode', 'ArubaIot');
-//      if ($v_include_mode == 0) {
-        log::add('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", send refresh api message");
-        $v_id = $this->getId();
-        $v_mac = $this->getConfiguration('mac_address');
-        log::add('ArubaIot', 'debug', "MAC is :".$v_mac);
-        if (($v_mac != '00:00:00:00:00:00') && ($v_mac != '')) {
-          $v_data = array('mac_address' => $v_mac, 'id' => $v_id );
-          self::talkToWebsocket('device_refresh', $v_data);
-        }
-        else {
-          log::add('ArubaIot', 'debug', "MAC is null or empty, don't send refresh api message");
-        }
-      }
-      else {
-        log::add('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", don't send refresh api message");
-      }
-
-    }
-
-    public function preUpdate() {
-        
-    }
-
-    public function postUpdate() {
-        
-    }
-
-    public function preRemove() {
-        
-      $v_mac = $this->getConfiguration('mac_address');
-      $v_data = array('mac_address' => $v_mac );
-      self::talkToWebsocket('device_remove', $v_data);
-    }
-
-    public function postRemove() {
-        
-    }
-
-    /*
-     * Non obligatoire mais permet de modifier l'affichage du widget si vous en avez besoin
-      public function toHtml($_version = 'dashboard') {
-
-      }
-     */
-
-    /*
-     * Non obligatoire mais ca permet de déclencher une action après modification de variable de configuration
-    public static function postConfig_<Variable>() {
-    }
-     */
-
-    /*
-     * Non obligatoire mais ca permet de déclencher une action avant modification de variable de configuration
-    public static function preConfig_<Variable>() {
-    }
-     */
-
-	public function getImage() {
-        $v_class = $this->getConfiguration('class_type', '');
-	  	$file = 'plugins/ArubaIot/desktop/images/'.$v_class.'.png';
-		if(!file_exists(__DIR__.'/../../../../'.$file)){
-			return 'plugins/ArubaIot/plugin_info/ArubaIot_icon.png';
-		}
-		return $file;
-	}
-
-
-
-
-    /*     * **********************Getteur Setteur*************************** */
 
 	public static function talkToWebsocket($p_event, $p_data) {
 
@@ -351,10 +235,10 @@ class ArubaIot extends eqLogic {
       // automatically added to an object of this class
       // For exemple : no sense to have a presence information for an enocean sensor
       $v_deny_list = array('auto' => '__none',
-                           'enoceanSwitch' => 'presence,rssi', // comma separated list
-                           'enoceanSensor' => 'presence',
+                           'enoceanSwitch' => 'presence,rssi,triangulation', // comma separated list
+                           'enoceanSensor' => 'presence,triangulation',
                            'arubaTag' => '',
-                           'arubaBeacon' => 'presence',
+                           'arubaBeacon' => 'presence,triangulation',
                            'iBeacon' => '',
                            'generic' => '__none'
                            );
@@ -376,9 +260,131 @@ class ArubaIot extends eqLogic {
 
 
 
+
+
+    /*     * *********************Méthodes d'instance************************* */
+
+    public function preInsert() {
+
+      // ----- Default values if configuration is empty
+      if ($this->getConfiguration('mac_address', '') == '')
+      {
+        log::add('ArubaIot', 'debug', 'MAC is empty, change to 00:00:00:00:00:00');
+        $this->setConfiguration('mac_address', '00:00:00:00:00:00');
+      }
+      if ($this->getConfiguration('class_type', '') == '')
+      {
+        log::add('ArubaIot', 'debug', 'class_type is empty, change to auto');
+        $this->setConfiguration('class_type', 'auto');
+      }
+
+    }
+
+    public function postInsert() {
+        
+    }
+
+    public function preSave() {
+      //message::add('ArubaIot',  'PreSave ...' );
+
+      // ----- Change to uppercase
+      // Should check the value and through en error.
+      $v_val = $this->getConfiguration('mac_address', '');
+	  $this->setConfiguration('mac_address', strtoupper($v_val));
+
+    }
+
+    public function postSave() {
+
+      // ----- Create default cmd (if needed) for this class
+      $this->createAllCmd();
+
+      $v_class_type = $this->getConfiguration('class_type');
+
+      // ----- Call only if not in inclusion mode, because then the daemon is awware of all the new devices
+      // I had to make a trick by using a device attribute to flag not to send back an api when in inclusion mode, because the
+      // global att do not seems to be updated here ...
+      $v_trick_save_from_daemon = $this->getConfiguration('trick_save_from_daemon');
+      log::add('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon."");
+      if ( ($v_trick_save_from_daemon == '') || ($v_trick_save_from_daemon == 'off') ) {
+//      $v_include_mode = config::byKey('include_mode', 'ArubaIot');
+//      if ($v_include_mode == 0) {
+        log::add('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", send refresh api message");
+        $v_id = $this->getId();
+        $v_mac = $this->getConfiguration('mac_address');
+        log::add('ArubaIot', 'debug', "MAC is :".$v_mac);
+        if (($v_mac != '00:00:00:00:00:00') && ($v_mac != '')) {
+          $v_data = array('mac_address' => $v_mac, 'id' => $v_id );
+          self::talkToWebsocket('device_refresh', $v_data);
+        }
+        else {
+          log::add('ArubaIot', 'debug', "MAC is null or empty, don't send refresh api message");
+        }
+      }
+      else {
+        log::add('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", don't send refresh api message");
+      }
+
+    }
+
+    public function preUpdate() {
+        
+    }
+
+    public function postUpdate() {
+        
+    }
+
+    public function preRemove() {
+        
+      $v_mac = $this->getConfiguration('mac_address');
+      $v_data = array('mac_address' => $v_mac );
+      self::talkToWebsocket('device_remove', $v_data);
+    }
+
+    public function postRemove() {
+        
+    }
+
+    /*
+     * Non obligatoire mais permet de modifier l'affichage du widget si vous en avez besoin
+      public function toHtml($_version = 'dashboard') {
+
+      }
+     */
+
+    /*
+     * Non obligatoire mais ca permet de déclencher une action après modification de variable de configuration
+    public static function postConfig_<Variable>() {
+    }
+     */
+
+    /*
+     * Non obligatoire mais ca permet de déclencher une action avant modification de variable de configuration
+    public static function preConfig_<Variable>() {
+    }
+     */
+
+	public function getImage() {
+        $v_class = $this->getConfiguration('class_type', '');
+	  	$file = 'plugins/ArubaIot/desktop/images/'.$v_class.'.png';
+		if(!file_exists(__DIR__.'/../../../../'.$file)){
+			return 'plugins/ArubaIot/plugin_info/ArubaIot_icon.png';
+		}
+		return $file;
+	}
+
+
+
+
+    /*     * **********************Getteur Setteur*************************** */
+
+
+
     /**---------------------------------------------------------------------------
      * Method : createAllCmd()
      * Description :
+     *   Create all needed "mandatory" cmd for an device. Depending of the device class.
      * Parameters :
      * Returned value : true if ok.
      * ---------------------------------------------------------------------------
@@ -392,7 +398,8 @@ class ArubaIot extends eqLogic {
         case 'arubaTag' :
           $this->createCmd('presence', 'Presence', 'info', 'binary', true);
           $this->createCmd('rssi', 'RSSI', 'info', 'numeric', true);
-          //$this->createCmd('nearest_ap', 'Nearest AP', 'info', 'string', true);
+          $this->createCmd('nearest_ap', 'Nearest AP', 'info', 'string', true);
+          $this->cmdCreateTriangulation();
         break;
         case 'arubaBeacon' :
           // Battery is by default;
@@ -414,6 +421,9 @@ class ArubaIot extends eqLogic {
     /**---------------------------------------------------------------------------
      * Method : createCmd()
      * Description :
+     *   Look of $p_cmd_name is allowed for the device class. If yes, then checks
+     *   if the command is already created
+     *   if not then will create the command and set the default attributes.
      * Parameters :
      *   $p_cmd_id : Command ID
      *   $p_cmd_name : Name of the command (in case of creation need)
@@ -533,7 +543,6 @@ class ArubaIot extends eqLogic {
     }
     /* -------------------------------------------------------------------------*/
 
-
     /**---------------------------------------------------------------------------
      * Method : createAndUpdateCmd()
      * Description :
@@ -556,6 +565,100 @@ class ArubaIot extends eqLogic {
 
       // ----- Set the value and update the flag
       $v_changed_flag = $this->checkAndUpdateCmd($p_cmd_id, $p_cmd_value);
+
+      return($v_changed_flag);
+    }
+    /* -------------------------------------------------------------------------*/
+
+
+    /**---------------------------------------------------------------------------
+     * Method : cmdCreateTriangulation()
+     * Description :
+     * Parameters :
+     * Returned value : true on created or already created, false otherwise.
+     * ---------------------------------------------------------------------------
+     */
+    public function cmdCreateTriangulation() {
+
+      // ----- Look if this command is allowed for this class_name
+      $p_cmd_id = 'triangulation';
+      $v_class_name = $this->getConfiguration('class_type');
+      if (!ArubaIot::isAllowedCmdForClass($p_cmd_id, $v_class_name)) {
+        ArubaIotTool::log('debug', "Command '".$p_cmd_id."' not allowed for this class_name '".$v_class_name."'. Look at settings.");
+        return(false);
+      }
+
+      // ----- Look for existing command
+      $v_cmd = $this->getCmd(null, 'triangulation');
+
+      // ----- Look if command need to be created
+      if (!is_object($v_cmd)) {
+        log::add('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
+        $v_cmd = new arubacentralCmd();
+        $v_cmd->setName(__("Traingulation", __FILE__));
+
+        $v_cmd->setLogicalId('triangulation');
+        $v_cmd->setEqLogic_id($this->getId());
+        $v_cmd->setType('info');
+        $v_cmd->setSubType('string');
+        $v_cmd->setIsHistorized(false);
+        $v_cmd->setIsVisible(false);
+        $v_cmd->save();
+      }
+
+      return(true);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : cmdUpdateTriangulation()
+     * Description :
+     * Parameters :
+     * Returned value : true on changed value, false otherwise.
+     * ---------------------------------------------------------------------------
+     */
+    public function cmdUpdateTriangulation($p_reporter_mac, $p_rssi, $p_timestamp) {
+
+      // ----- Look if cmd or create it
+      if (!$this->cmdCreateTriangulation()) {
+        return(false);
+      }
+
+      // ----- Look for existing command
+      $v_cmd = $this->getCmd(null, 'triangulation');
+
+      // ----- Get latest value
+      $v_latest_value = $v_cmd->execCmd();
+      ArubaIotLog::log('debug', "Latest triangulation value is :".$v_latest_value);
+
+      // ----- To array
+      $v_triangulation = json_decode($v_latest_value, true);
+      if (!is_array($v_triangulation)) {
+        $v_triangulation = array();
+      }
+
+      if (isset($v_triangulation[$p_reporter_mac])) {
+        ArubaIotLog::log('debug', "Updating RSSI value for this reporter :".$p_reporter_mac);
+      }
+      else {
+        ArubaIotLog::log('debug', "New reporter for triangulation :".$p_reporter_mac);
+      }
+      $v_triangulation[$p_reporter_mac]['rssi'] = $p_rssi;
+      $v_triangulation[$p_reporter_mac]['timestamp'] = $p_timestamp;
+
+      // ----- Keep only X top best reporters, with best timestamp
+      $v_target_max = 3;  // TBC : put this in the advanced configuration
+      ArubaIotLog::log('debug', "Nb reporters for triangulation :".sizeof($v_triangulation));
+      // TBC
+      if (sizeof($v_triangulation) > $v_target_max) {
+      }
+
+      // ----- JSONify
+      $v_value = json_encode($v_triangulation);
+      ArubaIotLog::log('debug', "New triangulation value :".$v_value);
+
+      // ----- Set the value and update the flag
+      $v_changed_flag = $this->checkAndUpdateCmd('triangulation', $v_value);
 
       return($v_changed_flag);
     }

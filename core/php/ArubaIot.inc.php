@@ -18,6 +18,7 @@
 
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
+require_once __DIR__  . '/../../../../plugins/ArubaIot/core/class/ArubaIotLog.class.php';
 require_once __DIR__  . '/../../../../plugins/ArubaIot/core/class/ArubaIot.class.php';
 require_once __DIR__  . '/../../../../plugins/ArubaIot/core/class/ArubaIotReporter.class.php';
 
