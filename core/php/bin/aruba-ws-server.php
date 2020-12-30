@@ -855,29 +855,42 @@
 
           // ----- Look for existing device and enabled
           if ($v_device != null) {
-            if ($v_device->updateNearestAP($p_reporter, $v_object)) {
+
+            // ----- Get corresponding Jeedom object
+            $v_jeedom_object = eqLogic::byId($v_device->getJeedomObjectId());
+            if ($v_jeedom_object === null) {
+              // Should not occur, but if in removing an object phase ...
+              ArubaIotTool::log('debug', "Fail to find a jeedom object with this ID '".$v_device->getJeedomObjectId()."' for mac '".$v_device->getMac()."'");
+              continue;
             }
 
-            // ----- Look if this is the current best reporter (nearest ap)
+            // ----- Update object class if jeedom object is in 'auto'
+            $v_device->updateObjectClass($v_jeedom_object, $v_object, $v_class_name);
 
-            // ----- If yes, update the lastseen value (if exist ?) and RSSI (if RSSI do not exists takes the first one and look only at lastseen)
+            // ----- Look for enabled device  : no telemetry data to update
+            if (!$v_jeedom_object->getIsEnable()) {
+              ArubaIotTool::log('debug', "Device '".$v_device->getMac()."' is disabled. Skip telemetry data.");
+              continue;
+            }
 
-            // ---- If not check if rssi of the other reporter is better by -3dbm (config value) and swap if needed
-            // ---- If RSSI better then update and update telemetry values
-            // ---- If not, only store triangulation data
+            // ----- If same nearest AP or better one, update telemetry data.
+            if ($v_device->updateNearestAP($p_reporter, $v_object)) {
+              $v_device->updateTelemetryData($p_reporter, $v_jeedom_object, $v_object, $v_class_name);
+            }
 
-            $v_device->checkFreshDataByCaching($p_reporter->getMac(), $v_object);
-            //$v_device->checkFreshDataByCaching($p_connection->my_reporter_id, $v_object);
+            // ----- If object supporting triangulation, update triangulation
+            // TBC : if triangulation updated, widget is not refreshed ...
+            $v_device->updateTriangulation($p_reporter, $v_jeedom_object, $v_object, $v_class_name);
 
-            //if ($v_device->checkFreshDataByCaching($v_reporter, $v_object)) {
-              $v_device->updateTelemetryData($p_reporter, $v_object, $v_class_name);
-            //}
+
+            // TBC : should I need this anymore ??
+            //$v_device->checkFreshDataByCaching($p_reporter->getMac(), $v_object);
 
             $v_msglog .= "|      active ";
 
           }
 
-          // ----- Look for allowed class and inclusion mode
+          // ----- Create new device if allowed class and inclusion mode on
           else if ($this->include_mode && in_array($v_class_name, $this->device_type_allow_list)) {
             ArubaIotTool::log('info', "Inclusion of a new device.");
             ArubaIotTool::log('debug', "Create a new device.");
@@ -998,73 +1011,9 @@
             continue;
           }
 
-if (0) {
 
-          // ----- Look for an allowed device in the cache with this MAC@
-          $v_device = $this->getAllowedDeviceByMac($v_device_mac);
+          // TBC : to be continued !
 
-          // ----- Look for existing device and enabled
-          if ($v_device != null) {
-
-            //if ($v_device->checkFreshDataByCaching($v_reporter, $v_object)) {
-              $v_device->updateTelemetryData($v_object, $v_class_name);
-            //}
-
-            $v_msglog .= "|      active ";
-
-          }
-
-          // ----- Look for allowed class and inclusion mode
-          else if ($this->include_mode && in_array($v_class_name, $this->device_type_allow_list)) {
-            ArubaIotTool::log('info', "Inclusion of a new device.");
-            ArubaIotTool::log('debug', "Create a new device.");
-            $v_msglog .= "|         new ";
-
-    		  $v_device = new ArubaIot();
-            ArubaIotTool::log('debug', "Set name.");
-    		  $v_device->setName($v_class_name." ".$v_device_mac);
-    		  //$eqLogic->setLogicalId('reporter');
-            ArubaIotTool::log('debug', "Set class type.");
-    		  $v_device->setEqType_name('ArubaIot');
-//            ArubaIotTool::log('debug', "save.");
-    		  //$v_device->save();        // je pense que sinon cela passe dans le pre-insert qui efface ...
-            ArubaIotTool::log('debug', "Set properties.");
-              $v_device->setConfiguration('mac_address', $v_device_mac);
-              $v_device->setConfiguration('class_type', 'auto');      // will be updated in Telemetry update
-
-              $v_testmac = $v_device->getConfiguration('mac_address');
-              ArubaIotTool::log('debug', "test mac:".$v_testmac);
-
-            ArubaIotTool::log('debug', "Set enable.");
-              $v_device->setIsEnable(1);
-
-            ArubaIotTool::log('debug', "save.");
-              // Here is a trick I need to control the jeedom not to send back api request on refresh
-              $v_device->setConfiguration('trick_save_from_daemon', 'on');
-    		  $v_device->save();
-              $v_device->setConfiguration('trick_save_from_daemon', 'off');
-
-              $v_testmac = $v_device->getConfiguration('mac_address');
-              ArubaIotTool::log('debug', "test mac:".$v_testmac);
-
-              // ----- Create the local device cache image
-              $v_local_device = new ArubaIotDevice($v_device_mac);
-              $v_local_device->setJeedomObjectId($v_device->getId());
-              $this->allowed_devices[$v_device_mac] = $v_local_device;
-            ArubaIotTool::log('debug', "add in list.");
-
-              // ----- Update telemetry data, and class name and properties (because class set to auto)
-              $v_local_device->updateTelemetryData($v_object, $v_class_name);
-            ArubaIotTool::log('debug', "end telemetry update");
-
-
-
-          }
-          else {
-            //ArubaIotTool::log('debug', "Received data for a not allowed device.");
-            $v_msglog .= "| not allowed ";
-          }
- }
 
           ArubaIotTool::log('debug', $v_msglog."|");
 
@@ -1352,22 +1301,85 @@ fwrite($fd, "\n");
     /**---------------------------------------------------------------------------
      * Method : updateNearestAP()
      * Description :
+     * Return Value :
+     *   True : if telemetry values are to be updated
+     *   False : if telemetry values are to be ignored
      * ---------------------------------------------------------------------------
      */
     public function updateNearestAP(&$p_reporter, $p_telemetry) {
-      $v_result = true;
 
+      // ----- Get reporter mac@
       $p_reporter_mac = $p_reporter->getMac();
 
-            // ----- Look if this is the current best reporter (nearest ap)
+      // ----- Get RSSI (if any)
+      $v_rssi = -100;
+      if ($p_telemetry->hasRSSI()) {
+        $v_val = explode(':', $p_telemetry->getRSSI());
+        $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : $v_rssi);
+      }
 
-            // ----- If yes, update the lastseen value (if exist ?) and RSSI (if RSSI do not exists takes the first one and look only at lastseen)
+      // ----- Get last seen (if any)
+      $v_lastseen = 0;
+      if ($p_telemetry->hasLastSeen()) {
+        $v_lastseen = $p_telemetry->getLastSeen();
+      }
+      else {
+        // Should not occur ... I not yet seen an object without this value ...
+        $v_lastseen = time();
+      }
 
-            // ---- If not check if rssi of the other reporter is better by -3dbm (config value) and swap if needed
+      // ----- Look for no current nearest AP
+      if ($this->nearest_ap_mac == '') {
+        ArubaIotTool::log('debug', "First nearest reporter '".$p_reporter->getMac()."'");
+        $this->nearest_ap_mac = $p_reporter->getMac();
+        $this->nearest_ap_last_seen = $v_lastseen;
+        $this->nearest_ap_rssi = $v_rssi;
+        return(true);
+      }
 
+      // ----- Look if this is the current best reporter (nearest ap)
+      if ($this->nearest_ap_mac == $p_reporter->getMac()) {
 
+        // ----- Update latest update
+        $this->nearest_ap_last_seen = $v_lastseen;
 
-      return($v_result);
+        // ----- Update latest RSSI.
+        //  if no RSSI, keep the old one ... ?
+        //  an object should always send an RSSI or never send an RSSI.
+        $this->nearest_ap_rssi = $v_rssi;
+
+        return(true);
+      }
+
+      // ----- Look if reporter has a better RSSI than current nearest
+      $v_nearest_ap_hysteresis = config::byKey('nearest_ap_hysteresis', 'ArubaIot');
+      if (($v_rssi != -100) && ($v_rssi > ($this->nearest_ap_rssi + $v_nearest_ap_hysteresis))) {
+        ArubaIotTool::log('debug', "Swap for a new nearest AP, from '".$this->nearest_ap_mac."' to '".$p_reporter->getMac()."'");
+
+        // ----- Swap for new nearest AP
+        $this->nearest_ap_mac = $p_reporter->getMac();
+        $this->nearest_ap_last_seen = $v_lastseen;
+        $this->nearest_ap_rssi = $v_rssi;
+
+        return(true);
+      }
+
+      // ----- Look if current reporter has a very long last_seen value
+      $v_nearest_ap_timeout = config::byKey('nearest_ap_timeout', 'ArubaIot');
+      if (($this->nearest_ap_last_seen + $v_nearest_ap_timeout) < time()) {
+        ArubaIotTool::log('debug', "Reset nearest AP, from '".$this->nearest_ap_mac."' to '".$p_reporter->getMac()."'");
+
+        // ----- Swap for new nearest AP
+        $this->nearest_ap_mac = $p_reporter->getMac();
+        $this->nearest_ap_last_seen = $v_lastseen;
+        $this->nearest_ap_rssi = $v_rssi;
+
+        return(true);
+      }
+
+      ArubaIotTool::log('debug', "Reporter '".$p_reporter->getMac()."' not a nearest reporter compared to current '".$this->nearest_ap_mac."'");
+
+      return(false);
     }
     /* -------------------------------------------------------------------------*/
 
@@ -1377,7 +1389,7 @@ fwrite($fd, "\n");
      * If device receive the same data (same lastseen timer) from the same reporter, just ignore that data.
      * ---------------------------------------------------------------------------
      */
-    public function checkFreshDataByCaching($p_reporter_mac, $p_telemetry) {
+    public function checkFreshDataByCaching_DEPRECATED($p_reporter_mac, $p_telemetry) {
       $v_result = true;
 
       // ----- Check existing entry for this reporter
@@ -1521,6 +1533,7 @@ fwrite($fd, "\n");
       $v_absent = true;
 
       // ----- Look for each reporters time caching
+/*
       foreach ($this->caching_list as $v_item) {
         ArubaIotTool::log('debug', "Time is : ".time().", last seen : ".$v_item['lastseen'].", timeout :".$v_timeout);
         if (($v_item['lastseen']+$v_timeout) > time() ) {
@@ -1528,6 +1541,12 @@ fwrite($fd, "\n");
           break;
         }
       }
+*/
+
+      if (($this->nearest_ap_last_seen+$v_timeout) > time() ) {
+          $v_absent = false;
+      }
+
 
       // ----- Update presence cmd
       if ($v_absent) {
@@ -1543,8 +1562,8 @@ fwrite($fd, "\n");
         $v_jeedom_class = $v_jeedom_object->getConfiguration('class_type');
 
         // ----- Look if this command is allowed for this class_name
-        if (!ArubaIot::isAllowedCmdForClass('presence', $p_class_name)) {
-          ArubaIotTool::log('debug', "Command 'presence' not allowed for this class_name '".$p_class_name."'. Look at settings");
+        if (!ArubaIot::isAllowedCmdForClass('presence', $v_jeedom_class)) {
+          ArubaIotTool::log('debug', "Command 'presence' not allowed for this class_name '".$v_jeedom_class."'. Look at settings");
           return(false);
         }
 
@@ -1668,19 +1687,11 @@ fwrite($fd, "\n");
     /* -------------------------------------------------------------------------*/
 
     /**---------------------------------------------------------------------------
-     * Method : updateTelemetryData()
+     * Method : updateObjectClass()
      * Description :
      * ---------------------------------------------------------------------------
      */
-    public function updateTelemetryData(&$p_reporter, $p_telemetry, $p_class_name) {
-
-      // ----- Get Jeedom object
-      $v_jeedom_object = eqLogic::byId($this->getJeedomObjectId());
-      if ($v_jeedom_object === null) {
-        // Should not occur, but if in removing an object phase ...
-        ArubaIotTool::log('debug', "Fail to find an object with this ID ..");
-        return(false);
-      }
+    public function updateObjectClass(&$v_jeedom_object, $p_telemetry, $p_class_name) {
 
       $v_jeedom_class = $v_jeedom_object->getConfiguration('class_type');
 
@@ -1710,14 +1721,17 @@ fwrite($fd, "\n");
       // ----- Look if mismatch of class_type
       else if ($v_jeedom_class != $p_class_name) {
         ArubaIotTool::log('debug', "Device '".$this->getMac()."' is announcing type '".$p_class_name."', when type '".$v_jeedom_class."' is expected. Skip telemetry data.");
-        return(false);
-      }
+     }
 
-      // ----- Look for enabled device  : no telemetry data to update
-      if (!$v_jeedom_object->getIsEnable()) {
-        ArubaIotTool::log('debug', "Device '".$this->getMac()."' is disabled. Skip telemetry data.");
-        return(true);
-      }
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : updateTelemetryData()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function updateTelemetryData(&$p_reporter, &$v_jeedom_object, $p_telemetry, $p_class_name) {
 
       $v_changed_flag = false;
 
@@ -1725,13 +1739,6 @@ fwrite($fd, "\n");
       if ($p_telemetry->hasLastSeen()) {
         $v_changed_flag = $this->updatePresenceTelemetry($v_jeedom_object, $p_telemetry, $p_class_name) || $v_changed_flag;
       }
-
-      // ----- Look for none duplicate values ...
-      // not sure this is needed ... if same, then cmd check and update will remove duplicate
-      // for events like button, this is an other story ...
-      //
-      //if (!$this->checkFreshDataByCaching($v_reporter, $v_jeedom_object)) {
-      //}
 
       // ----- Update common telemetry data
       $v_changed_flag = $this->updateRssiTelemetry($v_jeedom_object, $p_telemetry, $p_class_name) || $v_changed_flag;
@@ -1747,7 +1754,8 @@ fwrite($fd, "\n");
       }
 
       // ----- Update triangulation info
-      $v_changed_flag = $this->updateTriangulation($p_reporter, $v_jeedom_object, $p_telemetry, $p_class_name) || $v_changed_flag;
+      // To be removed : moved in upper call
+      //$v_changed_flag = $this->updateTriangulation($p_reporter, $v_jeedom_object, $p_telemetry, $p_class_name) || $v_changed_flag;
 
       // ----- Look for vendor data : Nothing to do now, but for future use
       if ($p_telemetry->hasVendorData()) {

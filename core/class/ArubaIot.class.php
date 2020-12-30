@@ -638,7 +638,13 @@ class ArubaIot extends eqLogic {
       }
 
       if (isset($v_triangulation[$p_reporter_mac])) {
-        ArubaIotLog::log('debug', "Updating RSSI value for this reporter :".$p_reporter_mac);
+        if ($v_triangulation[$p_reporter_mac]['rssi'] == $p_rssi) {
+          ArubaIotLog::log('debug', "Same RSSI value for this reporter :".$p_reporter_mac);
+          return(false);
+        }
+        else {
+          ArubaIotLog::log('debug', "Updating RSSI value for this reporter :".$p_reporter_mac);
+        }
       }
       else {
         ArubaIotLog::log('debug', "New reporter for triangulation :".$p_reporter_mac);
@@ -649,7 +655,7 @@ class ArubaIot extends eqLogic {
       // ----- Keep only X top best reporters, with best timestamp
       $v_target_max = 3;  // TBC : put this in the advanced configuration
       ArubaIotLog::log('debug', "Nb reporters for triangulation :".sizeof($v_triangulation));
-      // TBC
+      // TBC : keep 3 best
       if (sizeof($v_triangulation) > $v_target_max) {
       }
 
@@ -686,7 +692,8 @@ class ArubaIotCmd extends cmd {
 
     public function execute($_options = array()) {
         
-        log::add('ArubaIot', 'info',  "Commande reçue !");
+        //log::add('ArubaIot', 'info',  "Commande reçue !");
+        ArubaIotLog::log('info', "Commande reçue !");
 
         if ($this->getType() != 'action') {
 			return;

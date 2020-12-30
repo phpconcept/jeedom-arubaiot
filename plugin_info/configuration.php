@@ -87,6 +87,24 @@ if (!isConnect()) {
         <div id="show_avance" style="display:none;">
 
           <div class="form-group">
+              <label class="col-lg-4 control-label">{{Nearest Reporter Timeout}}
+              <sup><i class="fa fa-question-circle tooltips" title="{{Délais d'absence en secondes avant que le rapporteur le plus proche soit remis en jeux, quelque soit sa dernière valeure connue de RSSI.}}"></i></sup>
+              </label>
+              <div class="col-lg-5">
+                  <input class="configKey form-control" data-l1key="nearest_ap_timeout" value="" />
+              </div>
+          </div>
+
+          <div class="form-group">
+              <label class="col-lg-4 control-label">{{Nearest Reporter RSSI hysteresis interval}}
+              <sup><i class="fa fa-question-circle tooltips" title="{{Valeur (en dBm) de l'interval du cycle d'hysteresis avant de changer de rapporteur le plus proche.}}"></i></sup>
+              </label>
+              <div class="col-lg-5">
+                  <input class="configKey form-control" data-l1key="nearest_ap_hysteresis" value="" />
+              </div>
+          </div>
+
+          <div class="form-group">
               <label class="col-lg-4 control-label">{{AP transport interval}}</label>
               <div class="col-lg-5">
                   <input class="configKey form-control" data-l1key="ap_transport_interval" value="" />
@@ -95,7 +113,7 @@ if (!isConnect()) {
           <div class="form-group">
               <label class="col-lg-4 control-label">{{AP aging time}}</label>
               <div class="col-lg-5">
-                  <input class="configKey form-control" data-l1key="ap_aging time" value="" />
+                  <input class="configKey form-control" data-l1key="ap_aging_time" value="" />
               </div>
           </div>
 
@@ -130,17 +148,12 @@ if (!isConnect()) {
               </div>
           </div>
 
+
 <?php if (0) { ?>
           <div class="form-group">
               <label class="col-lg-4 control-label">{{AP transport interval}}</label>
               <div class="col-lg-5">
                   <input class="configKey form-control" data-l1key="ap_transport_interval" value="" />
-              </div>
-          </div>
-          <div class="form-group">
-              <label class="col-lg-4 control-label">{{AP aging time}}</label>
-              <div class="col-lg-5">
-                  <input class="configKey form-control" data-l1key="ap_aging time" value="" />
               </div>
           </div>
 <?php /*endif (0) */ } ?>
