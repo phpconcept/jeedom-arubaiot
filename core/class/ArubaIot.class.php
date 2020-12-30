@@ -450,7 +450,7 @@ class ArubaIot extends eqLogic {
       // ----- Look if command need to be created
       if (!is_object($v_cmd)) {
         log::add('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
-        $v_cmd = new arubacentralCmd();
+        $v_cmd = new ArubaIotCmd();
         $v_cmd->setName(__($p_cmd_name, __FILE__));
 
         $v_cmd->setLogicalId($p_cmd_id);
@@ -489,7 +489,7 @@ class ArubaIot extends eqLogic {
       // ----- Look if command need to be created
       if (!is_object($v_cmd)) {
         log::add('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
-        $v_cmd = new arubacentralCmd();
+        $v_cmd = new ArubaIotCmd();
         $v_cmd->setName(__("Illumination", __FILE__));
 
         $v_cmd->setLogicalId('illumination');
@@ -528,7 +528,7 @@ class ArubaIot extends eqLogic {
       // ----- Look if command need to be created
       if (!is_object($v_cmd)) {
         log::add('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
-        $v_cmd = new arubacentralCmd();
+        $v_cmd = new ArubaIotCmd();
         $v_cmd->setName(__("Occupancy", __FILE__));
 
         $v_cmd->setLogicalId('occupancy');
@@ -594,15 +594,15 @@ class ArubaIot extends eqLogic {
       // ----- Look if command need to be created
       if (!is_object($v_cmd)) {
         log::add('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
-        $v_cmd = new arubacentralCmd();
-        $v_cmd->setName(__("Traingulation", __FILE__));
+        $v_cmd = new ArubaIotCmd();
+        $v_cmd->setName(__("Triangulation", __FILE__));
 
         $v_cmd->setLogicalId('triangulation');
         $v_cmd->setEqLogic_id($this->getId());
         $v_cmd->setType('info');
         $v_cmd->setSubType('string');
         $v_cmd->setIsHistorized(false);
-        $v_cmd->setIsVisible(false);
+        $v_cmd->setIsVisible(0);
         $v_cmd->save();
       }
 

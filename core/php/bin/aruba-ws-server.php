@@ -855,6 +855,16 @@
 
           // ----- Look for existing device and enabled
           if ($v_device != null) {
+            if ($v_device->updateNearestAP($p_reporter, $v_object)) {
+            }
+
+            // ----- Look if this is the current best reporter (nearest ap)
+
+            // ----- If yes, update the lastseen value (if exist ?) and RSSI (if RSSI do not exists takes the first one and look only at lastseen)
+
+            // ---- If not check if rssi of the other reporter is better by -3dbm (config value) and swap if needed
+            // ---- If RSSI better then update and update telemetry values
+            // ---- If not, only store triangulation data
 
             $v_device->checkFreshDataByCaching($p_reporter->getMac(), $v_object);
             //$v_device->checkFreshDataByCaching($p_connection->my_reporter_id, $v_object);
@@ -1306,9 +1316,14 @@ fwrite($fd, "\n");
     protected $date_created;
 
     // ----- An array to cache info for this device from each reporter
+    //  $this->caching_list[$p_reporter_mac]['lastseen']
+    //  $this->caching_list[$p_reporter_mac]['latest_rssi']
     protected $caching_list;
 
 
+    protected $nearest_ap_mac;
+    protected $nearest_ap_rssi;
+    protected $nearest_ap_last_seen;
 
     public function __construct($p_mac) {
       $this->mac_address = filter_var(trim(strtoupper($p_mac)), FILTER_VALIDATE_MAC);
@@ -1316,6 +1331,10 @@ fwrite($fd, "\n");
       $this->status = '';     // active, seen
       $this->date_created = date("Y-m-d H:i:s");
       $this->caching_list = array();
+
+      $this->nearest_ap_mac = '';
+      $this->nearest_ap_rssi = -100;
+      $this->nearest_ap_last_seen = 0;
     }
 
     public function setJeedomObjectId($p_id) {
@@ -1329,6 +1348,28 @@ fwrite($fd, "\n");
     public function getMac() {
       return($this->mac_address);
     }
+
+    /**---------------------------------------------------------------------------
+     * Method : updateNearestAP()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function updateNearestAP(&$p_reporter, $p_telemetry) {
+      $v_result = true;
+
+      $p_reporter_mac = $p_reporter->getMac();
+
+            // ----- Look if this is the current best reporter (nearest ap)
+
+            // ----- If yes, update the lastseen value (if exist ?) and RSSI (if RSSI do not exists takes the first one and look only at lastseen)
+
+            // ---- If not check if rssi of the other reporter is better by -3dbm (config value) and swap if needed
+
+
+
+      return($v_result);
+    }
+    /* -------------------------------------------------------------------------*/
 
     /**---------------------------------------------------------------------------
      * Method : checkFreshDataByCaching()
@@ -1364,6 +1405,7 @@ fwrite($fd, "\n");
       }
       else {
         // ----- Update with current time
+        // TBC : not sure this is what needs to be done ... may be just ignore ?
         // -----Update cache
         ArubaIotTool::log('debug', "Update caching entry with current time");
         $this->caching_list[$p_reporter_mac]['lastseen'] = time();
