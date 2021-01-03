@@ -102,16 +102,66 @@ $('.changeIncludeState').off('click').on('click', function () {
 });
 
 
-/*
- * Display reporters modal
- */
-$('.displayReporters').off('click').on('click', function () {
 
-  $('#md_modal').dialog({title: "Reporters List"});
-  $('#md_modal').load('index.php?v=d&plugin=ArubaIot&modal=modal.reporters&id=' + $('.eqLogicAttr[data-l1key=id]').value()).dialog('open');
+$('.changeIncludeState_NEW').off('click').on('click', function () {
+  var mode = $(this).attr('data-mode');
+  var state = $(this).attr('data-state');
+  if (mode != 1 || mode == 1  && state == 0) {
+    changeIncludeState(state, mode);
+  }
+  else {
+    var dialog_title = '';
+    var dialog_message = '<form class="form-horizontal onsubmit="return false;"> ';
+    dialog_title = '{{Démarrer l\'inclusion}}';
+    dialog_message += '<label class="control-label" > {{Sélectionner le type d\'équipement à inclure :}} </label> ' +
+    '<div> <div class="radio"> <label > ' +
+    '<input type="radio" name="type" id="auto" value="all" checked="checked"> {{Tous}} </label> ' +
+    '</div>' +
+    '<div class="radio"> <label > ' +
+    '<input type="radio" name="type" id="send" value="enoceanSwitch"> {{enoceanSwitch}}</label> ' +
+    '</div> ' +
+    '<div class="radio"> <label > ' +
+    '<input type="radio" name="type" id="remote" value="enoceanSensor"> {{enoceanSensor}}</label> ' +
+    '</div> ' +
+    '<div class="radio"> <label > ' +
+    '<input type="radio" name="type" id="direct" value="arubaTag"> {{arubaTag}}</label> ' +
+    '</div> ' +
+    '<div class="radio"> <label > ' +
+    '<input type="radio" name="type" id="direct" value="arubaBeacon"> {{arubaBeacon}}</label> ' +
+    '</div> ' +
+    '<div class="radio"> <label > ' +
+    '<input type="radio" name="type" id="direct" value="generic"> {{generic}}</label> ' +
+    '</div> ' +
+    '</div><br>'+
+    '<label class="lbl lbl-warning" for="type">{{Attention: \'Tous\' peut générer un liste importante d\'équipements}}</label> ';
+    dialog_message += '</form>';
+    bootbox.dialog({
+      title: dialog_title,
+      message: dialog_message,
+      buttons: {
+        "{{Annuler}}": {
+          className: "btn-danger",
+          callback: function () {
+          }
+        },
+        success: {
+          label: "{{Démarrer}}",
+          className: "btn-success",
+          callback: function () {
+            var type = $("input[name='type']:checked").val();
+            if (type == 0) {
+              changeIncludeState(state, mode, type);
+            } else {
+            }
+          }
+        },
+      }
+    });
+  }
+});
 
 
-  return;
+function changeIncludeState(_state,_mode,_type='') {
 
   $.ajax({
     type: "POST",
@@ -131,6 +181,18 @@ $('.displayReporters').off('click').on('click', function () {
       }
     }
   });
+
+}
+
+
+/*
+ * Display reporters modal
+ */
+$('.displayReporters').off('click').on('click', function () {
+
+  $('#md_modal').dialog({title: "Reporters List"});
+  $('#md_modal').load('index.php?v=d&plugin=ArubaIot&modal=modal.reporters&id=' + $('.eqLogicAttr[data-l1key=id]').value()).dialog('open');
+
 });
 
 

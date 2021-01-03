@@ -45,7 +45,7 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
       <div class="cursor eqLogicAttr displayReporters logoSecondary" data-l1key="toto" >
         <i class="fas fa-sitemap"></i>
         <br>
-        <span>{{Reporters}}</span>
+        <span>{{Rapporteurs}}</span>
       </div>
 
       <div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf">
@@ -54,7 +54,7 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
         <span>{{Configuration}}</span>
       </div>
   </div>
-  <legend><i class="fas fa-table"></i> {{Mes ArubaIots}}</legend>
+  <legend><i class="fas fa-table"></i> {{Mes Equipements}}</legend>
 	   <input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic" />
   <legend><i class="fas fa-table"></i> {{Equipements Enocean}}</legend>
 <div class="eqLogicThumbnailContainer">
@@ -72,7 +72,7 @@ foreach ($eqLogics as $eqLogic) {
 }
 ?>
 </div>
-  <legend><i class="fas fa-table"></i> {{Tags Aruba}}</legend>
+  <legend><i class="fas fa-table"></i> {{Etiquettes Aruba}}</legend>
 <div class="eqLogicThumbnailContainer">
     <?php
 foreach ($eqLogics as $eqLogic) {
@@ -88,7 +88,7 @@ foreach ($eqLogics as $eqLogic) {
 }
 ?>
 </div>
-  <legend><i class="fas fa-table"></i> {{IOT Autres}}</legend>
+  <legend><i class="fas fa-table"></i> {{Autres Equipements IoT}}</legend>
 <div class="eqLogicThumbnailContainer">
     <?php
 foreach ($eqLogics as $eqLogic) {
@@ -201,13 +201,13 @@ foreach ($v_list as $v_index => $v_item) {
         </div>
     </div>
     <div class="form-group">
-        <label class="col-sm-3 control-label">{{Vendor Name}}</label>
+        <label class="col-sm-3 control-label">{{Nom du Fabriquant}}</label>
         <div class="col-sm-3">
             <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="vendor_name"/ disabled>
         </div>
     </div>
     <div class="form-group">
-        <label class="col-sm-3 control-label">{{Local Name}}</label>
+        <label class="col-sm-3 control-label">{{Nom Local}}</label>
         <div class="col-sm-3">
             <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="local_name"/ disabled>
         </div>
