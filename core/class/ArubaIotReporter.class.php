@@ -19,7 +19,7 @@
 /* * ***************************Includes********************************* */
 require_once dirname(__FILE__) . '/../../../../plugins/ArubaIot/core/php/ArubaIot.inc.php';
 
-class ArubaIotReporter extends eqLogic {
+class ArubaIotReporter_NOT_USED_YET extends eqLogic {
     /*     * *************************Attributs****************************** */
 
 
