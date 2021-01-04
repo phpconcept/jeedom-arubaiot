@@ -120,13 +120,19 @@ class ArubaIot extends eqLogic {
 	}
 
 
-	public static function changeIncludeState($_state) {
+	public static function changeIncludeState($p_state, $p_type='') {
 
-      log::add('ArubaIot', 'info',  "Change inclusion state to : ".$_state);
+      log::add('ArubaIot', 'info',  "Change inclusion state to : ".$p_state);
 
-      config::save('include_mode', $_state, 'ArubaIot');
+      config::save('include_mode', $p_state, 'ArubaIot');
 
-      $v_data = array('state' => $_state, 'toto' => 'titi' );
+      if ($p_type != '') {
+        $v_list = json_decode($p_type, true);
+        $v_type_str = implode(',', $v_list);
+        log::add('ArubaIot', 'info',  "Classes to includes are : ".$v_type_str);
+      }
+
+      $v_data = array('state' => $p_state, 'type' => $v_type_str );
       self::talkToWebsocket('include_mode', $v_data);
 
 	}

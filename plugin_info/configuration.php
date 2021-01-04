@@ -46,6 +46,7 @@ if (!isConnect()) {
             </div>
         </div>
 
+<?php if (0) {  ?>
         <div class="form-group">
             <label class="col-lg-4 control-label">{{Device Types Allow List}}
             <sup><i class="fa fa-question-circle tooltips" title="{{Types d'objects qui seront pris en compte lors du mode inclusion.}}"></i></sup>
@@ -54,6 +55,7 @@ if (!isConnect()) {
                 <input class="configKey form-control" data-l1key="device_type_allow_list" value="" />
             </div>
         </div>
+<?php  } ?>
         <div class="form-group">
             <label class="col-lg-4 control-label">{{Delais detection d'absence (sec)}}
             <sup><i class="fa fa-question-circle tooltips" title="{{Temps minimum d'attente avant de déclarer l'objet absent (10 sec min).}}"></i></sup>

@@ -42,7 +42,7 @@
      * ---------------------------------------------------------------------------
      */
     public function log($p_level, $p_message) {
-              ArubaIotLog::log($p_level, $p_message);
+              ArubaIotLog::log($p_level, 'websocket: '.$p_message);
     /*
       global $argv;
 
@@ -298,7 +298,7 @@
     // ----- Attributes to manage dynamic datas
     protected $connections_list;
     protected $reporters_list;
-    protected $allowed_devices;
+    protected $cached_devices;
     protected $devices_list;
 
     protected $device_type_allow_list;
@@ -314,8 +314,9 @@
     public function __construct() {
       $this->connections_list = new \SplObjectStorage;
       $this->reporters_list = array();
-      $this->allowed_devices = array();
+      $this->cached_devices = array();
       $this->reporters_allow_list = array();
+      $this->device_type_allow_list = array();
       $this->ip_address = "0.0.0.0";
       $this->tcp_port = "8081";
       $this->device_type_allow_list = '';
@@ -367,9 +368,9 @@
       return(null);
     }
 
-    public function getAllowedDeviceByMac($p_mac) {
-      if (isset($this->allowed_devices[$p_mac])) {
-          return($this->allowed_devices[$p_mac]);
+    public function getCachedDeviceByMac($p_mac) {
+      if (isset($this->cached_devices[$p_mac])) {
+          return($this->cached_devices[$p_mac]);
       }
       return(null);
     }
@@ -405,14 +406,6 @@
       // ----- Initialize ip/port/etc ... from plugin configuration
       $this->setIpAddress(config::byKey('ws_ip_address', 'ArubaIot'));
       $this->setTcpPort(intval(config::byKey('ws_port', 'ArubaIot')));
-
-      $v_val = config::byKey('include_mode', 'ArubaIot');
-      ArubaIotTool::log('info', "Look for inclusion mode : '".($v_val == 1 ? 'true' : 'false')."'");
-      $this->include_mode = ($v_val == 1 ? true : false);
-
-      $v_val = config::byKey('device_type_allow_list', 'ArubaIot');
-      ArubaIotTool::log('info', "Learning allowed device types : '".$v_val."'");
-      $this->device_type_allow_list = explode(',', $v_val);
 
       $v_val = config::byKey('access_token', 'ArubaIot');
       ArubaIotTool::log('info', "Learning reporters access token : '".$v_val."'");
@@ -450,7 +443,7 @@
       $v_eq_list = eqLogic::byType('ArubaIot');
 
       // ----- Reset the list
-      $this->allowed_devices = array();
+      $this->cached_devices = array();
 
       // ----- Adding all created device in the allowed list
       foreach($v_eq_list as $v_eq_device)
@@ -465,7 +458,7 @@
         else {
           $v_device = new ArubaIotDevice($v_mac);
           $v_device->setJeedomObjectId($v_eq_device->getId());
-          $this->allowed_devices[$v_mac] = $v_device;
+          $this->cached_devices[$v_mac] = $v_device;
 
           ArubaIotTool::log('info', "  Device of type '".$v_eq_device->getConfiguration('class_type', '')."' with MAC Address :".$v_mac." is ".($v_eq_device->getIsEnable()? 'enabled' : 'disabled')."");
         }
@@ -515,7 +508,7 @@
      */
     public function onApiCall(ConnectionInterface &$p_connection, $p_msg) {
 
-      ArubaIotTool::log('info', "New API Connection from ".$v_id."");
+      ArubaIotTool::log('debug', "New API Connection from ".$p_connection->my_id."");
 
       if (($v_data = json_decode($p_msg, true)) === null) {
         $v_response = "Missing or bad json data in API call";
@@ -523,7 +516,7 @@
         return($v_response);
       }
 
-      var_dump($v_data);
+      ArubaIotTool::log('trace', $v_data);
 
       // ----- Look for API version (for future use)
       // TBC
@@ -597,8 +590,8 @@
 
       ArubaIotTool::log('debug', "Remove device ".$p_data['mac_address']."");
 
-      if (isset($this->allowed_devices[$p_data['mac_address']])) {
-        unset($this->allowed_devices[$p_data['mac_address']]);
+      if (isset($this->cached_devices[$p_data['mac_address']])) {
+        unset($this->cached_devices[$p_data['mac_address']]);
         ArubaIotTool::log('info', "Device '".$p_data['mac_address']."' was removed from cache.");
       }
       else {
@@ -631,7 +624,7 @@
         return($v_response);
       }
 
-      if (isset($this->allowed_devices[$p_data['mac_address']])) {
+      if (isset($this->cached_devices[$p_data['mac_address']])) {
         ArubaIotTool::log('info', "Device '".$p_data['mac_address']."' is in the cache. Update.");
       }
       else {
@@ -643,7 +636,7 @@
         else {
           $v_device = new ArubaIotDevice($p_data['mac_address']);
           $v_device->setJeedomObjectId($v_jeedom_object->getId());
-          $this->allowed_devices[$p_data['mac_address']] = $v_device;
+          $this->cached_devices[$p_data['mac_address']] = $v_device;
 
           ArubaIotTool::log('info', "  Device of type '".$v_jeedom_object->getConfiguration('class_type', '')."' with MAC Address :".$p_data['mac_address']." is ".($v_jeedom_object->getIsEnable()? 'enabled' : 'disabled')."");
         }
@@ -729,7 +722,19 @@
 
       $this->include_mode = ($p_data['state'] == 1?true:false);
 
-      ArubaIotTool::log('debug', "Changing include mode to ".($this->include_mode ? 'true' : 'false'));
+      // ----- Reset allow list
+      $this->device_type_allow_list = array();
+
+      ArubaIotTool::log('info', "Changing include mode to ".($this->include_mode ? 'true' : 'false'));
+      if ($this->include_mode) {
+        if (isset($p_data['type'])) {
+          ArubaIotTool::log('debug', "Classes to include : ".$p_data['type']);
+          $this->device_type_allow_list = explode(',', $p_data['type']);
+        }
+        else {
+          ArubaIotTool::log('debug', "Missing classes to include ! ");
+        }
+      }
 
       $v_response = 'OK';
 
@@ -779,7 +784,7 @@
      */
     public function onClose(ConnectionInterface &$connection) {
 
-      ArubaIotTool::log('info', "Closing Connection '".$connection->my_id."' (".date("Y-m-d H:i:s").")");
+      ArubaIotTool::log('debug', "Closing Connection '".$connection->my_id."' (".date("Y-m-d H:i:s").")");
 
       // ----- Remove cross-links between connection and reporter
       // ----- Get reporter
@@ -851,7 +856,41 @@
           }
 
           // ----- Look for an allowed device in the cache with this MAC@
-          $v_device = $this->getAllowedDeviceByMac($v_device_mac);
+          $v_device = $this->getCachedDeviceByMac($v_device_mac);
+
+          // ----- Create new device if allowed class and inclusion mode on
+          if (($v_device == null) && $this->include_mode && in_array($v_class_name, $this->device_type_allow_list)) {
+            ArubaIotTool::log('info', "Inclusion of a new device.");
+            ArubaIotTool::log('debug', "Create a new device.");
+            $v_msglog .= "|         new ";
+
+    		$v_jeedom_device = new ArubaIot();
+            ArubaIotTool::log('debug', "Set name.");
+    		$v_jeedom_device->setName($v_class_name." ".$v_device_mac);
+    		//$eqLogic->setLogicalId('reporter');
+            ArubaIotTool::log('debug', "Set class type.");
+    		$v_jeedom_device->setEqType_name('ArubaIot');
+
+            ArubaIotTool::log('debug', "Set properties.");
+            $v_jeedom_device->setConfiguration('mac_address', $v_device_mac);
+            $v_jeedom_device->setConfiguration('class_type', 'auto');      // will be updated in Telemetry update
+
+            ArubaIotTool::log('debug', "Set enable.");
+            $v_jeedom_device->setIsEnable(1);
+
+            ArubaIotTool::log('debug', "save.");
+            // Here is a trick I need to control the jeedom not to send back api request on refresh
+            $v_jeedom_device->setConfiguration('trick_save_from_daemon', 'on');
+    		$v_jeedom_device->save();
+            $v_jeedom_device->setConfiguration('trick_save_from_daemon', 'off');
+
+            // ----- Create the local device cache image
+            $v_device = new ArubaIotDevice($v_device_mac);
+            $v_device->setJeedomObjectId($v_jeedom_device->getId());
+            $this->cached_devices[$v_device_mac] = $v_device;
+            ArubaIotTool::log('debug', "add in list.");
+
+          }
 
           // ----- Look for existing device and enabled
           if ($v_device != null) {
@@ -890,55 +929,8 @@
 
           }
 
-          // ----- Create new device if allowed class and inclusion mode on
-          else if ($this->include_mode && in_array($v_class_name, $this->device_type_allow_list)) {
-            ArubaIotTool::log('info', "Inclusion of a new device.");
-            ArubaIotTool::log('debug', "Create a new device.");
-            $v_msglog .= "|         new ";
-
-    		  $v_device = new ArubaIot();
-            ArubaIotTool::log('debug', "Set name.");
-    		  $v_device->setName($v_class_name." ".$v_device_mac);
-    		  //$eqLogic->setLogicalId('reporter');
-            ArubaIotTool::log('debug', "Set class type.");
-    		  $v_device->setEqType_name('ArubaIot');
-//            ArubaIotTool::log('debug', "save.");
-    		  //$v_device->save();        // je pense que sinon cela passe dans le pre-insert qui efface ...
-            ArubaIotTool::log('debug', "Set properties.");
-              $v_device->setConfiguration('mac_address', $v_device_mac);
-              $v_device->setConfiguration('class_type', 'auto');      // will be updated in Telemetry update
-
-              $v_testmac = $v_device->getConfiguration('mac_address');
-              ArubaIotTool::log('debug', "test mac:".$v_testmac);
-
-            ArubaIotTool::log('debug', "Set enable.");
-              $v_device->setIsEnable(1);
-
-            ArubaIotTool::log('debug', "save.");
-              // Here is a trick I need to control the jeedom not to send back api request on refresh
-              $v_device->setConfiguration('trick_save_from_daemon', 'on');
-    		  $v_device->save();
-              $v_device->setConfiguration('trick_save_from_daemon', 'off');
-
-              $v_testmac = $v_device->getConfiguration('mac_address');
-              ArubaIotTool::log('debug', "test mac:".$v_testmac);
-
-              // ----- Create the local device cache image
-              $v_local_device = new ArubaIotDevice($v_device_mac);
-              $v_local_device->setJeedomObjectId($v_device->getId());
-              $this->allowed_devices[$v_device_mac] = $v_local_device;
-            ArubaIotTool::log('debug', "add in list.");
-
-              // ----- Update telemetry data, and class name and properties (because class set to auto)
-              $v_local_device->updateTelemetryData($p_reporter, $v_object, $v_class_name);
-            ArubaIotTool::log('debug', "end telemetry update");
-
-
-
-          }
           else {
-            //ArubaIotTool::log('debug', "Received data for a not allowed device.");
-            $v_msglog .= "| not allowed ";
+            $v_msglog .= "| ignored     ";
           }
 
           if ($v_object->hasLastSeen()) {
@@ -1240,7 +1232,7 @@ fwrite($fd, "\n");
       ArubaIotTool::log('debug', 'New interupt call');
 
       // ----- Scan all devices for presence update
-      foreach ($this->allowed_devices as $v_device) {
+      foreach ($this->cached_devices as $v_device) {
         $v_device->updateAbsence();
       }
 
