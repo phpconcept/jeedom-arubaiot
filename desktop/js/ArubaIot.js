@@ -57,7 +57,7 @@ function addCmdToTable(_cmd) {
 /*
  * Management of inclusion
  */
-$('.changeIncludeState').off('click').on('click', function () {
+$('.changeIncludeState_OLD').off('click').on('click', function () {
 
   var el = $(this);
   jeedom.config.save({
@@ -102,23 +102,83 @@ $('.changeIncludeState').off('click').on('click', function () {
 });
 
 
-/*
- * Display reporters modal
- */
-$('.displayReporters').off('click').on('click', function () {
 
-  $('#md_modal').dialog({title: "Reporters List"});
-  $('#md_modal').load('index.php?v=d&plugin=ArubaIot&modal=modal.reporters&id=' + $('.eqLogicAttr[data-l1key=id]').value()).dialog('open');
+$('.changeIncludeState').off('click').on('click', function () {
+
+  var mode = $(this).attr('data-mode');
+  var state = $(this).attr('data-state');
+  if (mode != 1 || mode == 1  && state == 0) {
+    changeIncludeState(state, mode);
+  }
+  else {
+    var dialog_title = '';
+    var dialog_message = '<form class="form-horizontal onsubmit="return false;"> ';
+    dialog_title = '<label class="control-label" >{{Mode Inclusion}}</label>';
+    dialog_message += '<label class="control-label" > {{Sélectionner le type d\'équipement à inclure :}} </label> <br><br>' +
+
+    '<input type="checkbox" name="class_type" value="enoceanSwitch" checked /> {{enoceanSwitch}}<br>' +
+    '<input type="checkbox" name="class_type" value="enoceanSensor" /> {{enoceanSensor}}<br>' +
+    '<input type="checkbox" name="class_type" value="arubaTag" /> {{arubaTag}}<br>' +
+    '<input type="checkbox" name="class_type" value="arubaBeacon" /> {{arubaBeacon}}<br>' +
+    '<input type="checkbox" name="class_type" value="generic" /> {{generic}}<br>' +
+    '<br>' +
+        '';
+
+    dialog_message += '</form>';
+    bootbox.dialog({
+      title: dialog_title,
+      message: dialog_message,
+      buttons: {
+        "{{Annuler}}": {
+          className: "btn-danger",
+          callback: function () {
+          }
+        },
+        success: {
+          label: "{{Démarrer}}",
+          className: "btn-success",
+          callback: function () {
 
 
-  return;
+            var my_array = [];
+            $("input:checkbox[name=class_type]:checked").each(function() {
+                my_array.push($(this).val());
+            });
+            var v_type = JSON.stringify(my_array);
+            var type = $("input[name='type']:checked").val();
+            //if (type == 0) {
+              changeIncludeState(state, mode, v_type);
+            //} else {
+            //}
+          }
+        },
+      }
+    });
+  }
+});
+
+
+function changeIncludeState(p_state,_mode,p_type='') {
+
+      if (p_state == 1) {
+        $.hideAlert();
+        $('.changeIncludeState').attr('data-state', 0);
+        $('.changeIncludeState.card span').text('{{Arrêter l\'inclusion}}');
+        $('#div_inclusionAlert').showAlert({message: '{{Vous êtes en mode inclusion. Recliquez sur le bouton d\'inclusion pour sortir de ce mode}}', level: 'warning'});
+      } else {
+        $.hideAlert();
+        $('.changeIncludeState').attr('data-state', 1);
+        $('.changeIncludeState.card span').text('{{Mode inclusion}}');
+        $('#div_inclusionAlert').hideAlert();
+      }
 
   $.ajax({
     type: "POST",
     url: "plugins/ArubaIot/core/ajax/ArubaIot.ajax.php",
     data: {
       action: "changeIncludeState",
-      state: $(this).attr('data-state')
+      state: p_state,
+      type: p_type
     },
     dataType: 'json',
     error: function (request, status, error) {
@@ -131,6 +191,18 @@ $('.displayReporters').off('click').on('click', function () {
       }
     }
   });
+
+}
+
+
+/*
+ * Display reporters modal
+ */
+$('.displayReporters').off('click').on('click', function () {
+
+  $('#md_modal').dialog({title: "Reporters List"});
+  $('#md_modal').load('index.php?v=d&plugin=ArubaIot&modal=modal.reporters&id=' + $('.eqLogicAttr[data-l1key=id]').value()).dialog('open');
+
 });
 
 

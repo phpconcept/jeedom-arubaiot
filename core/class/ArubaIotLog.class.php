@@ -47,7 +47,7 @@ class ArubaIotLog extends eqLogic {
         if ($p_level != 'trace')
           echo '['.$p_level.']:'.$p_message."\n";
         else
-          echo $p_message."\n";
+          var_dump($p_message);
         return;
       }
 
