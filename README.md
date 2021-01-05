@@ -95,6 +95,9 @@ iot useTransportProfile Test
 
 ## Change Logs
 
+Release v0.6 (in-dev) :
+
+
 Release v0.5 (beta) :
 - Add a modal to display the actives reporters
 - Add a "nearest ap" concept to remove the duplicate telemetry data received from several AP
