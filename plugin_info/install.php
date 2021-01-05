@@ -26,12 +26,14 @@ function ArubaIot_install() {
   config::save('ws_port', 8081, 'ArubaIot');
   config::save('include_mode', 0, 'ArubaIot');
   config::save('reporters_allow_list', '', 'ArubaIot');
+
 //  $v_device_type_allow_list = implode(',',ArubaIot::supportedDeviceType());
 //  config::save('device_type_allow_list', $v_device_type_allow_list, 'ArubaIot');
   config::save('presence_timeout', 60, 'ArubaIot');
 
   config::save('nearest_ap_timeout', 120, 'ArubaIot');
   config::save('nearest_ap_hysteresis', 3, 'ArubaIot');
+  config::save('triangulation_max_ap', 5, 'ArubaIot');
 
 
 //  log::add('ArubaIot', 'info', 'Supported devices : '.$v_device_type_allow_list);

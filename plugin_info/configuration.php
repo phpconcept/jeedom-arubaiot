@@ -107,6 +107,16 @@ if (!isConnect()) {
           </div>
 
           <div class="form-group">
+              <label class="col-lg-4 control-label">{{Maximum number of Reporters for triangulation}}
+              <sup><i class="fa fa-question-circle tooltips" title="{{Nombre maximum de Rapporteurs à conserver dans le cache pour la triangulation. Minimum 3.}}"></i></sup>
+              </label>
+              <div class="col-lg-5">
+                  <input class="configKey form-control" data-l1key="triangulation_max_ap" value="" />
+              </div>
+          </div>
+
+<?php if (0) {  ?>
+          <div class="form-group">
               <label class="col-lg-4 control-label">{{AP transport interval}}</label>
               <div class="col-lg-5">
                   <input class="configKey form-control" data-l1key="ap_transport_interval" value="" />
@@ -118,7 +128,7 @@ if (!isConnect()) {
                   <input class="configKey form-control" data-l1key="ap_aging_time" value="" />
               </div>
           </div>
-
+<?php }  ?>
         </div>
 
         <div class="form-group">

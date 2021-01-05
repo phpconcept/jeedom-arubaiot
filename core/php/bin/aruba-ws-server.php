@@ -894,6 +894,7 @@
 
           // ----- Look for existing device and enabled
           if ($v_device != null) {
+            $v_device->resetChangedFlag();
 
             // ----- Get corresponding Jeedom object
             $v_jeedom_object = eqLogic::byId($v_device->getJeedomObjectId());
@@ -913,7 +914,7 @@
             }
 
             // ----- If same nearest AP or better one, update telemetry data.
-            if ($v_device->updateNearestAP($p_reporter, $v_object)) {
+            if ($v_device->updateNearestAP($p_reporter, $v_jeedom_object, $v_object)) {
               $v_device->updateTelemetryData($p_reporter, $v_jeedom_object, $v_object, $v_class_name);
             }
 
@@ -921,9 +922,8 @@
             // TBC : if triangulation updated, widget is not refreshed ...
             $v_device->updateTriangulation($p_reporter, $v_jeedom_object, $v_object, $v_class_name);
 
-
-            // TBC : should I need this anymore ??
-            //$v_device->checkFreshDataByCaching($p_reporter->getMac(), $v_object);
+            // ----- Update jeedom wizard display if needed
+            $v_device->checkChangedFlag($v_jeedom_object);
 
             $v_msglog .= "|      active ";
 
@@ -1256,39 +1256,85 @@ fwrite($fd, "\n");
     protected $jeedom_object_id;
     protected $date_created;
 
-    // ----- An array to cache info for this device from each reporter
-    //  $this->caching_list[$p_reporter_mac]['lastseen']
-    //  $this->caching_list[$p_reporter_mac]['latest_rssi']
-    protected $caching_list;
+    // ----- Used to update jeedom widget only one time after all the commands updates
+    protected $widget_change_flag;
 
-
+    // ----- Storing data regarding the nearest AP for the device
     protected $nearest_ap_mac;
     protected $nearest_ap_rssi;
     protected $nearest_ap_last_seen;
 
+    /**---------------------------------------------------------------------------
+     * Method : __construct()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
     public function __construct($p_mac) {
       $this->mac_address = filter_var(trim(strtoupper($p_mac)), FILTER_VALIDATE_MAC);
       $this->jeedom_object_id = '';
-      $this->status = '';     // active, seen
       $this->date_created = date("Y-m-d H:i:s");
-      $this->caching_list = array();
 
       $this->nearest_ap_mac = '';
       $this->nearest_ap_rssi = -100;
       $this->nearest_ap_last_seen = 0;
-    }
 
+      $this->widget_change_flag = false;
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : setJeedomObjectId()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
     public function setJeedomObjectId($p_id) {
       $this->jeedom_object_id = $p_id;
     }
+    /* -------------------------------------------------------------------------*/
 
+    /**---------------------------------------------------------------------------
+     * Method : getJeedomObjectId()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
     public function getJeedomObjectId() {
       return($this->jeedom_object_id);
     }
+    /* -------------------------------------------------------------------------*/
 
+    /**---------------------------------------------------------------------------
+     * Method : getMac()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
     public function getMac() {
       return($this->mac_address);
     }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : resetChangedFlag()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function resetChangedFlag() {
+      $this->widget_change_flag = false;
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : checkChangedFlag()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function checkChangedFlag($p_jeedom_object) {
+      if ($this->widget_change_flag) {
+        $p_jeedom_object->refreshWidget();
+        $this->resetChangedFlag();
+      }
+    }
+    /* -------------------------------------------------------------------------*/
+
 
     /**---------------------------------------------------------------------------
      * Method : updateNearestAP()
@@ -1298,7 +1344,7 @@ fwrite($fd, "\n");
      *   False : if telemetry values are to be ignored
      * ---------------------------------------------------------------------------
      */
-    public function updateNearestAP(&$p_reporter, $p_telemetry) {
+    public function updateNearestAP(&$p_reporter, &$p_jeedom_object, $p_telemetry) {
 
       // ----- Get reporter mac@
       $p_reporter_mac = $p_reporter->getMac();
@@ -1326,6 +1372,9 @@ fwrite($fd, "\n");
         $this->nearest_ap_mac = $p_reporter->getMac();
         $this->nearest_ap_last_seen = $v_lastseen;
         $this->nearest_ap_rssi = $v_rssi;
+
+        $p_jeedom_object->cmdUpdateNearestAP($p_reporter->getMac());
+
         return(true);
       }
 
@@ -1353,6 +1402,8 @@ fwrite($fd, "\n");
         $this->nearest_ap_last_seen = $v_lastseen;
         $this->nearest_ap_rssi = $v_rssi;
 
+        $p_jeedom_object->cmdUpdateNearestAP($p_reporter->getMac());
+
         return(true);
       }
 
@@ -1366,56 +1417,14 @@ fwrite($fd, "\n");
         $this->nearest_ap_last_seen = $v_lastseen;
         $this->nearest_ap_rssi = $v_rssi;
 
+        $p_jeedom_object->cmdUpdateNearestAP($p_reporter->getMac());
+
         return(true);
       }
 
       ArubaIotTool::log('debug', "Reporter '".$p_reporter->getMac()."' not a nearest reporter compared to current '".$this->nearest_ap_mac."'");
 
       return(false);
-    }
-    /* -------------------------------------------------------------------------*/
-
-    /**---------------------------------------------------------------------------
-     * Method : checkFreshDataByCaching()
-     * Description :
-     * If device receive the same data (same lastseen timer) from the same reporter, just ignore that data.
-     * ---------------------------------------------------------------------------
-     */
-    public function checkFreshDataByCaching_DEPRECATED($p_reporter_mac, $p_telemetry) {
-      $v_result = true;
-
-      // ----- Check existing entry for this reporter
-      if (!isset($this->caching_list[$p_reporter_mac])) {
-        ArubaIotTool::log('debug', "Create new caching entry for reporter '".$p_reporter_mac."'");
-        $this->caching_list[$p_reporter_mac] = array();          // an array for futur use of caching data ...
-        $this->caching_list[$p_reporter_mac]['lastseen'] = 0;
-      }
-
-      // ----- Look last sign of life
-      if ($p_telemetry->hasLastSeen()) {
-        $v_lastseen = $p_telemetry->getLastSeen();
-
-        /*
-        ArubaIotTool::log('debug', "Cached lastseen is : ".$this->caching_list[$v_reporter_mac]['lastseen'].", last seen : ".$v_lastseen."");
-        if ($this->caching_list[$v_reporter_mac]['lastseen'] == $v_lastseen) {
-          ArubaIotTool::log('debug', "Same data, ignore.");
-          return(false);
-        }
-        */
-
-        // -----Update cache
-        ArubaIotTool::log('debug', "Update caching entry");
-        $this->caching_list[$p_reporter_mac]['lastseen'] = $v_lastseen;
-      }
-      else {
-        // ----- Update with current time
-        // TBC : not sure this is what needs to be done ... may be just ignore ?
-        // -----Update cache
-        ArubaIotTool::log('debug', "Update caching entry with current time");
-        $this->caching_list[$p_reporter_mac]['lastseen'] = time();
-      }
-
-      return($v_result);
     }
     /* -------------------------------------------------------------------------*/
 
@@ -1503,11 +1512,11 @@ fwrite($fd, "\n");
         else {
           // ----- Update presence
           ArubaIotTool::log('debug', "Flag presence");
-          $p_changed_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1, 'Presence', 'info', 'binary', true) || $p_changed_flag;
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1, 'Presence', 'info', 'binary', true) || $this->widget_change_flag;
         }
       }
 
-      return($p_changed_flag);
+      return($this->widget_change_flag);
     }
     /* -------------------------------------------------------------------------*/
 
@@ -1523,17 +1532,6 @@ fwrite($fd, "\n");
       $v_timeout = config::byKey('presence_timeout', 'ArubaIot');
 
       $v_absent = true;
-
-      // ----- Look for each reporters time caching
-/*
-      foreach ($this->caching_list as $v_item) {
-        ArubaIotTool::log('debug', "Time is : ".time().", last seen : ".$v_item['lastseen'].", timeout :".$v_timeout);
-        if (($v_item['lastseen']+$v_timeout) > time() ) {
-          $v_absent = false;
-          break;
-        }
-      }
-*/
 
       if (($this->nearest_ap_last_seen+$v_timeout) > time() ) {
           $v_absent = false;
@@ -1597,10 +1595,10 @@ fwrite($fd, "\n");
       }
       if ($v_rssi != 0) {
         ArubaIotTool::log('debug', "RSSI changed for : ".$v_rssi);
-        $p_changed_flag = $p_jeedom_object->checkAndUpdateCmd('rssi', $v_rssi) || $p_changed_flag;
+        $this->widget_change_flag = $p_jeedom_object->checkAndUpdateCmd('rssi', $v_rssi) || $this->widget_change_flag;
       }
 
-      return($p_changed_flag);
+      return($this->widget_change_flag);
     }
     /* -------------------------------------------------------------------------*/
 
@@ -1629,10 +1627,10 @@ fwrite($fd, "\n");
       }
       if ($v_rssi != 0) {
         ArubaIotTool::log('debug', "RSSI changed for : ".$v_rssi);
-        $p_changed_flag = $p_jeedom_object->cmdUpdateTriangulation($p_reporter->getMac(), $v_rssi, $p_reporter->getLastSeen()) || $p_changed_flag;
+        $this->widget_change_flag = $p_jeedom_object->cmdUpdateTriangulation($p_reporter->getMac(), $v_rssi, $p_reporter->getLastSeen()) || $this->widget_change_flag;
       }
 
-      return($p_changed_flag);
+      return($this->widget_change_flag);
     }
     /* -------------------------------------------------------------------------*/
 
@@ -1656,14 +1654,14 @@ fwrite($fd, "\n");
         if ($v_item->hasIllumination()) {
           $v_val = $v_item->getIllumination();
           ArubaIotTool::log('debug', "Illumination value is : ".$v_val);
-          $p_changed_flag = $p_jeedom_object->createAndUpdateCmd('illumination', $v_val, 'Illumination', 'info', 'numeric', true) || $p_changed_flag;
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('illumination', $v_val, 'Illumination', 'info', 'numeric', true) || $this->widget_change_flag;
         }
 
         // ----- Look for occupancy values
         if ($v_item->hasOccupancy()) {
           $v_level = $v_item->getOccupancy()->getLevel();
           ArubaIotTool::log('debug', "Occupancy value is : ".$v_level);
-          $p_changed_flag = $p_jeedom_object->createAndUpdateCmd('occupancy', $v_level, 'Occupancy', 'info', 'numeric', true) || $p_changed_flag;
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('occupancy', $v_level, 'Occupancy', 'info', 'numeric', true) || $this->widget_change_flag;
         }
 
         // ----- Update battery level
@@ -1674,7 +1672,7 @@ fwrite($fd, "\n");
 
       }
 
-      return($p_changed_flag);
+      return($this->widget_change_flag);
     }
     /* -------------------------------------------------------------------------*/
 
@@ -1729,20 +1727,20 @@ fwrite($fd, "\n");
 
       // ----- Update presence flag for the device
       if ($p_telemetry->hasLastSeen()) {
-        $v_changed_flag = $this->updatePresenceTelemetry($v_jeedom_object, $p_telemetry, $p_class_name) || $v_changed_flag;
+        $this->widget_change_flag = $this->updatePresenceTelemetry($v_jeedom_object, $p_telemetry, $p_class_name) || $this->widget_change_flag;
       }
 
       // ----- Update common telemetry data
-      $v_changed_flag = $this->updateRssiTelemetry($v_jeedom_object, $p_telemetry, $p_class_name) || $v_changed_flag;
+      $this->widget_change_flag = $this->updateRssiTelemetry($v_jeedom_object, $p_telemetry, $p_class_name) || $this->widget_change_flag;
 
       // ----- Update SwitchRocker info
       if ($p_telemetry->hasInputs()) {
-        $v_changed_flag = $this->updateInputsTelemetry($v_jeedom_object, $p_telemetry) || $v_changed_flag;
+        $this->widget_change_flag = $this->updateInputsTelemetry($v_jeedom_object, $p_telemetry) || $this->widget_change_flag;
       }
 
       // ----- Update sensors telemetry data
       if ($p_telemetry->hasSensors()) {
-        $v_changed_flag = $this->updateSensorTelemetry($v_jeedom_object, $p_telemetry) || $v_changed_flag;
+        $this->widget_change_flag = $this->updateSensorTelemetry($v_jeedom_object, $p_telemetry) || $this->widget_change_flag;
       }
 
       // ----- Update triangulation info
@@ -1755,10 +1753,10 @@ fwrite($fd, "\n");
       }
 
       // ----- Look for need to update widget
-      if ($v_changed_flag) {
+      //if ($v_changed_flag) {
         //ArubaIotTool::log('debug', "refreshWidget()");
         $v_jeedom_object->refreshWidget();
-      }
+      //}
 
       return(true);
     }

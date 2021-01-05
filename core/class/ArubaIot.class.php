@@ -65,7 +65,7 @@ class ArubaIot extends eqLogic {
 
     public static function deamon_start($_debug = false)
     {
-        log::add('ArubaIot', 'info', 'Starting ArubaIot daemon');
+        ArubaIotLog::log('ArubaIot', 'info', 'Starting ArubaIot daemon');
         exec(system::getCmdSudo() . 'systemctl restart ArubaIot-websocket');
         $i = 0;
         while ($i < 30) {
@@ -77,14 +77,14 @@ class ArubaIot extends eqLogic {
             $i++;
         }
         if ($i >= 30) {
-            log::add('ArubaIot', 'error', 'Unable to start daemon');
+            ArubaIotLog::log('ArubaIot', 'error', 'Unable to start daemon');
             return false;
         }
     }
 
     public static function deamon_stop()
     {
-        log::add('ArubaIot', 'info', 'Stopping ArubaIot daemon');
+        ArubaIotLog::log('ArubaIot', 'info', 'Stopping ArubaIot daemon');
         exec(system::getCmdSudo() . 'systemctl stop ArubaIot-websocket');
     }
 
@@ -100,20 +100,21 @@ class ArubaIot extends eqLogic {
       $v_data['event']['data'] = $p_data;
       $v_data_json = json_encode($v_data);
 
-      //log::add('ArubaIot', 'debug', 'json = ' . $v_data_json);
+      //ArubaIotLog::log('ArubaIot', 'debug', 'json = ' . $v_data_json);
+      $v_port = config::byKey('ws_port', 'ArubaIot');
 
-      $v_url = 'http://127.0.0.1:8081/api';
+      $v_url = 'http://127.0.0.1:'.$v_port.'/api';
       $v_request_http = new com_http($v_url);
       $v_request_http->setNoSslCheck(true);
       $v_request_http->setNoReportError(true);
       $v_request_http->setPost($v_data_json);
       $v_return = $v_request_http->exec(15,2);
       if ($v_return === false) {
-        log::add('ArubaIot', 'debug', 'Unable to fetch ' . $v_url);
+        ArubaIotLog::log('ArubaIot', 'debug', 'Unable to fetch ' . $v_url);
         return('');
       } else {
-        log::add('ArubaIot', 'debug', 'Post ' . $v_url);
-        log::add('ArubaIot', 'debug', 'Result ' . $v_return);
+        ArubaIotLog::log('ArubaIot', 'debug', 'Post ' . $v_url);
+        ArubaIotLog::log('ArubaIot', 'debug', 'Result ' . $v_return);
         return($v_return);
       }
 
@@ -122,14 +123,14 @@ class ArubaIot extends eqLogic {
 
 	public static function changeIncludeState($p_state, $p_type='') {
 
-      log::add('ArubaIot', 'info',  "Change inclusion state to : ".$p_state);
+      ArubaIotLog::log('ArubaIot', 'info',  "Change inclusion state to : ".$p_state);
 
       config::save('include_mode', $p_state, 'ArubaIot');
 
       if ($p_type != '') {
         $v_list = json_decode($p_type, true);
         $v_type_str = implode(',', $v_list);
-        log::add('ArubaIot', 'info',  "Classes to includes are : ".$v_type_str);
+        ArubaIotLog::log('ArubaIot', 'info',  "Classes to includes are : ".$v_type_str);
       }
 
       $v_data = array('state' => $p_state, 'type' => $v_type_str );
@@ -275,12 +276,12 @@ class ArubaIot extends eqLogic {
       // ----- Default values if configuration is empty
       if ($this->getConfiguration('mac_address', '') == '')
       {
-        log::add('ArubaIot', 'debug', 'MAC is empty, change to 00:00:00:00:00:00');
+        ArubaIotLog::log('ArubaIot', 'debug', 'MAC is empty, change to 00:00:00:00:00:00');
         $this->setConfiguration('mac_address', '00:00:00:00:00:00');
       }
       if ($this->getConfiguration('class_type', '') == '')
       {
-        log::add('ArubaIot', 'debug', 'class_type is empty, change to auto');
+        ArubaIotLog::log('ArubaIot', 'debug', 'class_type is empty, change to auto');
         $this->setConfiguration('class_type', 'auto');
       }
 
@@ -311,24 +312,24 @@ class ArubaIot extends eqLogic {
       // I had to make a trick by using a device attribute to flag not to send back an api when in inclusion mode, because the
       // global att do not seems to be updated here ...
       $v_trick_save_from_daemon = $this->getConfiguration('trick_save_from_daemon');
-      log::add('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon."");
+      ArubaIotLog::log('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon."");
       if ( ($v_trick_save_from_daemon == '') || ($v_trick_save_from_daemon == 'off') ) {
 //      $v_include_mode = config::byKey('include_mode', 'ArubaIot');
 //      if ($v_include_mode == 0) {
-        log::add('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", send refresh api message");
+        ArubaIotLog::log('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", send refresh api message");
         $v_id = $this->getId();
         $v_mac = $this->getConfiguration('mac_address');
-        log::add('ArubaIot', 'debug', "MAC is :".$v_mac);
+        ArubaIotLog::log('ArubaIot', 'debug', "MAC is :".$v_mac);
         if (($v_mac != '00:00:00:00:00:00') && ($v_mac != '')) {
           $v_data = array('mac_address' => $v_mac, 'id' => $v_id );
           self::talkToWebsocket('device_refresh', $v_data);
         }
         else {
-          log::add('ArubaIot', 'debug', "MAC is null or empty, don't send refresh api message");
+          ArubaIotLog::log('ArubaIot', 'debug', "MAC is null or empty, don't send refresh api message");
         }
       }
       else {
-        log::add('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", don't send refresh api message");
+        ArubaIotLog::log('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", don't send refresh api message");
       }
 
     }
@@ -455,7 +456,7 @@ class ArubaIot extends eqLogic {
 
       // ----- Look if command need to be created
       if (!is_object($v_cmd)) {
-        log::add('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
+        ArubaIotLog::log('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
         $v_cmd = new ArubaIotCmd();
         $v_cmd->setName(__($p_cmd_name, __FILE__));
 
@@ -494,7 +495,7 @@ class ArubaIot extends eqLogic {
 
       // ----- Look if command need to be created
       if (!is_object($v_cmd)) {
-        log::add('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
+        ArubaIotLog::log('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
         $v_cmd = new ArubaIotCmd();
         $v_cmd->setName(__("Illumination", __FILE__));
 
@@ -533,7 +534,7 @@ class ArubaIot extends eqLogic {
 
       // ----- Look if command need to be created
       if (!is_object($v_cmd)) {
-        log::add('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
+        ArubaIotLog::log('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
         $v_cmd = new ArubaIotCmd();
         $v_cmd->setName(__("Occupancy", __FILE__));
 
@@ -599,7 +600,7 @@ class ArubaIot extends eqLogic {
 
       // ----- Look if command need to be created
       if (!is_object($v_cmd)) {
-        log::add('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
+        ArubaIotLog::log('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
         $v_cmd = new ArubaIotCmd();
         $v_cmd->setName(__("Triangulation", __FILE__));
 
@@ -659,10 +660,26 @@ class ArubaIot extends eqLogic {
       $v_triangulation[$p_reporter_mac]['timestamp'] = $p_timestamp;
 
       // ----- Keep only X top best reporters, with best timestamp
-      $v_target_max = 3;  // TBC : put this in the advanced configuration
-      ArubaIotLog::log('debug', "Nb reporters for triangulation :".sizeof($v_triangulation));
+      $v_target_max = config::byKey('triangulation_max_ap', 'ArubaIot');
+      if ($v_target_max < 3) $v_target_max = 3;
+      ArubaIotLog::log('debug', "Current number of reporters for triangulation :".sizeof($v_triangulation));
+      ArubaIotLog::log('debug', "Maximum number of reporters configured :".$v_target_max);
       // TBC : keep 3 best
       if (sizeof($v_triangulation) > $v_target_max) {
+        $v_rssi_list = array();
+        foreach ($v_triangulation as $key => $item) {
+          $v_rssi_list[$item['rssi']] = $key;
+        }
+        krsort($v_rssi_list);
+        $v_triangulation_new = array();
+        $i=0;
+        foreach ($v_rssi_list as $item) {
+          $v_triangulation_new[$item] = $v_triangulation[$item];
+          $i++;
+          if ($i >= $v_target_max)
+            break;
+        }
+        $v_triangulation = $v_triangulation_new;
       }
 
       // ----- JSONify
@@ -671,6 +688,30 @@ class ArubaIot extends eqLogic {
 
       // ----- Set the value and update the flag
       $v_changed_flag = $this->checkAndUpdateCmd('triangulation', $v_value);
+
+      return($v_changed_flag);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : cmdUpdateNearestAP()
+     * Description :
+     * Parameters :
+     * Returned value : true on changed value, false otherwise.
+     * ---------------------------------------------------------------------------
+     */
+    public function cmdUpdateNearestAP($p_nearest_ap_mac) {
+
+      // ----- Look for existing command
+      $v_cmd = $this->getCmd(null, 'nearest_ap');
+
+      // ----- Look if command need to be created
+      if (!is_object($v_cmd)) {
+        return(false);
+      }
+
+      // ----- Set the value and update the flag
+      $v_changed_flag = $this->checkAndUpdateCmd('nearest_ap', $p_nearest_ap_mac);
 
       return($v_changed_flag);
     }
@@ -698,7 +739,7 @@ class ArubaIotCmd extends cmd {
 
     public function execute($_options = array()) {
         
-        //log::add('ArubaIot', 'info',  "Commande reçue !");
+        //ArubaIotLog::log('ArubaIot', 'info',  "Commande reçue !");
         ArubaIotLog::log('info', "Commande reçue !");
 
         if ($this->getType() != 'action') {
