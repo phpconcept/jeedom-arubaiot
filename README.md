@@ -59,6 +59,8 @@ when receiving the first telemetry frame.
 Depending of the device type, some command information will be initiated for the device. Others will be automatically learnt when
 receiving the telemetry frames from the device.
 
+![device](docs/images/device_add.png)
+
 ### Include Mode
 
 To simplify the on-boarding of new device, you can select the "Include mode".
@@ -68,6 +70,27 @@ When starting the include mode, a popup window will ask for the type of devices 
 The include mode need to be disabled manually.
 
 Refresh the page to see the updated list of new devices.
+
+![device](docs/images/device_include_mode.png)
+
+
+### Other screenshots
+
+Reporters List and Status :
+
+![reporter](docs/images/reporter_list.png)
+
+Devices Visibility
+
+![device](docs/images/device_visibility.png)
+
+Enocean Illumination History
+
+![device](docs/images/enocean_illumination_history.png)
+
+Device batteries follow-up
+
+![device](docs/images/device_battery.png)
 
 
 ---
