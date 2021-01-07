@@ -49,6 +49,8 @@ The local IP address of the websocket in the jeedom. If 0.0.0.0, then will use t
 The TCP port where the jeedom will receive the connections. By default 8081. Must be a valid TCP port. If daemon fails to
 connect then try an other free TCP port.
 
+![configuration](docs/images/configuration-1.png)
+
 ### Adding New Devices
 
 To add new devices, click on the Add button and give a name for the device. You must then give a valid MAC@ of the device.

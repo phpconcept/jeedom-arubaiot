@@ -36,6 +36,7 @@ arubaiot_jeedom
 			desktop\js\ArubaIot_Configuration.js
 		+modal
 			desktop\modal\modal.ArubaIot.php
+			desktop\modal\modal.reporters.php
 		+php
 			desktop\php\ArubaIot.php
 	+core
@@ -76,15 +77,15 @@ arubaiot_jeedom
 20=3rparty\src\aruba_telemetry\Meta.php
 21=3rparty\src\aruba_telemetry\NbTopic.php
 22=core\class\ArubaIotLog.class.php
-23=C:\Users\blavet\Dropbox\00-Vincent\Dev\jeedom\plugins\openenocean\desktop\js\openenocean.js
+23=desktop\modal\modal.reporters.php
 [Selected Project Files]
 Main=
-Selected=desktop\js\ArubaIot.js
+Selected=desktop\modal\modal.reporters.php
 [core\class\ArubaIot.class.php]
-TopLine=670
+TopLine=672
 Caret=11,695
 [core\i18n\en_US.json]
-TopLine=7
+TopLine=14
 Caret=17,37
 [core\i18n\fr_FR.json]
 TopLine=1
@@ -93,7 +94,7 @@ Caret=1,1
 TopLine=1
 Caret=1,23
 [desktop\php\ArubaIot.php]
-TopLine=3
+TopLine=31
 Caret=54,45
 [desktop\modal\modal.ArubaIot.php]
 TopLine=1
@@ -102,16 +103,16 @@ Caret=15,7
 TopLine=182
 Caret=67,200
 [plugin_info\install.php]
-TopLine=1
+TopLine=11
 Caret=38,34
 [plugin_info\configuration.php]
-TopLine=1
+TopLine=16
 Caret=11,39
 [plugin_info\info.json]
 TopLine=1
 Caret=20,11
 [core\php\bin\aruba-ws-server.php]
-TopLine=53
+TopLine=1504
 Caret=1,1527
 Mark1=1,815
 Mark2=43,1726
@@ -128,10 +129,10 @@ Caret=96,21
 TopLine=1
 Caret=43,9
 [README.md]
-TopLine=27
+TopLine=39
 Caret=1,62
 [C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-nb-telemetry.proto]
-TopLine=132
+TopLine=146
 Caret=26,169
 [C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-nb.proto]
 TopLine=25
@@ -155,8 +156,8 @@ Caret=31,130
 TopLine=18
 Caret=4,18
 [core\class\ArubaIotLog.class.php]
-TopLine=18
+TopLine=27
 Caret=1,50
-[C:\Users\blavet\Dropbox\00-Vincent\Dev\jeedom\plugins\openenocean\desktop\js\openenocean.js]
-TopLine=434
-Caret=13,459
+[desktop\modal\modal.reporters.php]
+TopLine=1
+Caret=1,1

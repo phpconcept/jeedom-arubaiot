@@ -28,13 +28,14 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
 			<?php
 			if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
 				echo '<div class="cursor changeIncludeState include card logoSecondary" data-mode="1" data-state="0">';
-				echo '<i class="fas fa-sign-in-alt fa-rotate-90"></i>';
+				//echo '<i class="fas fa-sign-in-alt fa-rotate-90" style="color:red"></i>';
+				echo '<i class="fas fa-sign-in-alt fa-rotate-90" style="color:black"></i>';
 				echo '<br/>';
-				echo '<span>{{Arrêter inclusion}}</span>';
+				echo '<span>{{Arrêter l\'inclusion}}</span>';
 				echo '</div>';
 			} else {
 				echo '<div class="cursor changeIncludeState include card logoSecondary" data-mode="1" data-state="1">';
-				echo '<i class="fas fa-sign-in-alt fa-rotate-90"></i>';
+				echo '<i class="fas fa-sign-in-alt fa-rotate-90" style="color:black"></i>';
 				echo '<br/>';
 				echo '<span>{{Mode inclusion}}</span>';
 				echo '</div>';
