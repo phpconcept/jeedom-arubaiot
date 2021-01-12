@@ -1670,6 +1670,51 @@ fwrite($fd, "\n");
           $p_jeedom_object->batteryStatus($v_item->getBattery());
         }
 
+
+        // ----- For future use :
+        if ($v_item->hasAccelerometer()) {
+          ArubaIotTool::log('debug', "Field hasAccelerometer() available. For future use.");
+        }
+        if ($v_item->hasTemperatureC()) {
+          ArubaIotTool::log('debug', "Field hasTemperatureC() available. For future use.");
+        }
+        if ($v_item->hasHumidity()) {
+          ArubaIotTool::log('debug', "Field hasHumidity() available. For future use.");
+        }
+        if ($v_item->hasVoltage()) {
+          ArubaIotTool::log('debug', "Field hasVoltage() available. For future use.");
+        }
+        if ($v_item->hasMotion()) {
+          ArubaIotTool::log('debug', "Field hasMotion() available. For future use.");
+        }
+        if ($v_item->hasCurrent()) {
+          ArubaIotTool::log('debug', "Field hasCurrent() available. For future use.");
+        }
+        if ($v_item->hasCO()) {
+          ArubaIotTool::log('debug', "Field hasCO() available. For future use.");
+        }
+        if ($v_item->hasCO2()) {
+          ArubaIotTool::log('debug', "Field hasCO2() available. For future use.");
+        }
+        if ($v_item->hasVOC()) {
+          ArubaIotTool::log('debug', "Field hasVOC() available. For future use.");
+        }
+        if ($v_item->hasResistance()) {
+          ArubaIotTool::log('debug', "Field hasResistance() available. For future use.");
+        }
+        if ($v_item->hasPressure()) {
+          ArubaIotTool::log('debug', "Field hasPressure() available. For future use.");
+        }
+        if ($v_item->hasDistance()) {
+          ArubaIotTool::log('debug', "Field hasDistance() available. For future use.");
+        }
+        if ($v_item->hasMechanicalHandle()) {
+          ArubaIotTool::log('debug', "Field hasMechanicalHandle() available. For future use.");
+        }
+        if ($v_item->hasCapacitance()) {
+          ArubaIotTool::log('debug', "Field hasCapacitance() available. For future use.");
+        }
+
       }
 
       return($this->widget_change_flag);
@@ -1743,9 +1788,27 @@ fwrite($fd, "\n");
         $this->widget_change_flag = $this->updateSensorTelemetry($v_jeedom_object, $p_telemetry) || $this->widget_change_flag;
       }
 
-      // ----- Update triangulation info
-      // To be removed : moved in upper call
-      //$v_changed_flag = $this->updateTriangulation($p_reporter, $v_jeedom_object, $p_telemetry, $p_class_name) || $v_changed_flag;
+
+
+      // ----- Look for hasTxpower() : Nothing to do now, but for future use
+      if ($p_telemetry->hasTxpower()) {
+        ArubaIotTool::log('debug', "This device has Txpower info.");
+      }
+
+      // ----- Look for hasCell() : Nothing to do now, but for future use
+      if ($p_telemetry->hasCell()) {
+        ArubaIotTool::log('debug', "This device has hasCell info.");
+      }
+
+      // ----- Look for hasStats() : Nothing to do now, but for future use
+      if ($p_telemetry->hasStats()) {
+        ArubaIotTool::log('debug', "This device has hasStats info.");
+      }
+
+      // ----- Look for hasIdentity() : Nothing to do now, but for future use
+      if ($p_telemetry->hasIdentity()) {
+        ArubaIotTool::log('debug', "This device has hasIdentity info.");
+      }
 
       // ----- Look for vendor data : Nothing to do now, but for future use
       if ($p_telemetry->hasVendorData()) {
@@ -1753,10 +1816,7 @@ fwrite($fd, "\n");
       }
 
       // ----- Look for need to update widget
-      //if ($v_changed_flag) {
-        //ArubaIotTool::log('debug', "refreshWidget()");
-        $v_jeedom_object->refreshWidget();
-      //}
+      $v_jeedom_object->refreshWidget();
 
       return(true);
     }

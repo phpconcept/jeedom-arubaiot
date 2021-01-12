@@ -169,6 +169,21 @@ class ArubaIot extends eqLogic {
             mysphera                                = 18;
             sBeacon                                 = 19;
         }
+
+        None WiFi Types :
+                "unclassified",
+                "arubaBeacon",
+                "iBeacon",
+                "arubaTag",
+                "zfTag",
+                "enoceanSwitch",
+                "enoceanSensor",
+                "eddystone",
+                "assaAbloy",
+                "arubaSensor",
+                "mysphera",
+                "sBeacon"
+
      *
      */
 	public static function supportedDeviceType($p_format='list' ) {
@@ -223,6 +238,174 @@ class ArubaIot extends eqLogic {
         if ($v_item != '')
           $v_result = $v_result && isset($v_class_list[$v_item]);
       }
+      return($v_result);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : definedCommands()
+     * Description :
+     * Parameters :
+     * ---------------------------------------------------------------------------
+     */
+    public static function definedCommands($p_format='list') {
+      $v_result = array();
+
+      $val = <<<JSON_EOT
+[
+  "presence": {
+    "name": "Présence",
+    "description": "",
+    "type" : "info",
+    "sub_type" : "binary",
+    "visible" : true,
+    "history" : true
+  },
+  "rssi": {
+    "name": "RSSI",
+    "description": "",
+    "type" : "info",
+    "sub_type" : "numeric",
+    "visible" : true,
+    "history" : true,
+    "min_value" : -110,
+    "max_value" : -10
+  },
+  "illumination": {
+    "name": "Illumination",
+    "description": "light intensity (Lux)",
+    "type" : "info",
+    "sub_type" : "numeric",
+    "visible" : true,
+    "history" : true,
+    "min_value" : 0
+  },
+  "occupancy": {
+    "name": "Occupancy",
+    "description": "",
+    "type" : "info",
+    "sub_type" : "numeric",
+    "visible" : true,
+    "history" : true,
+    "min_value" : 0,
+    "max_value" : 100
+  },
+  "nearest_ap": {
+    "name": "Nearest AP",
+    "description": "",
+    "type" : "info",
+    "sub_type" : "string",
+    "visible" : true,
+    "history" : false
+  },
+  "triangulation": {
+    "name": "Triangulation",
+    "description": "",
+    "type" : "info",
+    "sub_type" : "string",
+    "visible" : false,
+    "history" : false,
+  },
+  "temperatureC": {
+    "name": "Temperature",
+    "description": "temperature in degrees Celcius",
+    "type" : "info",
+    "sub_type" : "numeric",
+    "visible" : true,
+    "history" : true,
+    "min_value" : -127,
+    "max_value" : 127
+  },
+  "humidity": {
+    "name": "Humidité",
+    "description": "Relative humidity (percentage)",
+    "type" : "info",
+    "sub_type" : "numeric",
+    "visible" : true,
+    "history" : true,
+    "min_value" : 0,
+    "max_value" : 100
+  },
+  "voltage": {
+    "name": "Voltage",
+    "description": "system voltage level in V",
+    "type" : "info",
+    "sub_type" : "numeric",
+    "visible" : true,
+    "history" : true
+  },
+  "resistance": {
+    "name": "Résistance",
+    "description": "electrical resistance in Ohm",
+    "type" : "info",
+    "sub_type" : "numeric",
+    "visible" : true,
+    "history" : false
+  },
+  "pressure": {
+    "name": "Pression",
+    "description": "pressure in hPa",
+    "type" : "info",
+    "sub_type" : "numeric",
+    "visible" : true,
+    "history" : true
+  },
+  "pressure": {
+    "name": "Pression",
+    "description": "pressure in hPa",
+    "type" : "info",
+    "sub_type" : "numeric",
+    "visible" : true,
+    "history" : true
+  },
+  "VOC": {
+    "name": "VOC",
+    "description": "volatile organic compounds in ppm",
+    "type" : "info",
+    "sub_type" : "numeric",
+    "visible" : false,
+    "history" : false,
+    "min_value" : 0
+  },
+  "CO": {
+    "name": "CO",
+    "description": "carbon monoxide level in ppm",
+    "type" : "info",
+    "sub_type" : "numeric",
+    "visible" : false,
+    "history" : false,
+    "min_value" : 0
+  },
+  "CO2": {
+    "name": "CO2",
+    "description": "carbon dioxide level in ppm",
+    "type" : "info",
+    "sub_type" : "numeric",
+    "visible" : false,
+    "history" : false,
+    "min_value" : 0
+  }
+]
+JSON_EOT;
+
+      $v_cmd_list = array('presence' => 'Présence',
+                          'rssi' => 'RSSI',
+                          'nearest_ap' => 'Nearest AP',
+                          'illumination' => 'Illumination',
+                          'occupancy' => 'Occupancy',
+                          'triangulation' => 'Triangulation'
+                            );
+
+      if ($p_format == 'description') {
+        $v_result = $v_cmd_list;
+      }
+      //else if ($p_format == 'list') {
+      else {
+        foreach ($v_cmd_list as $v_key => $v_class) {
+          $v_result[] = $v_key;
+        }
+      }
+
       return($v_result);
     }
     /* -------------------------------------------------------------------------*/
