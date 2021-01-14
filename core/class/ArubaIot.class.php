@@ -256,6 +256,10 @@ class ArubaIot extends eqLogic {
     public static function getDefinedCommand($p_command_id='all') {
       $v_result = null;
 
+      /*
+      For generic type see : https://github.com/jeedom/core/blob/beta/core/config/jeedom.config.php
+      */
+
       $v_cmds_json = <<<JSON_EOT
 {
   "presence": {
@@ -263,6 +267,7 @@ class ArubaIot extends eqLogic {
     "description": "",
     "type" : "info",
     "sub_type" : "binary",
+    "generic_type" : "PRESENCE",
     "visible" : 1,
     "history" : 1
   },
@@ -730,6 +735,10 @@ JSON_EOT;
         }
         if (isset($v_cmd_info['min_value'])) {
           $v_cmd->setConfiguration('minValue', $v_cmd_info['min_value']);
+        }
+
+        if (isset($v_cmd_info['generic_type']) && ($v_cmd_info['generic_type'] != '')) {
+          $v_cmd->setGeneric_type($v_cmd_info['generic_type']);
         }
 
         $v_cmd->save();
