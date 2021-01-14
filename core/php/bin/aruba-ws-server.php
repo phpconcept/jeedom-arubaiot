@@ -943,6 +943,9 @@
 
         ArubaIotTool::log('debug', "+-------------------------------------------------------------------------------+");
       }
+      else {
+        ArubaIotTool::log('debug', "Message with no reported devices.");
+      }
 
       return(true);
     }
@@ -1445,34 +1448,39 @@ fwrite($fd, "\n");
       if ($v_inputs->hasRockerList()) {
         ArubaIotTool::log('debug', "Update Switch Rocker Telemetry");
         $v_rocker_list = $v_inputs->getRockerList();
+        $i = 1;
         foreach ($v_rocker_list as $v_rocker) {
           $v_id = $v_rocker->getId();
           $v_state = $v_rocker->getState();
-          ArubaIotTool::log('debug', "Rocker id: ".$v_id.", state: ".$v_state);
+          ArubaIotTool::log('debug', "Rocker id: '".$v_id."', state: ".$v_state);
 
           // ----- Look for Enocean case, where state is in the id ...
           // "switch bank 1: idle"
           if ((strstr($v_id, 'switch bank 1:') !== null) || (strstr($v_id, 'switch bank 2:') !== null)) {
             $v_val = explode(':', $v_id);
-            ArubaIotTool::log('debug', "Rocker real id: ".$v_val[0].", real state: ".trim($v_val[1]));
-            $v_cmd_id = str_replace(' ', '_', trim($v_val[0]));
-            $p_changed_flag = $p_jeedom_object->createAndUpdateCmd($v_cmd_id, trim($v_val[1]), $v_val[0], 'info', 'string', true) || $p_changed_flag;
+            ArubaIotTool::log('debug', "Rocker real id: '".$v_val[0]."', real state: ".trim($v_val[1]));
+            //$v_cmd_id = str_replace(' ', '_', trim($v_val[0]));
+            $v_cmd_id = str_replace('switch bank ', 'button_', trim($v_val[0]));
+            $v_cmd_name = str_replace('switch bank', 'Button', trim($v_val[0]));
+            $p_changed_flag = $p_jeedom_object->createAndUpdateDynCmd($v_cmd_id, trim($v_val[1]), $v_cmd_name, 'info', 'string', true) || $p_changed_flag;
           }
           else {
-            $p_changed_flag = $p_jeedom_object->createAndUpdateCmd($v_id, $v_state, $v_id, 'info', 'string', true) || $p_changed_flag;
+            $p_changed_flag = $p_jeedom_object->createAndUpdateDynCmd($v_id, $v_state, $v_id, 'info', 'string', true) || $p_changed_flag;
           }
+          $i++;
         }
       }
 
       // ----- Look for switch list
       if ($v_inputs->hasSwitchIndexList()) {
         ArubaIotTool::log('debug', "Update Switch Index Telemetry");
+        // TBC : strange to be a list, then multiple ids ... or list should all the time be in same order ... ?
         $v_switch_list = $v_inputs->getSwitchIndexList();
         foreach ($v_switch_list as $v_switch) {
           // ----- Its an enum so value should be direct like that ...
           $v_state = $v_switch->value();
           ArubaIotTool::log('debug', "Switch value: ".$v_state);
-          $p_changed_flag = $p_jeedom_object->createAndUpdateCmd('switch', $v_state, 'Switch', 'info', 'string', false) || $p_changed_flag;
+          $p_changed_flag = $p_jeedom_object->createAndUpdateDynCmd('switch', $v_state, 'Switch', 'info', 'string', false) || $p_changed_flag;
         }
       }
 
@@ -1512,7 +1520,8 @@ fwrite($fd, "\n");
         else {
           // ----- Update presence
           ArubaIotTool::log('debug', "Flag presence");
-          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1, 'Presence', 'info', 'binary', true) || $this->widget_change_flag;
+          //$this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1, 'Presence', 'info', 'binary', true) || $this->widget_change_flag;
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1) || $this->widget_change_flag;
         }
       }
 
@@ -1558,7 +1567,8 @@ fwrite($fd, "\n");
         }
 
         ArubaIotTool::log('debug', "Change presence to 0");
-        $v_val = $v_jeedom_object->createAndUpdateCmd('presence', 0, 'Presence', 'info', 'binary', true);
+        //$v_val = $v_jeedom_object->createAndUpdateCmd('presence', 0, 'Presence', 'info', 'binary', true);
+        $v_val = $v_jeedom_object->createAndUpdateCmd('presence', 0);
         if ($v_val)
           $v_jeedom_object->refreshWidget();
       }
@@ -1654,20 +1664,90 @@ fwrite($fd, "\n");
         if ($v_item->hasIllumination()) {
           $v_val = $v_item->getIllumination();
           ArubaIotTool::log('debug', "Illumination value is : ".$v_val);
-          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('illumination', $v_val, 'Illumination', 'info', 'numeric', true) || $this->widget_change_flag;
+          //$this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('illumination', $v_val, 'Illumination', 'info', 'numeric', true) || $this->widget_change_flag;
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('illumination', $v_val) || $this->widget_change_flag;
         }
 
         // ----- Look for occupancy values
         if ($v_item->hasOccupancy()) {
           $v_level = $v_item->getOccupancy()->getLevel();
           ArubaIotTool::log('debug', "Occupancy value is : ".$v_level);
-          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('occupancy', $v_level, 'Occupancy', 'info', 'numeric', true) || $this->widget_change_flag;
+          //$this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('occupancy', $v_level, 'Occupancy', 'info', 'numeric', true) || $this->widget_change_flag;
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('occupancy', $v_level) || $this->widget_change_flag;
+        }
+
+        if ($v_item->hasTemperatureC()) {
+          $v_val = $v_item->getTemperatureC();
+          ArubaIotTool::log('debug', "TemperatureC value is : ".$v_val);
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('temperatureC', $v_val) || $this->widget_change_flag;
+        }
+
+        if ($v_item->hasHumidity()) {
+          $v_val = $v_item->getHumidity();
+          ArubaIotTool::log('debug', "Humidity value is : ".$v_val);
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('humidity', $v_val) || $this->widget_change_flag;
+        }
+
+        if ($v_item->hasVoltage()) {
+          $v_val = $v_item->getVoltage();
+          ArubaIotTool::log('debug', "Voltage value is : ".$v_val);
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('voltage', $v_val) || $this->widget_change_flag;
+        }
+
+        if ($v_item->hasCO()) {
+          $v_val = $v_item->getCO();
+          ArubaIotTool::log('debug', "CO value is : ".$v_val);
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('CO', $v_val) || $this->widget_change_flag;
+        }
+
+        if ($v_item->hasCO2()) {
+          $v_val = $v_item->getCO2();
+          ArubaIotTool::log('debug', "CO2 value is : ".$v_val);
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('CO2', $v_val) || $this->widget_change_flag;
+        }
+
+        if ($v_item->hasVOC()) {
+          $v_val = $v_item->getVOC();
+          ArubaIotTool::log('debug', "VOC value is : ".$v_val);
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('VOC', $v_val) || $this->widget_change_flag;
+        }
+
+        if ($v_item->hasMotion()) {
+          $v_val = $v_item->getMotion();
+          ArubaIotTool::log('debug', "Motion value is : ".$v_val);
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('motion', $v_val) || $this->widget_change_flag;
+        }
+
+        if ($v_item->hasResistance()) {
+          $v_val = $v_item->getResistance();
+          ArubaIotTool::log('debug', "Resistance value is : ".$v_val);
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('resistance', $v_val) || $this->widget_change_flag;
+        }
+
+        if ($v_item->hasPressure()) {
+          $v_val = $v_item->getPressure();
+          ArubaIotTool::log('debug', "Pressure value is : ".$v_val);
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('pressure', $v_val) || $this->widget_change_flag;
         }
 
         // ----- Update battery level
         if ($v_item->hasBattery()) {
           ArubaIotTool::log('debug', "Battery value is : ".$v_item->getBattery());
           $p_jeedom_object->batteryStatus($v_item->getBattery());
+        }
+
+        // ----- For future use :
+        if ($v_item->hasCurrent()) {
+          ArubaIotTool::log('debug', "Field hasCurrent() available. For future use.");
+        }
+        if ($v_item->hasDistance()) {
+          ArubaIotTool::log('debug', "Field hasDistance() available. For future use.");
+        }
+        if ($v_item->hasMechanicalHandle()) {
+          ArubaIotTool::log('debug', "Field hasMechanicalHandle() available. For future use.");
+        }
+        if ($v_item->hasCapacitance()) {
+          ArubaIotTool::log('debug', "Field hasCapacitance() available. For future use.");
         }
 
       }
@@ -1743,9 +1823,29 @@ fwrite($fd, "\n");
         $this->widget_change_flag = $this->updateSensorTelemetry($v_jeedom_object, $p_telemetry) || $this->widget_change_flag;
       }
 
-      // ----- Update triangulation info
-      // To be removed : moved in upper call
-      //$v_changed_flag = $this->updateTriangulation($p_reporter, $v_jeedom_object, $p_telemetry, $p_class_name) || $v_changed_flag;
+
+
+      // ----- Look for hasTxpower() : Nothing to do now, but for future use
+      if ($p_telemetry->hasTxpower()) {
+        $v_val = $p_telemetry->getTxpower();
+        ArubaIotTool::log('debug', "Txpower value is : ".$v_val);
+        $this->widget_change_flag = $v_jeedom_object->createAndUpdateCmd('txpower', $v_val) || $this->widget_change_flag;
+      }
+
+      // ----- Look for hasCell() : Nothing to do now, but for future use
+      if ($p_telemetry->hasCell()) {
+        ArubaIotTool::log('debug', "This device has hasCell info.");
+      }
+
+      // ----- Look for hasStats() : Nothing to do now, but for future use
+      if ($p_telemetry->hasStats()) {
+        ArubaIotTool::log('debug', "This device has hasStats info.");
+      }
+
+      // ----- Look for hasIdentity() : Nothing to do now, but for future use
+      if ($p_telemetry->hasIdentity()) {
+        ArubaIotTool::log('debug', "This device has hasIdentity info.");
+      }
 
       // ----- Look for vendor data : Nothing to do now, but for future use
       if ($p_telemetry->hasVendorData()) {
@@ -1753,10 +1853,7 @@ fwrite($fd, "\n");
       }
 
       // ----- Look for need to update widget
-      //if ($v_changed_flag) {
-        //ArubaIotTool::log('debug', "refreshWidget()");
-        $v_jeedom_object->refreshWidget();
-      //}
+      $v_jeedom_object->refreshWidget();
 
       return(true);
     }

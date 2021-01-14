@@ -49,6 +49,8 @@ The local IP address of the websocket in the jeedom. If 0.0.0.0, then will use t
 The TCP port where the jeedom will receive the connections. By default 8081. Must be a valid TCP port. If daemon fails to
 connect then try an other free TCP port.
 
+![configuration](docs/images/configuration-1.png)
+
 ### Adding New Devices
 
 To add new devices, click on the Add button and give a name for the device. You must then give a valid MAC@ of the device.
@@ -56,6 +58,8 @@ You can also give the type of object from the dropdown list. If you select "auto
 when receiving the first telemetry frame.
 Depending of the device type, some command information will be initiated for the device. Others will be automatically learnt when
 receiving the telemetry frames from the device.
+
+![device](docs/images/device_add.png)
 
 ### Include Mode
 
@@ -66,6 +70,27 @@ When starting the include mode, a popup window will ask for the type of devices 
 The include mode need to be disabled manually.
 
 Refresh the page to see the updated list of new devices.
+
+![device](docs/images/device_include_mode.png)
+
+
+### Other screenshots
+
+Reporters List and Status :
+
+![reporter](docs/images/reporter_list.png)
+
+Devices Visibility
+
+![device](docs/images/device_visibility.png)
+
+Enocean Illumination History
+
+![device](docs/images/enocean_illumination_history.png)
+
+Device batteries follow-up
+
+![device](docs/images/device_battery.png)
 
 
 ---
@@ -94,6 +119,10 @@ iot useTransportProfile Test
 ```
 
 ## Change Logs
+
+Release v0.6 (in-dev) :
+- Adding additional telemetry data as commands (not tested in real life)
+- Code optimisation (easier to add commands in the future)
 
 Release v0.5 (beta) :
 - Add a modal to display the actives reporters
@@ -126,9 +155,11 @@ Release v0.1 :
 
 ## Known Caveats
 
-As of Release v0.2, known caveats are :
+As of Release v0.6, known caveats are :
 - /!\ Only ws:// is supported today by the websocket daemon, which means communication is in clear. No support yet of wss:// with certificate.
-- The plugin is managing only part of the north bound Aruba API, it doesn't work with the south bound API.
+- The plugin is managing only part of the north bound Aruba API, it doesn't work with the south bound API (no use of GATT communication with BLE devices).
+- When an access point is removed, the telemetry connexion status are not updated in the reporters list. (Cosmetic)
+
 
 ## Behind the Scene
 

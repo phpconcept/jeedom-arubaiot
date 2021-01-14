@@ -28,7 +28,7 @@ class ArubaIotLog extends eqLogic {
      *   troubleshooting locally.
      * ---------------------------------------------------------------------------
      */
-    public function log($p_level, $p_message) {
+    public static function log($p_level, $p_message) {
       global $argv;
 
       if (!isset($argv[1]) || (($argv[1] != 'console-debug') && ($argv[1] != 'console-trace'))) {
