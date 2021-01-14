@@ -714,20 +714,24 @@ JSON_EOT;
     */
 
 
-        $p_cmd_name = $v_cmd_info['name'];
-        $p_cmd_type = $v_cmd_info['type'];
-        $p_cmd_subtype = $v_cmd_info['sub_type'];
-        $p_cmd_isHistorized = $v_cmd_info['history'];
-
         ArubaIotLog::log('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
         $v_cmd = new ArubaIotCmd();
-        $v_cmd->setName(__($p_cmd_name, __FILE__));
+        $v_cmd->setName($v_cmd_info['name']);
 
         $v_cmd->setLogicalId($p_cmd_id);
         $v_cmd->setEqLogic_id($this->getId());
-        $v_cmd->setType($p_cmd_type);
-        $v_cmd->setSubType($p_cmd_subtype);
-        $v_cmd->setIsHistorized($p_cmd_isHistorized);
+        $v_cmd->setType($v_cmd_info['type']);
+        $v_cmd->setSubType($v_cmd_info['sub_type']);
+        $v_cmd->setIsHistorized($v_cmd_info['history']);
+        $v_cmd->setIsVisible($v_cmd_info['visible']);
+
+        if (isset($v_cmd_info['max_value'])) {
+          $v_cmd->setConfiguration('maxValue', $v_cmd_info['max_value']);
+        }
+        if (isset($v_cmd_info['min_value'])) {
+          $v_cmd->setConfiguration('minValue', $v_cmd_info['min_value']);
+        }
+
         $v_cmd->save();
       }
 

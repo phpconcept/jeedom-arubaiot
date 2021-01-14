@@ -121,7 +121,8 @@ iot useTransportProfile Test
 ## Change Logs
 
 Release v0.6 (in-dev) :
-
+- Adding additional telemetry data as commands (not tested in real life)
+- Code optimisation (easier to add commands in the future)
 
 Release v0.5 (beta) :
 - Add a modal to display the actives reporters
@@ -154,9 +155,11 @@ Release v0.1 :
 
 ## Known Caveats
 
-As of Release v0.2, known caveats are :
+As of Release v0.6, known caveats are :
 - /!\ Only ws:// is supported today by the websocket daemon, which means communication is in clear. No support yet of wss:// with certificate.
-- The plugin is managing only part of the north bound Aruba API, it doesn't work with the south bound API.
+- The plugin is managing only part of the north bound Aruba API, it doesn't work with the south bound API (no use of GATT communication with BLE devices).
+- When an access point is removed, the telemetry connexion status are not updated in the reporters list. (Cosmetic)
+
 
 ## Behind the Scene
 
