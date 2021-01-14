@@ -75,14 +75,15 @@ arubaiot_jeedom
 18=3rparty\src\aruba_telemetry\Telemetry.php
 19=core\class\ArubaIotLog.class.php
 20=desktop\modal\modal.reporters.php
+21=C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\10-Produits\IOT\SetupGuide\aruba-telemetry.json
 [Selected Project Files]
 Main=
-Selected=3rparty\src\aruba_telemetry\Telemetry.php
+Selected=core\class\ArubaIot.class.php
 [core\class\ArubaIot.class.php]
-TopLine=218
-Caret=38,241
+TopLine=824
+Caret=1,826
 [core\i18n\en_US.json]
-TopLine=14
+TopLine=1
 Caret=17,37
 [core\i18n\fr_FR.json]
 TopLine=1
@@ -109,8 +110,8 @@ Caret=11,39
 TopLine=1
 Caret=20,11
 [core\php\bin\aruba-ws-server.php]
-TopLine=1442
-Caret=1,1436
+TopLine=1108
+Caret=26,1052
 Mark1=1,815
 Mark2=43,1771
 Mark3=13,779
@@ -144,8 +145,11 @@ Caret=1,21
 TopLine=1
 Caret=31,20
 [core\class\ArubaIotLog.class.php]
-TopLine=27
-Caret=1,50
+TopLine=19
+Caret=73,41
 [desktop\modal\modal.reporters.php]
 TopLine=1
 Caret=1,1
+[C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\10-Produits\IOT\SetupGuide\aruba-telemetry.json]
+TopLine=392
+Caret=28,408
