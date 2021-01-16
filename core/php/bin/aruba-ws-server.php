@@ -1353,7 +1353,7 @@ fwrite($fd, "\n");
       $p_reporter_mac = $p_reporter->getMac();
 
       // ----- Get RSSI (if any)
-      $v_rssi = -100;
+      $v_rssi = -110;
       if ($p_telemetry->hasRSSI()) {
         $v_val = explode(':', $p_telemetry->getRSSI());
         $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : $v_rssi);
@@ -1397,7 +1397,7 @@ fwrite($fd, "\n");
 
       // ----- Look if reporter has a better RSSI than current nearest
       $v_nearest_ap_hysteresis = config::byKey('nearest_ap_hysteresis', 'ArubaIot');
-      if (($v_rssi != -100) && ($v_rssi > ($this->nearest_ap_rssi + $v_nearest_ap_hysteresis))) {
+      if (($v_rssi != -110) && ($v_rssi > ($this->nearest_ap_rssi + $v_nearest_ap_hysteresis))) {
         ArubaIotTool::log('debug', "Swap for a new nearest AP, from '".$this->nearest_ap_mac."' to '".$p_reporter->getMac()."'");
 
         // ----- Swap for new nearest AP

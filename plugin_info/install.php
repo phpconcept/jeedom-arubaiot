@@ -32,7 +32,7 @@ function ArubaIot_install() {
   config::save('presence_timeout', 60, 'ArubaIot');
 
   config::save('nearest_ap_timeout', 120, 'ArubaIot');
-  config::save('nearest_ap_hysteresis', 3, 'ArubaIot');
+  config::save('nearest_ap_hysteresis', 2, 'ArubaIot');
   config::save('triangulation_max_ap', 5, 'ArubaIot');
 
 
