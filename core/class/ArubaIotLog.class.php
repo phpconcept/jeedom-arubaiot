@@ -39,13 +39,13 @@ class ArubaIotLog extends eqLogic {
       }
 
       if ($argv[1] == 'console-debug') {
-        if ($p_level != 'trace') echo '['.$p_level.']:'.$p_message."\n";
+        if ($p_level != 'trace') echo '['.date("Y-m-d H:i:s").'] ['.$p_level.']:'.$p_message."\n";
         return;
       }
 
       if ($argv[1] == 'console-trace') {
         if ($p_level != 'trace')
-          echo '['.$p_level.']:'.$p_message."\n";
+          echo '['.date("Y-m-d H:i:s").'] ['.$p_level.']:'.$p_message."\n";
         else
           var_dump($p_message);
         return;

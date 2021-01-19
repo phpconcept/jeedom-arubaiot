@@ -348,7 +348,7 @@
 
     public function getInterruptTimeout() {
       $v_timeout = config::byKey('presence_timeout', 'ArubaIot');
-      // ----- Max interrupt is 10 seconds
+      // ----- Min interrupt is 10 seconds
       if ($v_timeout < 10)
         $v_timeout = 10;
       return($v_timeout);
@@ -1348,6 +1348,7 @@ fwrite($fd, "\n");
      * ---------------------------------------------------------------------------
      */
     public function updateNearestAP(&$p_reporter, &$p_jeedom_object, $p_telemetry) {
+      ArubaIotTool::log('debug', "Look to update nearestAP");
 
       // ----- Get reporter mac@
       $p_reporter_mac = $p_reporter->getMac();
@@ -1363,10 +1364,12 @@ fwrite($fd, "\n");
       $v_lastseen = 0;
       if ($p_telemetry->hasLastSeen()) {
         $v_lastseen = $p_telemetry->getLastSeen();
+        ArubaIotTool::log('debug', "LastSeen is : ".$v_lastseen);
       }
       else {
         // Should not occur ... I not yet seen an object without this value ...
         $v_lastseen = time();
+        ArubaIotTool::log('debug', "LastSeen is missing, use current time : ".$v_lastseen);
       }
 
       // ----- Look for no current nearest AP
@@ -1383,6 +1386,7 @@ fwrite($fd, "\n");
 
       // ----- Look if this is the current best reporter (nearest ap)
       if ($this->nearest_ap_mac == $p_reporter->getMac()) {
+        ArubaIotTool::log('debug', "Reporter '".$p_reporter->getMac()."' is the current nearest reporter. Update last seen value to ".$v_lastseen);
 
         // ----- Update latest update
         $this->nearest_ap_last_seen = $v_lastseen;
@@ -1398,7 +1402,7 @@ fwrite($fd, "\n");
       // ----- Look if reporter has a better RSSI than current nearest
       $v_nearest_ap_hysteresis = config::byKey('nearest_ap_hysteresis', 'ArubaIot');
       if (($v_rssi != -110) && ($v_rssi > ($this->nearest_ap_rssi + $v_nearest_ap_hysteresis))) {
-        ArubaIotTool::log('debug', "Swap for a new nearest AP, from '".$this->nearest_ap_mac."' to '".$p_reporter->getMac()."'");
+        ArubaIotTool::log('debug', "Swap for a new nearest AP, from '".$this->nearest_ap_mac."' (RSSI '".$this->nearest_ap_rssi."') to '".$p_reporter->getMac()."' (RSSI '".$v_rssi."')");
 
         // ----- Swap for new nearest AP
         $this->nearest_ap_mac = $p_reporter->getMac();
@@ -1413,7 +1417,7 @@ fwrite($fd, "\n");
       // ----- Look if current reporter has a very long last_seen value
       $v_nearest_ap_timeout = config::byKey('nearest_ap_timeout', 'ArubaIot');
       if (($this->nearest_ap_last_seen + $v_nearest_ap_timeout) < time()) {
-        ArubaIotTool::log('debug', "Reset nearest AP, from '".$this->nearest_ap_mac."' to '".$p_reporter->getMac()."'");
+        ArubaIotTool::log('debug', "Reset nearest AP, from '".$this->nearest_ap_mac."' to '".$p_reporter->getMac()."', because old nearest not seen for too long.");
 
         // ----- Swap for new nearest AP
         $this->nearest_ap_mac = $p_reporter->getMac();
@@ -1425,7 +1429,7 @@ fwrite($fd, "\n");
         return(true);
       }
 
-      ArubaIotTool::log('debug', "Reporter '".$p_reporter->getMac()."' not a nearest reporter compared to current '".$this->nearest_ap_mac."'");
+      ArubaIotTool::log('debug', "Reporter '".$p_reporter->getMac()."' not a new nearest reporter compared to current '".$this->nearest_ap_mac."'");
 
       return(false);
     }
@@ -1519,7 +1523,7 @@ fwrite($fd, "\n");
         }
         else {
           // ----- Update presence
-          ArubaIotTool::log('debug', "Flag presence");
+          ArubaIotTool::log('debug', "Flag presence (1)");
           //$this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1, 'Presence', 'info', 'binary', true) || $this->widget_change_flag;
           $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1) || $this->widget_change_flag;
         }
@@ -1542,10 +1546,11 @@ fwrite($fd, "\n");
 
       $v_absent = true;
 
+      ArubaIotTool::log('debug', "NearestAP (".$this->nearest_ap_mac.") last seen : '".$this->nearest_ap_last_seen."', timeout : '".$v_timeout."', current time : '".time()."'");
+
       if (($this->nearest_ap_last_seen+$v_timeout) > time() ) {
           $v_absent = false;
       }
-
 
       // ----- Update presence cmd
       if ($v_absent) {
