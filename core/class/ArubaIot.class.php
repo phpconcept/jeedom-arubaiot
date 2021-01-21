@@ -1015,10 +1015,11 @@ JSON_EOT;
         $v_triangulation = array();
       }
 
+      $new_rssi_flag = true;
       if (isset($v_triangulation[$p_reporter_mac])) {
         if ($v_triangulation[$p_reporter_mac]['rssi'] == $p_rssi) {
-          ArubaIotLog::log('debug', "Same RSSI value for this reporter :".$p_reporter_mac);
-          return(false);
+          ArubaIotLog::log('debug', "Same RSSI value for this reporter :".$p_reporter_mac.", update only timestamp.");
+          $new_rssi_flag = true;
         }
         else {
           ArubaIotLog::log('debug', "Updating RSSI value for this reporter :".$p_reporter_mac);
@@ -1030,27 +1031,29 @@ JSON_EOT;
       $v_triangulation[$p_reporter_mac]['rssi'] = $p_rssi;
       $v_triangulation[$p_reporter_mac]['timestamp'] = $p_timestamp;
 
-      // ----- Keep only X top best reporters, with best timestamp
-      $v_target_max = config::byKey('triangulation_max_ap', 'ArubaIot');
-      if ($v_target_max < 3) $v_target_max = 3;
-      ArubaIotLog::log('debug', "Current number of reporters for triangulation :".sizeof($v_triangulation));
-      ArubaIotLog::log('debug', "Maximum number of reporters configured :".$v_target_max);
-      // TBC : keep 3 best
-      if (sizeof($v_triangulation) > $v_target_max) {
-        $v_rssi_list = array();
-        foreach ($v_triangulation as $key => $item) {
-          $v_rssi_list[$item['rssi']] = $key;
+      if ($new_rssi_flag) {
+        // ----- Keep only X top best reporters, with best timestamp
+        $v_target_max = config::byKey('triangulation_max_ap', 'ArubaIot');
+        if ($v_target_max < 3) $v_target_max = 3;
+        ArubaIotLog::log('debug', "Current number of reporters for triangulation :".sizeof($v_triangulation));
+        ArubaIotLog::log('debug', "Maximum number of reporters configured :".$v_target_max);
+        // TBC : keep 3 best
+        if (sizeof($v_triangulation) > $v_target_max) {
+          $v_rssi_list = array();
+          foreach ($v_triangulation as $key => $item) {
+            $v_rssi_list[$item['rssi']] = $key;
+          }
+          krsort($v_rssi_list);
+          $v_triangulation_new = array();
+          $i=0;
+          foreach ($v_rssi_list as $item) {
+            $v_triangulation_new[$item] = $v_triangulation[$item];
+            $i++;
+            if ($i >= $v_target_max)
+              break;
+          }
+          $v_triangulation = $v_triangulation_new;
         }
-        krsort($v_rssi_list);
-        $v_triangulation_new = array();
-        $i=0;
-        foreach ($v_rssi_list as $item) {
-          $v_triangulation_new[$item] = $v_triangulation[$item];
-          $i++;
-          if ($i >= $v_target_max)
-            break;
-        }
-        $v_triangulation = $v_triangulation_new;
       }
 
       // ----- JSONify
@@ -1071,7 +1074,7 @@ JSON_EOT;
      * Returned value : true on changed value, false otherwise.
      * ---------------------------------------------------------------------------
      */
-    public function cmdUpdateNearestAP($p_nearest_ap_mac) {
+    public function cmdUpdateNearestAP($p_nearest_ap_mac, $p_nearest_ap_name='') {
 
       // ----- Look for existing command
       $v_cmd = $this->getCmd(null, 'nearest_ap');
@@ -1082,7 +1085,7 @@ JSON_EOT;
       }
 
       // ----- Set the value and update the flag
-      $v_changed_flag = $this->checkAndUpdateCmd('nearest_ap', $p_nearest_ap_mac);
+      $v_changed_flag = $this->checkAndUpdateCmd('nearest_ap', ($p_nearest_ap_name==''?$p_nearest_ap_mac:$p_nearest_ap_name));
 
       return($v_changed_flag);
     }

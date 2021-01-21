@@ -107,6 +107,15 @@ if (!isConnect()) {
           </div>
 
           <div class="form-group">
+              <label class="col-lg-4 control-label">{{Minimum RSSI to become a Nearest Reporter}}
+              <sup><i class="fa fa-question-circle tooltips" title="{{Valeur RSSI minimum (en dBm) pour pouvoir devenir un rapporteur le plus proche. (recommandée -85).}}"></i></sup>
+              </label>
+              <div class="col-lg-5">
+                  <input class="configKey form-control" data-l1key="nearest_ap_min_rssi" value="" />
+              </div>
+          </div>
+
+          <div class="form-group">
               <label class="col-lg-4 control-label">{{Maximum number of Reporters for triangulation}}
               <sup><i class="fa fa-question-circle tooltips" title="{{Nombre maximum de Rapporteurs à conserver dans le cache pour la triangulation. Minimum 3.}}"></i></sup>
               </label>

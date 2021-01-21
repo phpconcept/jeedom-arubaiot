@@ -123,6 +123,14 @@ iot useTransportProfile Test
 Release v0.6 (in-dev) :
 - Adding additional telemetry data as commands (not tested in real life)
 - Code optimisation (easier to add commands in the future)
+- Change in presence and nearestAP : a minimum RSSI value can be configured to
+  become a nearestAP. Bellow this value the nearestAP command will not be set (or
+  nearestAP swaped). Initial presence value will be triggered with same minimum
+  RSSI. However as soon as the AP is the nearest, any RSSI value will update the
+  timer and the presence flag.
+- Changing nearestAP value to be AP name rather than MAC@ (could be a configuration option in the future)
+- Bug : update timestamp value in triangulation, even when RSSI is same value.
+  Previously when RSSI is same, no update at all.
 
 Release v0.5 (beta) :
 - Add a modal to display the actives reporters
