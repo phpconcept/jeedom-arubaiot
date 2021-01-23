@@ -32,8 +32,10 @@ function ArubaIot_install() {
   config::save('presence_timeout', 60, 'ArubaIot');
 
   config::save('nearest_ap_timeout', 120, 'ArubaIot');
-  config::save('nearest_ap_hysteresis', 3, 'ArubaIot');
+  config::save('nearest_ap_hysteresis', 2, 'ArubaIot');
   config::save('triangulation_max_ap', 5, 'ArubaIot');
+  config::save('nearest_ap_min_rssi', -85, 'ArubaIot');
+
 
 
 //  log::add('ArubaIot', 'info', 'Supported devices : '.$v_device_type_allow_list);
