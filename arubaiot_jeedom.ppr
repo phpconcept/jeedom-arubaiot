@@ -77,12 +77,14 @@ arubaiot_jeedom
 20=desktop\modal\modal.reporters.php
 21=3rparty\src\aruba_telemetry\Sensors.php
 22=C:\Users\blavet\Dropbox\00-Vincent\Dev\jeedom\plugins\ArubaIot\ToDo.txt
+23=C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\Lab_Wlan_Iot_Central.cfg
+24=C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\WLAN-Template-2021-01-23.cfg
 [Selected Project Files]
 Main=
 Selected=core\php\bin\aruba-ws-server.php
 [core\class\ArubaIot.class.php]
-TopLine=262
-Caret=59,277
+TopLine=1054
+Caret=35,1071
 [core\i18n\en_US.json]
 TopLine=26
 Caret=17,37
@@ -103,30 +105,31 @@ TopLine=189
 Caret=67,200
 [plugin_info\install.php]
 TopLine=23
-Caret=69,35
+Caret=55,39
 [plugin_info\configuration.php]
-TopLine=28
-Caret=11,39
+TopLine=92
+Caret=1,111
 [plugin_info\info.json]
 TopLine=1
 Caret=20,11
 [core\php\bin\aruba-ws-server.php]
-TopLine=1497
-Caret=60,1515
+TopLine=1332
+Caret=116,1428
 Mark1=1,815
-Mark2=43,1811
+Mark2=43,1843
 Mark3=13,779
 Mark4=69,592
 Mark5=1,724
 Mark6=64,1048
 Mark7=35,857
 Mark8=11,1344
+Mark9=9,1397
 [core\ajax\ArubaIot.ajax.php]
 TopLine=10
 Caret=96,21
 [README.md]
-TopLine=146
-Caret=1,161
+TopLine=118
+Caret=1,131
 [C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-nb-telemetry.proto]
 TopLine=158
 Caret=26,169
@@ -156,4 +159,10 @@ TopLine=1
 Caret=1,1
 [C:\Users\blavet\Dropbox\00-Vincent\Dev\jeedom\plugins\ArubaIot\ToDo.txt]
 TopLine=1
-Caret=55,7
+Caret=101,36
+[C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\Lab_Wlan_Iot_Central.cfg]
+TopLine=107
+Caret=36,133
+[C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\WLAN-Template-2021-01-23.cfg]
+TopLine=181
+Caret=35,205
