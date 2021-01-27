@@ -81,7 +81,7 @@ arubaiot_jeedom
 24=C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\WLAN-Template-2021-01-23.cfg
 [Selected Project Files]
 Main=
-Selected=core\php\bin\aruba-ws-server.php
+Selected=C:\Users\blavet\Dropbox\00-Vincent\Dev\jeedom\plugins\ArubaIot\ToDo.txt
 [core\class\ArubaIot.class.php]
 TopLine=1054
 Caret=35,1071
@@ -113,10 +113,10 @@ Caret=1,111
 TopLine=1
 Caret=20,11
 [core\php\bin\aruba-ws-server.php]
-TopLine=1332
-Caret=116,1428
+TopLine=1616
+Caret=42,1635
 Mark1=1,815
-Mark2=43,1843
+Mark2=43,1847
 Mark3=13,779
 Mark4=69,592
 Mark5=1,724
@@ -159,9 +159,9 @@ TopLine=1
 Caret=1,1
 [C:\Users\blavet\Dropbox\00-Vincent\Dev\jeedom\plugins\ArubaIot\ToDo.txt]
 TopLine=1
-Caret=101,36
+Caret=1,15
 [C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\Lab_Wlan_Iot_Central.cfg]
-TopLine=107
+TopLine=108
 Caret=36,133
 [C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\WLAN-Template-2021-01-23.cfg]
 TopLine=181
