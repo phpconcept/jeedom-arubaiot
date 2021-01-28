@@ -129,6 +129,11 @@ Release v0.6 (in-dev) :
   RSSI. However as soon as the AP is the nearest, any RSSI value will update the
   timer and the presence flag.
 - Changing nearestAP value to be AP name rather than MAC@ (could be a configuration option in the future)
+- Improve presence algo : store presence when received telemetry data from a not nearestAP.
+- Improve interupt call (every 10sec) to lower the absence detection time.
+- Change the way commands are auto learn for a device. When a device is created some
+mandatory commands are created, commands are detected during the insertion mode,
+and each device can be configured to auto learn new commands or not.
 - Bug : update timestamp value in triangulation, even when RSSI is same value.
   Previously when RSSI is same, no update at all.
 
