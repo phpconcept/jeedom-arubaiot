@@ -347,10 +347,16 @@
     }
 
     public function getInterruptTimeout() {
+      $v_timeout = 10;
+
+      /*
+      // Seems that an interrupt every 10 sec should be ok to validate the absence of devices ...
       $v_timeout = config::byKey('presence_timeout', 'ArubaIot');
       // ----- Min interrupt is 10 seconds
       if ($v_timeout < 10)
         $v_timeout = 10;
+
+        */
       return($v_timeout);
     }
 
@@ -1041,17 +1047,20 @@
       // ----- Get Meta part of the message
       $v_at_meta = $v_at_telemetry_msg->getMeta();
 
-      ArubaIotTool::log('debug', "--------- Meta :");
-      ArubaIotTool::log('debug', "  Version: ".$v_at_meta->getVersion()."");
-      ArubaIotTool::log('debug', "  Access Token: ".$v_at_meta->getAccessToken()."");
-      ArubaIotTool::log('debug', "---------");
-      ArubaIotTool::log('debug', "");
-
-      // ----- Check Topic
+      // ----- Get Topic
       $v_topic = '';
       if ($v_at_meta->hasNbTopic()) {
         $v_topic = $v_at_meta->getNbTopic()->name();
       }
+
+      ArubaIotTool::log('debug', "--------- Meta :");
+      ArubaIotTool::log('debug', "  Version: ".$v_at_meta->getVersion()."");
+      ArubaIotTool::log('debug', "  Access Token: ".$v_at_meta->getAccessToken()."");
+      ArubaIotTool::log('debug', "  NbTopic: ".$v_topic."");
+      ArubaIotTool::log('debug', "---------");
+      ArubaIotTool::log('debug', "");
+
+      // ----- Check Topic
       if ($v_topic == ''){
         ArubaIotTool::log('debug', "Missing nbTopic information, not a valid protobuf message ... ?");
         // TBC : should I stop here ?
@@ -1080,7 +1089,7 @@
       ArubaIotTool::log('debug', "  hwType: ".$v_at_reporter->getHwType()."");
       ArubaIotTool::log('debug', "  swVersion: ".$v_at_reporter->getSwVersion()."");
       ArubaIotTool::log('debug', "  swBuild: ".$v_at_reporter->getSwBuild()."");
-      ArubaIotTool::log('debug', "  Time: ".date("Y-m-d H:i:s", $v_at_reporter->getTime())."");
+      ArubaIotTool::log('debug', "  Time: ".date("Y-m-d H:i:s", $v_at_reporter->getTime())." (".$v_at_reporter->getTime().")");
       ArubaIotTool::log('debug', "---------");
       ArubaIotTool::log('debug', "");
 
@@ -1199,7 +1208,6 @@ fwrite($fd, "\n");
 
       // ----- Parse data depending on nature
       if ($p_connection->my_type == 'telemetry') {
-        //return $this->onMsgTelemetry($p_connection, $v_at_telemetry_msg);
         return $this->onMsgTelemetry($v_reporter, $v_at_telemetry_msg);
       }
       else if ($p_connection->my_type == 'rtls') {
@@ -1234,6 +1242,14 @@ fwrite($fd, "\n");
 
       ArubaIotTool::log('debug', 'New interupt call');
 
+      // ----- Add a gracefull restart
+      // Need to wait for websocket connexions to be up before change status
+      // to missing
+      // 60 sec is maybe too much ?
+      if (($this->up_time + 60) > time()) {
+        return;
+      }
+
       // ----- Scan all devices for presence update
       foreach ($this->cached_devices as $v_device) {
         $v_device->updateAbsence();
@@ -1266,6 +1282,7 @@ fwrite($fd, "\n");
     protected $nearest_ap_mac;
     protected $nearest_ap_rssi;
     protected $nearest_ap_last_seen;
+    protected $presence_last_seen;
 
     /**---------------------------------------------------------------------------
      * Method : __construct()
@@ -1280,6 +1297,7 @@ fwrite($fd, "\n");
       $this->nearest_ap_mac = '';
       $this->nearest_ap_rssi = -110;
       $this->nearest_ap_last_seen = 0;
+      $this->presence_last_seen = 0;
 
       $this->widget_change_flag = false;
     }
@@ -1348,10 +1366,22 @@ fwrite($fd, "\n");
      * ---------------------------------------------------------------------------
      */
     public function updateNearestAP(&$p_reporter, &$p_jeedom_object, $p_telemetry) {
-      ArubaIotTool::log('debug', "Look to update nearestAP");
 
       // ----- Get reporter mac@
       $p_reporter_mac = $p_reporter->getMac();
+      ArubaIotTool::log('debug', "Look to update nearestAP with ".$p_reporter_mac);
+
+      // ----- Get last seen (if any)
+      $v_lastseen = 0;
+      if ($p_telemetry->hasLastSeen()) {
+        $v_lastseen = $p_telemetry->getLastSeen();
+        ArubaIotTool::log('debug', "LastSeen is : ".$v_lastseen." (".date("Y-m-d H:i:s", $v_lastseen).")");
+      }
+      else {
+        // Should not occur ... I not yet seen an object without this value ...
+        $v_lastseen = time();
+        ArubaIotTool::log('debug', "LastSeen is missing, use current time : ".$v_lastseen." (".date("Y-m-d H:i:s", $v_lastseen).")");
+      }
 
       // ----- Get RSSI (if any)
       $v_rssi = -110;
@@ -1360,30 +1390,25 @@ fwrite($fd, "\n");
         $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : $v_rssi);
       }
 
-      // ----- Get last seen (if any)
-      $v_lastseen = 0;
-      if ($p_telemetry->hasLastSeen()) {
-        $v_lastseen = $p_telemetry->getLastSeen();
-        ArubaIotTool::log('debug', "LastSeen is : ".$v_lastseen);
-      }
-      else {
-        // Should not occur ... I not yet seen an object without this value ...
-        $v_lastseen = time();
-        ArubaIotTool::log('debug', "LastSeen is missing, use current time : ".$v_lastseen);
-      }
-
       // ----- Look if this is the current best reporter (nearest ap)
       if ($this->nearest_ap_mac == $p_reporter->getMac()) {
-        ArubaIotTool::log('debug', "Reporter '".$p_reporter->getMac()."' is the current nearest reporter. Update last seen value to ".$v_lastseen);
+        ArubaIotTool::log('debug', "Reporter '".$p_reporter->getMac()."' is the current nearest reporter. Update last seen value");
 
-        // ----- No cahnge in last seen value => repeated old value ...
+        // ----- No change in last seen value => repeated old value ...
         if ($this->nearest_ap_last_seen == $v_lastseen) {
           ArubaIotTool::log('debug', "New last seen value is the same : repeated old telemetry data. Skip telemetry data.");
           return(false);
         }
 
+        // ----- Should never occur ...
+        if ($this->nearest_ap_last_seen > $v_lastseen) {
+          ArubaIotTool::log('error', "New last seen value is older than previous one ! Should never occur. Skip telemetry data.");
+          return(false);
+        }
+
         // ----- Update latest update
         $this->nearest_ap_last_seen = $v_lastseen;
+        $this->presence_last_seen = $v_lastseen;
 
         // ----- Update latest RSSI.
         //  if no RSSI, keep the old one ... ?
@@ -1398,56 +1423,79 @@ fwrite($fd, "\n");
         return(true);
       }
 
+      // ----- Get device presence timeout
+      $v_timeout = config::byKey('presence_timeout', 'ArubaIot');
+
+      // ----- Look for too old data for updated presence
+      // Even if this is a better RSSI the timestamp is too old for the presence flag.
+      if ( (($v_lastseen + $v_timeout) < time())) {
+        ArubaIotTool::log('debug', "Last-seen value for this AP is already older than presence timeout. Skip telemetry data.");
+        return(false);
+      }
+
       $swap_ap_flag = false;
 
       // ----- Look for no current nearest AP
       if ($this->nearest_ap_mac == '') {
-        ArubaIotTool::log('debug', "First nearest reporter '".$p_reporter->getMac()."'");
+        ArubaIotTool::log('debug', "No existing nearest reporter.");
         $swap_ap_flag = true;
       }
 
       // ----- Look if new reporter has a better RSSI than current nearest
       $v_nearest_ap_hysteresis = config::byKey('nearest_ap_hysteresis', 'ArubaIot');
       if (!$swap_ap_flag && ($v_rssi != -110) && ($v_rssi > ($this->nearest_ap_rssi + $v_nearest_ap_hysteresis))) {
-        ArubaIotTool::log('debug', "Swap for a new nearest AP, from '".$this->nearest_ap_mac."' (RSSI '".$this->nearest_ap_rssi."') to '".$p_reporter->getMac()."' (RSSI '".$v_rssi."')");
+        ArubaIotTool::log('debug', "Swap for a new nearest AP with better RSSI, from '".$this->nearest_ap_mac."' (RSSI '".$this->nearest_ap_rssi."') to '".$p_reporter->getMac()."' (RSSI '".$v_rssi."')");
         $swap_ap_flag = true;
       }
 
+      /*
       // ----- Look if current reporter has a very long last_seen value
       $v_nearest_ap_timeout = config::byKey('nearest_ap_timeout', 'ArubaIot');
       if (!$swap_ap_flag && (($this->nearest_ap_last_seen + $v_nearest_ap_timeout) < time())) {
-        ArubaIotTool::log('debug', "Swap for a new nearest AP, from '".$this->nearest_ap_mac."' to '".$p_reporter->getMac()."', because old nearest was not seen for too long.");
+        ArubaIotTool::log('debug', "Swap for a new nearest AP with better last-seen value, from '".$this->nearest_ap_mac."' (".date("Y-m-d H:i:s", $this->nearest_ap_last_seen).") to '".$p_reporter->getMac()."' (".date("Y-m-d H:i:s", $v_lastseen).").");
         $swap_ap_flag = true;
+      }
+      */
+
+      // ----- Look if rssi lower than the minimum to swap
+      if ($swap_ap_flag) {
+        $v_nearest_ap_min_rssi = config::byKey('nearest_ap_min_rssi', 'ArubaIot');
+
+        if ($v_rssi < $v_nearest_ap_min_rssi) {
+          ArubaIotTool::log('debug', "RSSI (".$v_rssi.") is not enought to become a nearestAP.");
+          $swap_ap_flag = false;
+        }
       }
 
       // ----- Look if swap to new AP is to be done
       if ($swap_ap_flag) {
-        $v_nearest_ap_min_rssi = config::byKey('nearest_ap_min_rssi', 'ArubaIot');
-        if ($v_rssi > $v_nearest_ap_min_rssi) {
-          // ----- Swap for new nearest AP
-          $this->nearest_ap_mac = $p_reporter->getMac();
-          $this->nearest_ap_last_seen = $v_lastseen;
-          $this->nearest_ap_rssi = $v_rssi;
+        ArubaIotTool::log('debug', "Swap for new reporter '".$p_reporter->getMac()."'");
 
-          $this->widget_change_flag = $p_jeedom_object->cmdUpdateNearestAP($p_reporter->getMac(), $p_reporter->getName()) || $this->widget_change_flag;
+        // ----- Swap for new nearest AP
+        $this->nearest_ap_mac = $p_reporter->getMac();
+        $this->nearest_ap_last_seen = $v_lastseen;
+        $this->presence_last_seen = $v_lastseen;
+        $this->nearest_ap_rssi = $v_rssi;
 
-          // ----- Update Presence flag to 1
-          // AP is already the nearest, so if teh RSSI is very low this is an update
-          // so an indication that the device is still here, not so far.
-          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1) || $this->widget_change_flag;
+        $this->widget_change_flag = $p_jeedom_object->cmdUpdateNearestAP($p_reporter->getMac(), $p_reporter->getName()) || $this->widget_change_flag;
 
-          return(true);
-        }
-        else {
-          ArubaIotTool::log('debug', "RSSI (".$v_rssi.") is not enought to become a nearestAP.");
-          return(false);
-        }
-      }
-      else {
-        ArubaIotTool::log('debug', "Reporter '".$p_reporter->getMac()."' not a new nearest reporter compared to current '".$this->nearest_ap_mac."'. Skip telemetry data.");
-        return(false);
+        // ----- Update Presence flag to 1
+        // AP is already the nearest, so if teh RSSI is very low this is an update
+        // so an indication that the device is still here, not so far.
+        $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1) || $this->widget_change_flag;
+
+        return(true);
       }
 
+      // ----- Compare new AP lastseen to nearestAP timestamp
+      if ($v_lastseen > $this->presence_last_seen) {
+        // ----- The new reporter is not a better nearest AP, but it has seen the device
+        // with a better timestamp, so update the timestamp for presence update
+        $this->presence_last_seen = $v_lastseen;
+        ArubaIotTool::log('debug', "Do not update nearest reporter, but update presence timestamp.");
+      }
+
+      ArubaIotTool::log('debug', "Reporter '".$p_reporter->getMac()."' not a new nearest reporter compared to current '".$this->nearest_ap_mac."'. Skip telemetry data.");
 
       return(false);
     }
@@ -1511,66 +1559,21 @@ fwrite($fd, "\n");
     /* -------------------------------------------------------------------------*/
 
     /**---------------------------------------------------------------------------
-     * Method : updatePresenceTelemetry()
-     * Description :
-     * ---------------------------------------------------------------------------
-     */
-    public function updatePresenceTelemetry(&$p_jeedom_object, $p_telemetry, $p_class_name) {
-
-    return(false);
-
-    /*
-      ArubaIotTool::log('debug', "Update Presence Telemetry (lastSeen timeout)");
-
-      $p_changed_flag = false;
-
-      // ----- Look if this command is allowed for this class_name
-      if (!ArubaIot::isAllowedCmdForClass('presence', $p_class_name)) {
-        ArubaIotTool::log('debug', "Command 'presence' not allowed for this class_name '".$p_class_name."'. Look at settings");
-        return(false);
-      }
-
-      // ----- Look last sign of life
-      if ($p_telemetry->hasLastSeen()) {
-        $v_timer = $p_telemetry->getLastSeen();
-
-        $v_timeout = config::byKey('presence_timeout', 'ArubaIot');
-        ArubaIotTool::log('debug', "Time is : ".time().", last seen : ".$v_timer.", timeout :".$v_timeout);
-        if ($v_timer < (time()-$v_timeout) ) {
-          // ----- Update absence
-          // Absence can't be calculated from only one reporter : so this action is reported in the interrupt mecanism
-          //ArubaIotTool::log('debug', "Flag absence");
-          //$p_changed_flag = $p_jeedom_object->createAndUpdateCmd('presence', 0, 'Presence', 'info', 'binary', true) || $p_changed_flag;
-        }
-        else {
-          // ----- Update presence
-          ArubaIotTool::log('debug', "Flag presence (1)");
-          //$this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1, 'Presence', 'info', 'binary', true) || $this->widget_change_flag;
-          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1) || $this->widget_change_flag;
-        }
-      }
-
-      return($this->widget_change_flag);
-      */
-    }
-    /* -------------------------------------------------------------------------*/
-
-    /**---------------------------------------------------------------------------
      * Method : updatePresenceByTime()
      * Description :
      * ---------------------------------------------------------------------------
      */
     public function updateAbsence() {
 
-      ArubaIotTool::log('debug', "Check Absence for '".$this->mac_address."'");
-
       $v_timeout = config::byKey('presence_timeout', 'ArubaIot');
 
       $v_absent = true;
 
-      ArubaIotTool::log('debug', "NearestAP (".$this->nearest_ap_mac.") last seen : '".$this->nearest_ap_last_seen."', timeout : '".$v_timeout."', current time : '".time()."'");
+//      ArubaIotTool::log('debug', "NearestAP (".$this->nearest_ap_mac.") last seen : '".$this->nearest_ap_last_seen."', timeout : '".$v_timeout."', current time : '".time()."'");
+      ArubaIotTool::log('debug', "Check Absence for ".$this->mac_address.":Last-seen:".$this->presence_last_seen.",timeout:".$v_timeout."',current time:".time()."");
 
-      if (($this->nearest_ap_last_seen+$v_timeout) > time() ) {
+//      if (($this->nearest_ap_last_seen+$v_timeout) > time() ) {
+      if (($this->presence_last_seen+$v_timeout) > time() ) {
           $v_absent = false;
       }
 
@@ -1581,31 +1584,37 @@ fwrite($fd, "\n");
         $v_jeedom_object = eqLogic::byId($this->getJeedomObjectId());
         if ($v_jeedom_object === null) {
           // Should not occur, but if in removing an object phase ...
-          ArubaIotTool::log('debug', "Fail to find an object with this ID ..");
+          ArubaIotTool::log('debug', "-> Fail to find an object with this ID ..");
           return(false);
         }
 
+        /*
         $v_jeedom_class = $v_jeedom_object->getConfiguration('class_type');
 
         // ----- Look if this command is allowed for this class_name
         if (!ArubaIot::isAllowedCmdForClass('presence', $v_jeedom_class)) {
-          ArubaIotTool::log('debug', "Command 'presence' not allowed for this class_name '".$v_jeedom_class."'. Look at settings");
+          ArubaIotTool::log('debug', "-> Command 'presence' not allowed for this class_name '".$v_jeedom_class."'. Look at settings");
           return(false);
         }
+        */
+
+        // TBC : Improvment ? May be here I should look for triangulation list
+        // and get the best one in the list with a last_seen value better than the current nearest AP ?
 
         // ----- Reset nearestAP
         $this->nearest_ap_mac = '';
         $this->nearest_ap_rssi = -110;
         $this->nearest_ap_last_seen = 0;
+        $this->presence_last_seen = 0;
 
-        ArubaIotTool::log('debug', "Change presence to 0");
+        ArubaIotTool::log('debug', "--> Presence flag is : missing");
         //$v_val = $v_jeedom_object->createAndUpdateCmd('presence', 0, 'Presence', 'info', 'binary', true);
         $v_val = $v_jeedom_object->createAndUpdateCmd('presence', 0);
         if ($v_val)
           $v_jeedom_object->refreshWidget();
       }
       else {
-        ArubaIotTool::log('debug', "No change needed on presence");
+        ArubaIotTool::log('debug', "--> Presence flag is : presence");
       }
 
       return;
@@ -1617,17 +1626,17 @@ fwrite($fd, "\n");
      * Description :
      * ---------------------------------------------------------------------------
      */
-    public function updateRssiTelemetry(&$p_jeedom_object, $p_telemetry, $p_class_name) {
+    public function updateRssiTelemetry(&$p_jeedom_object, $p_telemetry, $p_class_name='') {
 
-      ArubaIotTool::log('debug', "Update Rssi Telemetry data");
+      //ArubaIotTool::log('debug', "Update Rssi Telemetry data");
 
-      $p_changed_flag = false;
-
+      /*
       // ----- Look if this command is allowed for this class_name
       if (!ArubaIot::isAllowedCmdForClass('rssi', $p_class_name)) {
         ArubaIotTool::log('debug', "Command 'rssi' not allowed for this class_name '".$p_class_name."'. Look at settings");
         return(false);
       }
+      */
 
       // ----- Update common telemetry data
       $v_rssi = 0;
@@ -1636,7 +1645,7 @@ fwrite($fd, "\n");
         $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : 0);
       }
       if ($v_rssi != 0) {
-        ArubaIotTool::log('debug', "RSSI changed for : ".$v_rssi);
+        ArubaIotTool::log('debug', "--> RSSI changed for : ".$v_rssi);
         $this->widget_change_flag = $p_jeedom_object->checkAndUpdateCmd('rssi', $v_rssi) || $this->widget_change_flag;
       }
 
@@ -1649,17 +1658,17 @@ fwrite($fd, "\n");
      * Description :
      * ---------------------------------------------------------------------------
      */
-    public function updateTriangulation(&$p_reporter, &$p_jeedom_object, $p_telemetry, $p_class_name) {
+    public function updateTriangulation(&$p_reporter, &$p_jeedom_object, $p_telemetry, $p_class_name='') {
 
       ArubaIotTool::log('debug', "Update Triangulation data");
 
-      $p_changed_flag = false;
-
+      /*
       // ----- Look if this command is allowed for this class_name
       if (!ArubaIot::isAllowedCmdForClass('triangulation', $p_class_name)) {
         ArubaIotTool::log('debug', "Command 'triangulation' not allowed for this class_name '".$p_class_name."'. Look at settings");
         return(false);
       }
+      */
 
       // ----- Update common telemetry data
       $v_rssi = 0;
@@ -1668,8 +1677,11 @@ fwrite($fd, "\n");
         $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : 0);
       }
       if ($v_rssi != 0) {
-        ArubaIotTool::log('debug', "RSSI changed for : ".$v_rssi);
-        $this->widget_change_flag = $p_jeedom_object->cmdUpdateTriangulation($p_reporter->getMac(), $v_rssi, $p_reporter->getLastSeen()) || $this->widget_change_flag;
+        ArubaIotTool::log('debug', "--> Changed Triangulation for RSSI : ".$v_rssi);
+
+        // TBC : Don't know if I need to update the widget each time for this value, that should not be visible ...
+        //$this->widget_change_flag = $p_jeedom_object->cmdUpdateTriangulation($p_reporter->getMac(), $v_rssi, $p_reporter->getLastSeen()) || $this->widget_change_flag;
+        $p_jeedom_object->cmdUpdateTriangulation($p_reporter->getMac(), $v_rssi, $p_reporter->getLastSeen());
       }
 
       return($this->widget_change_flag);
@@ -1836,11 +1848,6 @@ fwrite($fd, "\n");
     public function updateTelemetryData(&$p_reporter, &$v_jeedom_object, $p_telemetry, $p_class_name) {
 
       $v_changed_flag = false;
-
-      // ----- Update presence flag for the device
-      if ($p_telemetry->hasLastSeen()) {
-        $this->widget_change_flag = $this->updatePresenceTelemetry($v_jeedom_object, $p_telemetry, $p_class_name) || $this->widget_change_flag;
-      }
 
       // ----- Update common telemetry data
       $this->widget_change_flag = $this->updateRssiTelemetry($v_jeedom_object, $p_telemetry, $p_class_name) || $this->widget_change_flag;

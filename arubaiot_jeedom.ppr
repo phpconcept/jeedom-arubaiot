@@ -77,12 +77,14 @@ arubaiot_jeedom
 20=desktop\modal\modal.reporters.php
 21=3rparty\src\aruba_telemetry\Sensors.php
 22=C:\Users\blavet\Dropbox\00-Vincent\Dev\jeedom\plugins\ArubaIot\ToDo.txt
+23=C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\Lab_Wlan_Iot_Central.cfg
+24=C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\WLAN-Template-2021-01-23.cfg
 [Selected Project Files]
 Main=
-Selected=core\php\bin\aruba-ws-server.php
+Selected=core\class\ArubaIot.class.php
 [core\class\ArubaIot.class.php]
-TopLine=262
-Caret=59,277
+TopLine=457
+Caret=1,473
 [core\i18n\en_US.json]
 TopLine=26
 Caret=17,37
@@ -93,8 +95,8 @@ Caret=1,1
 TopLine=12
 Caret=1,23
 [desktop\php\ArubaIot.php]
-TopLine=43
-Caret=54,45
+TopLine=21
+Caret=54,38
 [desktop\modal\modal.ArubaIot.php]
 TopLine=1
 Caret=15,7
@@ -102,31 +104,32 @@ Caret=15,7
 TopLine=189
 Caret=67,200
 [plugin_info\install.php]
-TopLine=23
-Caret=69,35
+TopLine=17
+Caret=55,39
 [plugin_info\configuration.php]
-TopLine=28
-Caret=11,39
+TopLine=92
+Caret=183,111
 [plugin_info\info.json]
 TopLine=1
 Caret=20,11
 [core\php\bin\aruba-ws-server.php]
-TopLine=1497
-Caret=60,1515
-Mark1=1,815
-Mark2=43,1811
-Mark3=13,779
-Mark4=69,592
-Mark5=1,724
-Mark6=64,1048
-Mark7=35,857
-Mark8=11,1344
+TopLine=1459
+Caret=50,1469
+Mark1=1,821
+Mark2=43,1850
+Mark3=13,785
+Mark4=69,598
+Mark5=1,730
+Mark6=64,1061
+Mark7=35,863
+Mark8=11,1362
+Mark9=9,1422
 [core\ajax\ArubaIot.ajax.php]
 TopLine=10
 Caret=96,21
 [README.md]
-TopLine=146
-Caret=1,161
+TopLine=118
+Caret=1,131
 [C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-nb-telemetry.proto]
 TopLine=158
 Caret=26,169
@@ -155,5 +158,11 @@ Caret=1,1
 TopLine=1
 Caret=1,1
 [C:\Users\blavet\Dropbox\00-Vincent\Dev\jeedom\plugins\ArubaIot\ToDo.txt]
-TopLine=1
-Caret=55,7
+TopLine=47
+Caret=1,74
+[C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\Lab_Wlan_Iot_Central.cfg]
+TopLine=108
+Caret=36,133
+[C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\WLAN-Template-2021-01-23.cfg]
+TopLine=181
+Caret=35,205
