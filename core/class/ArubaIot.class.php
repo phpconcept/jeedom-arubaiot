@@ -268,7 +268,7 @@ class ArubaIot extends eqLogic {
     "type" : "info",
     "sub_type" : "binary",
     "generic_type" : "PRESENCE",
-    "visible" : 1,
+    "visible" : 0,
     "history" : 1
   },
   "rssi": {
@@ -276,10 +276,26 @@ class ArubaIot extends eqLogic {
     "description": "",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 1,
+    "visible" : 0,
     "history" : 1,
     "min_value" : -110,
     "max_value" : -10
+  },
+  "nearest_ap": {
+    "name": "Nearest AP",
+    "description": "",
+    "type" : "info",
+    "sub_type" : "string",
+    "visible" : 0,
+    "history" : 0
+  },
+  "triangulation": {
+    "name": "Triangulation",
+    "description": "",
+    "type" : "info",
+    "sub_type" : "string",
+    "visible" : 0,
+    "history" : 0
   },
   "illumination": {
     "name": "Illumination",
@@ -299,22 +315,6 @@ class ArubaIot extends eqLogic {
     "history" : 1,
     "min_value" : 0,
     "max_value" : 100
-  },
-  "nearest_ap": {
-    "name": "Nearest AP",
-    "description": "",
-    "type" : "info",
-    "sub_type" : "string",
-    "visible" : 1,
-    "history" : 0
-  },
-  "triangulation": {
-    "name": "Triangulation",
-    "description": "",
-    "type" : "info",
-    "sub_type" : "string",
-    "visible" : 0,
-    "history" : 0
   },
   "temperatureC": {
     "name": "Temperature",
@@ -470,7 +470,7 @@ JSON_EOT;
      *   If cmd_id is unknown or class_name is unknown, then it will return true.
      * ---------------------------------------------------------------------------
      */
-    public static function isAllowedCmdForClass($p_cmd_id, $p_class_name) {
+    private static function isAllowedCmdForClass($p_cmd_id, $p_class_name) {
 
       // ----- Here is a code-static list of command than can not be
       // automatically added to an object of this class
@@ -509,15 +509,17 @@ JSON_EOT;
     public function preInsert() {
 
       // ----- Default values if configuration is empty
-      if ($this->getConfiguration('mac_address', '') == '')
-      {
+      if ($this->getConfiguration('mac_address', '') == '') {
         ArubaIotLog::log('ArubaIot', 'debug', 'MAC is empty, change to 00:00:00:00:00:00');
         $this->setConfiguration('mac_address', '00:00:00:00:00:00');
       }
-      if ($this->getConfiguration('class_type', '') == '')
-      {
+      if ($this->getConfiguration('class_type', '') == '') {
         ArubaIotLog::log('ArubaIot', 'debug', 'class_type is empty, change to auto');
         $this->setConfiguration('class_type', 'auto');
+      }
+
+      if ($this->getConfiguration('command_auto', '') == '') {
+        $this->setConfiguration('command_auto', '1');
       }
 
     }
@@ -631,36 +633,49 @@ JSON_EOT;
      * Returned value : true if ok.
      * ---------------------------------------------------------------------------
      */
-    public function createAllCmd() {
+    private function createAllCmd() {
+
+      // ----- Temporary deactivation of auto command disable
+      // Trick : to force default command per device type because createCmd() check the config.
+      $v_command_auto = $this->getConfiguration('command_auto', '');
+      $this->setConfiguration('command_auto', '1');
 
       // ----- Get class_name of object
       $v_class_name = $this->getConfiguration('class_type');
 
+
+
       switch ($v_class_name) {
         case 'arubaTag' :
-          //$this->createCmd('presence', 'Presence', 'info', 'binary', true);
-          $this->createCmd('presence');
-          //$this->createCmd('rssi', 'RSSI', 'info', 'numeric', true);
+          $this->createCmd('presence', 'visible');
           $this->createCmd('rssi');
-          //$this->createCmd('nearest_ap', 'Nearest AP', 'info', 'string', true);
-          $this->createCmd('nearest_ap');
-          //$this->cmdCreateTriangulation();
+          $this->createCmd('nearest_ap', 'visible');
+          $this->createCmd('triangulation');
+        break;
+        case 'generic' :
+          $this->createCmd('presence', 'visible');
+          $this->createCmd('rssi');
+          $this->createCmd('nearest_ap', 'visible');
           $this->createCmd('triangulation');
         break;
         case 'arubaBeacon' :
+          $this->createCmd('rssi', 'notvisible', 'nohistorization');
           // Battery is by default;
         break;
         case 'enoceanSensor' :
-          //$this->createCmdIllumination();
+          $this->createCmd('rssi', 'notvisible', 'nohistorization');
           $this->createCmd('illumination');
-          //$this->createCmdOccupancy();
           $this->createCmd('occupancy');
         break;
         case 'enoceanSwitch' :
+          $this->createCmd('rssi', 'notvisible', 'nohistorization');
           // will be learn depending of switch type
         break;
         default:
       }
+
+      // ----- Swap back auto command configuration
+      $this->setConfiguration('command_auto', ($v_command_auto == ''?'0':$v_command_auto));
 
       return(true);
     }
@@ -682,18 +697,30 @@ JSON_EOT;
      * ---------------------------------------------------------------------------
      */
     //public function createCmd($p_cmd_id, $p_cmd_name='', $p_cmd_type='info', $p_cmd_subtype='string', $p_cmd_isHistorized=false) {
-    public function createCmd($p_cmd_id) {
+    private function createCmd($p_cmd_id, $p_visibility='', $p_historization='') {
 
       // ----- Look for existing command
       $v_cmd = $this->getCmd(null, $p_cmd_id);
 
-      // ----- Look if command need to be created
-      if (!is_object($v_cmd)) {
+      // ----- Look if command already exists in device
+      if (is_object($v_cmd)) {
+        ArubaIotLog::log('debug', "Command '".$p_cmd_id."' already defined in device.");
+        return(true);
+      }
+
+      // ----- Look if command auto add is activated
+      $v_val = $this->getConfiguration('command_auto', '');
+      if ($v_val != "1") {
+        ArubaIotLog::log('debug', "Command auto add disabled. Don't add command '".$p_cmd_id."'.");
+        return(false);
+      }
+
+      // ----- Create Command
 
         // ----- Get command properties
         $v_cmd_info = ArubaIot::getDefinedCommand($p_cmd_id);
         if ($v_cmd_info === null) {
-          ArubaIotTool::log('error', "Unknown command '".$p_cmd_id."' in list of defined commands.");
+          ArubaIotLog::log('error', "Unknown command '".$p_cmd_id."' in list of defined commands.");
           return(false);
         }
 
@@ -702,7 +729,7 @@ JSON_EOT;
 
         // ----- Look if this command is allowed for this class_name
         if (!ArubaIot::isAllowedCmdForClass($p_cmd_id, $v_class_name)) {
-          ArubaIotTool::log('debug', "Command '".$p_cmd_id."' not allowed for this class_name '".$v_class_name."'.");
+          ArubaIotLog::log('debug', "Command '".$p_cmd_id."' not allowed for this class_name '".$v_class_name."'.");
           return(false);
         }
 
@@ -719,6 +746,22 @@ JSON_EOT;
     */
 
 
+        $v_visible = $v_cmd_info['visible'];
+        if ($p_visibility == 'visible') {
+          $v_visible = 1;
+        }
+        else if ($p_visibility == 'notvisible') {
+          $v_visible = 0;
+        }
+
+        $v_historization = $v_cmd_info['history'];
+        if ($p_historization == 'historization') {
+          $v_historization = 1;
+        }
+        else if ($p_historization == 'nohistorization') {
+          $v_historization = 0;
+        }
+
         ArubaIotLog::log('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
         $v_cmd = new ArubaIotCmd();
         $v_cmd->setName($v_cmd_info['name']);
@@ -727,8 +770,8 @@ JSON_EOT;
         $v_cmd->setEqLogic_id($this->getId());
         $v_cmd->setType($v_cmd_info['type']);
         $v_cmd->setSubType($v_cmd_info['sub_type']);
-        $v_cmd->setIsHistorized($v_cmd_info['history']);
-        $v_cmd->setIsVisible($v_cmd_info['visible']);
+        $v_cmd->setIsHistorized($v_historization);
+        $v_cmd->setIsVisible($v_visible);
 
         if (isset($v_cmd_info['max_value'])) {
           $v_cmd->setConfiguration('maxValue', $v_cmd_info['max_value']);
@@ -742,132 +785,6 @@ JSON_EOT;
         }
 
         $v_cmd->save();
-      }
-
-      return(true);
-    }
-    /* -------------------------------------------------------------------------*/
-
-    /**---------------------------------------------------------------------------
-     * Method : createCmd()
-     * Description :
-     *   Look of $p_cmd_name is allowed for the device class. If yes, then checks
-     *   if the command is already created
-     *   if not then will create the command and set the default attributes.
-     * Parameters :
-     *   $p_cmd_id : Command ID
-     *   $p_cmd_name : Name of the command (in case of creation need)
-     *   $p_cmd_type : 'info', 'action'
-     *   $p_cmd_subtype :  'numeric', 'binary', 'string', ...
-     *   $p_cmd_isHistorized : true, false
-     * Returned value : true on changed value, false otherwise.
-     * ---------------------------------------------------------------------------
-     */
-    public function createCmd_BAK($p_cmd_id, $p_cmd_name='', $p_cmd_type='info', $p_cmd_subtype='string', $p_cmd_isHistorized=false) {
-
-      // ----- Get class_name of object
-      $v_class_name = $this->getConfiguration('class_type');
-
-      // ----- Look if this command is allowed for this class_name
-      if (!ArubaIot::isAllowedCmdForClass($p_cmd_id, $v_class_name)) {
-        ArubaIotTool::log('debug', "Command '".$p_cmd_id."' not allowed for this class_name '".$v_class_name."'.");
-        return(false);
-      }
-
-      // ----- Look for existing command
-      $v_cmd = $this->getCmd(null, $p_cmd_id);
-
-      // ----- Look if command need to be created
-      if (!is_object($v_cmd)) {
-        ArubaIotLog::log('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
-        $v_cmd = new ArubaIotCmd();
-        $v_cmd->setName(__($p_cmd_name, __FILE__));
-
-        $v_cmd->setLogicalId($p_cmd_id);
-        $v_cmd->setEqLogic_id($this->getId());
-        $v_cmd->setType($p_cmd_type);
-        $v_cmd->setSubType($p_cmd_subtype);
-        $v_cmd->setIsHistorized($p_cmd_isHistorized);
-        $v_cmd->save();
-      }
-
-      return(true);
-    }
-    /* -------------------------------------------------------------------------*/
-
-
-    /**---------------------------------------------------------------------------
-     * Method : createCmdIllumination()
-     * Description :
-     * Parameters :
-     * Returned value : true on changed value, false otherwise.
-     * ---------------------------------------------------------------------------
-     */
-    public function createCmdIllumination_DEPRECATED() {
-
-      // ----- Look if this command is allowed for this class_name
-      $p_cmd_id = 'illumination';
-      $v_class_name = $this->getConfiguration('class_type');
-      if (!ArubaIot::isAllowedCmdForClass($p_cmd_id, $v_class_name)) {
-        ArubaIotTool::log('debug', "Command '".$p_cmd_id."' not allowed for this class_name '".$v_class_name."'.");
-        return(false);
-      }
-
-      // ----- Look for existing command
-      $v_cmd = $this->getCmd(null, 'illumination');
-
-      // ----- Look if command need to be created
-      if (!is_object($v_cmd)) {
-        ArubaIotLog::log('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
-        $v_cmd = new ArubaIotCmd();
-        $v_cmd->setName(__("Illumination", __FILE__));
-
-        $v_cmd->setLogicalId('illumination');
-        $v_cmd->setEqLogic_id($this->getId());
-        $v_cmd->setType('info');
-        $v_cmd->setSubType('numeric');
-        $v_cmd->setIsHistorized(true);
-        $v_cmd->save();
-      }
-
-      return(true);
-    }
-    /* -------------------------------------------------------------------------*/
-
-
-    /**---------------------------------------------------------------------------
-     * Method : createCmdOccupancy()
-     * Description :
-     * Parameters :
-     * Returned value : true on changed value, false otherwise.
-     * ---------------------------------------------------------------------------
-     */
-    public function createCmdOccupancy_DEPRECATED() {
-
-      // ----- Look if this command is allowed for this class_name
-      $p_cmd_id = 'occupancy';
-      $v_class_name = $this->getConfiguration('class_type');
-      if (!ArubaIot::isAllowedCmdForClass($p_cmd_id, $v_class_name)) {
-        ArubaIotTool::log('debug', "Command '".$p_cmd_id."' not allowed for this class_name '".$v_class_name."'.");
-        return(false);
-      }
-
-      // ----- Look for existing command
-      $v_cmd = $this->getCmd(null, 'occupancy');
-
-      // ----- Look if command need to be created
-      if (!is_object($v_cmd)) {
-        ArubaIotLog::log('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
-        $v_cmd = new ArubaIotCmd();
-        $v_cmd->setName(__("Occupancy", __FILE__));
-
-        $v_cmd->setLogicalId('occupancy');
-        $v_cmd->setEqLogic_id($this->getId());
-        $v_cmd->setType('info');
-        $v_cmd->setSubType('numeric');
-        $v_cmd->setIsHistorized(true);
-        $v_cmd->save();
-      }
 
       return(true);
     }
@@ -914,20 +831,27 @@ JSON_EOT;
      */
     public function createAndUpdateDynCmd($p_cmd_id, $p_cmd_value, $p_cmd_name='', $p_cmd_type='info', $p_cmd_subtype='string', $p_cmd_isHistorized=false) {
 
-      // ----- Get class_name of object
-      $v_class_name = $this->getConfiguration('class_type');
-
-      // ----- Look if dynamic command is allowed for this class_name
-      if (!ArubaIot::isAllowedCmdForClass('__dynamic_command', $v_class_name)) {
-        ArubaIotTool::log('debug', "Dynamic command not allowed for this class_name '".$v_class_name."'.");
-        return(false);
-      }
-
       // ----- Look for existing command
       $v_cmd = $this->getCmd(null, $p_cmd_id);
 
       // ----- Look if command need to be created
       if (!is_object($v_cmd)) {
+        // ----- Look if command auto add is activated
+        $v_val = $this->getConfiguration('command_auto', '');
+        if ($v_val != "1") {
+          ArubaIotLog::log('debug', "Command auto add disabled. Don't add command '".$p_cmd_id."'.");
+          return(false);
+        }
+
+        // ----- Get class_name of object
+        $v_class_name = $this->getConfiguration('class_type');
+
+        // ----- Look if dynamic command is allowed for this class_name
+        if (!ArubaIot::isAllowedCmdForClass('__dynamic_command', $v_class_name)) {
+          ArubaIotLog::log('debug', "Dynamic command not allowed for this class_name '".$v_class_name."'.");
+          return(false);
+        }
+
         ArubaIotLog::log('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
         $v_cmd = new ArubaIotCmd();
         $v_cmd->setName(__($p_cmd_name, __FILE__));
@@ -947,46 +871,6 @@ JSON_EOT;
     }
     /* -------------------------------------------------------------------------*/
 
-
-    /**---------------------------------------------------------------------------
-     * Method : cmdCreateTriangulation()
-     * Description :
-     * Parameters :
-     * Returned value : true on created or already created, false otherwise.
-     * ---------------------------------------------------------------------------
-     */
-    public function cmdCreateTriangulation_DEPRECATED() {
-
-      // ----- Look if this command is allowed for this class_name
-      $p_cmd_id = 'triangulation';
-      $v_class_name = $this->getConfiguration('class_type');
-      if (!ArubaIot::isAllowedCmdForClass($p_cmd_id, $v_class_name)) {
-        ArubaIotTool::log('debug', "Command '".$p_cmd_id."' not allowed for this class_name '".$v_class_name."'.");
-        return(false);
-      }
-
-      // ----- Look for existing command
-      $v_cmd = $this->getCmd(null, 'triangulation');
-
-      // ----- Look if command need to be created
-      if (!is_object($v_cmd)) {
-        ArubaIotLog::log('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
-        $v_cmd = new ArubaIotCmd();
-        $v_cmd->setName(__("Triangulation", __FILE__));
-
-        $v_cmd->setLogicalId('triangulation');
-        $v_cmd->setEqLogic_id($this->getId());
-        $v_cmd->setType('info');
-        $v_cmd->setSubType('string');
-        $v_cmd->setIsHistorized(false);
-        $v_cmd->setIsVisible(0);
-        $v_cmd->save();
-      }
-
-      return(true);
-    }
-    /* -------------------------------------------------------------------------*/
-
     /**---------------------------------------------------------------------------
      * Method : cmdUpdateTriangulation()
      * Description :
@@ -997,7 +881,6 @@ JSON_EOT;
     public function cmdUpdateTriangulation($p_reporter_mac, $p_rssi, $p_timestamp) {
 
       // ----- Look if cmd or create it
-      //if (!$this->cmdCreateTriangulation()) {
       if (!$this->createCmd('triangulation')) {
         return(false);
       }
@@ -1076,13 +959,20 @@ JSON_EOT;
      */
     public function cmdUpdateNearestAP($p_nearest_ap_mac, $p_nearest_ap_name='') {
 
+      // ----- Look if cmd or create it
+      if (!$this->createCmd('nearest_ap')) {
+        return(false);
+      }
+
+      /*
       // ----- Look for existing command
       $v_cmd = $this->getCmd(null, 'nearest_ap');
 
-      // ----- Look if command need to be created
+      // ----- Look if command exist
       if (!is_object($v_cmd)) {
         return(false);
       }
+      */
 
       // ----- Set the value and update the flag
       $v_changed_flag = $this->checkAndUpdateCmd('nearest_ap', ($p_nearest_ap_name==''?$p_nearest_ap_mac:$p_nearest_ap_name));

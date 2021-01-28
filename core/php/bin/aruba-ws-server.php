@@ -1047,17 +1047,20 @@
       // ----- Get Meta part of the message
       $v_at_meta = $v_at_telemetry_msg->getMeta();
 
-      ArubaIotTool::log('debug', "--------- Meta :");
-      ArubaIotTool::log('debug', "  Version: ".$v_at_meta->getVersion()."");
-      ArubaIotTool::log('debug', "  Access Token: ".$v_at_meta->getAccessToken()."");
-      ArubaIotTool::log('debug', "---------");
-      ArubaIotTool::log('debug', "");
-
-      // ----- Check Topic
+      // ----- Get Topic
       $v_topic = '';
       if ($v_at_meta->hasNbTopic()) {
         $v_topic = $v_at_meta->getNbTopic()->name();
       }
+
+      ArubaIotTool::log('debug', "--------- Meta :");
+      ArubaIotTool::log('debug', "  Version: ".$v_at_meta->getVersion()."");
+      ArubaIotTool::log('debug', "  Access Token: ".$v_at_meta->getAccessToken()."");
+      ArubaIotTool::log('debug', "  NbTopic: ".$v_topic."");
+      ArubaIotTool::log('debug', "---------");
+      ArubaIotTool::log('debug', "");
+
+      // ----- Check Topic
       if ($v_topic == ''){
         ArubaIotTool::log('debug', "Missing nbTopic information, not a valid protobuf message ... ?");
         // TBC : should I stop here ?
@@ -1086,7 +1089,7 @@
       ArubaIotTool::log('debug', "  hwType: ".$v_at_reporter->getHwType()."");
       ArubaIotTool::log('debug', "  swVersion: ".$v_at_reporter->getSwVersion()."");
       ArubaIotTool::log('debug', "  swBuild: ".$v_at_reporter->getSwBuild()."");
-      ArubaIotTool::log('debug', "  Time: ".date("Y-m-d H:i:s", $v_at_reporter->getTime())."");
+      ArubaIotTool::log('debug', "  Time: ".date("Y-m-d H:i:s", $v_at_reporter->getTime())." (".$v_at_reporter->getTime().")");
       ArubaIotTool::log('debug', "---------");
       ArubaIotTool::log('debug', "");
 
@@ -1205,7 +1208,6 @@ fwrite($fd, "\n");
 
       // ----- Parse data depending on nature
       if ($p_connection->my_type == 'telemetry') {
-        //return $this->onMsgTelemetry($p_connection, $v_at_telemetry_msg);
         return $this->onMsgTelemetry($v_reporter, $v_at_telemetry_msg);
       }
       else if ($p_connection->my_type == 'rtls') {
@@ -1557,51 +1559,6 @@ fwrite($fd, "\n");
     /* -------------------------------------------------------------------------*/
 
     /**---------------------------------------------------------------------------
-     * Method : updatePresenceTelemetry()
-     * Description :
-     * ---------------------------------------------------------------------------
-     */
-    public function updatePresenceTelemetry(&$p_jeedom_object, $p_telemetry, $p_class_name) {
-
-    return(false);
-
-    /*
-      ArubaIotTool::log('debug', "Update Presence Telemetry (lastSeen timeout)");
-
-      $p_changed_flag = false;
-
-      // ----- Look if this command is allowed for this class_name
-      if (!ArubaIot::isAllowedCmdForClass('presence', $p_class_name)) {
-        ArubaIotTool::log('debug', "Command 'presence' not allowed for this class_name '".$p_class_name."'. Look at settings");
-        return(false);
-      }
-
-      // ----- Look last sign of life
-      if ($p_telemetry->hasLastSeen()) {
-        $v_timer = $p_telemetry->getLastSeen();
-
-        $v_timeout = config::byKey('presence_timeout', 'ArubaIot');
-        ArubaIotTool::log('debug', "Time is : ".time().", last seen : ".$v_timer.", timeout :".$v_timeout);
-        if ($v_timer < (time()-$v_timeout) ) {
-          // ----- Update absence
-          // Absence can't be calculated from only one reporter : so this action is reported in the interrupt mecanism
-          //ArubaIotTool::log('debug', "Flag absence");
-          //$p_changed_flag = $p_jeedom_object->createAndUpdateCmd('presence', 0, 'Presence', 'info', 'binary', true) || $p_changed_flag;
-        }
-        else {
-          // ----- Update presence
-          ArubaIotTool::log('debug', "Flag presence (1)");
-          //$this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1, 'Presence', 'info', 'binary', true) || $this->widget_change_flag;
-          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1) || $this->widget_change_flag;
-        }
-      }
-
-      return($this->widget_change_flag);
-      */
-    }
-    /* -------------------------------------------------------------------------*/
-
-    /**---------------------------------------------------------------------------
      * Method : updatePresenceByTime()
      * Description :
      * ---------------------------------------------------------------------------
@@ -1631,6 +1588,7 @@ fwrite($fd, "\n");
           return(false);
         }
 
+        /*
         $v_jeedom_class = $v_jeedom_object->getConfiguration('class_type');
 
         // ----- Look if this command is allowed for this class_name
@@ -1638,6 +1596,7 @@ fwrite($fd, "\n");
           ArubaIotTool::log('debug', "-> Command 'presence' not allowed for this class_name '".$v_jeedom_class."'. Look at settings");
           return(false);
         }
+        */
 
         // TBC : Improvment ? May be here I should look for triangulation list
         // and get the best one in the list with a last_seen value better than the current nearest AP ?
@@ -1648,14 +1607,14 @@ fwrite($fd, "\n");
         $this->nearest_ap_last_seen = 0;
         $this->presence_last_seen = 0;
 
-        ArubaIotTool::log('debug', "-> Presence flag is : missing");
+        ArubaIotTool::log('debug', "--> Presence flag is : missing");
         //$v_val = $v_jeedom_object->createAndUpdateCmd('presence', 0, 'Presence', 'info', 'binary', true);
         $v_val = $v_jeedom_object->createAndUpdateCmd('presence', 0);
         if ($v_val)
           $v_jeedom_object->refreshWidget();
       }
       else {
-        ArubaIotTool::log('debug', "-> Presence flag is : presence");
+        ArubaIotTool::log('debug', "--> Presence flag is : presence");
       }
 
       return;
@@ -1667,17 +1626,17 @@ fwrite($fd, "\n");
      * Description :
      * ---------------------------------------------------------------------------
      */
-    public function updateRssiTelemetry(&$p_jeedom_object, $p_telemetry, $p_class_name) {
+    public function updateRssiTelemetry(&$p_jeedom_object, $p_telemetry, $p_class_name='') {
 
-      ArubaIotTool::log('debug', "Update Rssi Telemetry data");
+      //ArubaIotTool::log('debug', "Update Rssi Telemetry data");
 
-      $p_changed_flag = false;
-
+      /*
       // ----- Look if this command is allowed for this class_name
       if (!ArubaIot::isAllowedCmdForClass('rssi', $p_class_name)) {
         ArubaIotTool::log('debug', "Command 'rssi' not allowed for this class_name '".$p_class_name."'. Look at settings");
         return(false);
       }
+      */
 
       // ----- Update common telemetry data
       $v_rssi = 0;
@@ -1686,7 +1645,7 @@ fwrite($fd, "\n");
         $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : 0);
       }
       if ($v_rssi != 0) {
-        ArubaIotTool::log('debug', "RSSI changed for : ".$v_rssi);
+        ArubaIotTool::log('debug', "--> RSSI changed for : ".$v_rssi);
         $this->widget_change_flag = $p_jeedom_object->checkAndUpdateCmd('rssi', $v_rssi) || $this->widget_change_flag;
       }
 
@@ -1699,15 +1658,17 @@ fwrite($fd, "\n");
      * Description :
      * ---------------------------------------------------------------------------
      */
-    public function updateTriangulation(&$p_reporter, &$p_jeedom_object, $p_telemetry, $p_class_name) {
+    public function updateTriangulation(&$p_reporter, &$p_jeedom_object, $p_telemetry, $p_class_name='') {
 
       ArubaIotTool::log('debug', "Update Triangulation data");
 
+      /*
       // ----- Look if this command is allowed for this class_name
       if (!ArubaIot::isAllowedCmdForClass('triangulation', $p_class_name)) {
         ArubaIotTool::log('debug', "Command 'triangulation' not allowed for this class_name '".$p_class_name."'. Look at settings");
         return(false);
       }
+      */
 
       // ----- Update common telemetry data
       $v_rssi = 0;
@@ -1716,7 +1677,7 @@ fwrite($fd, "\n");
         $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : 0);
       }
       if ($v_rssi != 0) {
-        ArubaIotTool::log('debug', "RSSI changed for : ".$v_rssi);
+        ArubaIotTool::log('debug', "--> Changed Triangulation for RSSI : ".$v_rssi);
 
         // TBC : Don't know if I need to update the widget each time for this value, that should not be visible ...
         //$this->widget_change_flag = $p_jeedom_object->cmdUpdateTriangulation($p_reporter->getMac(), $v_rssi, $p_reporter->getLastSeen()) || $this->widget_change_flag;

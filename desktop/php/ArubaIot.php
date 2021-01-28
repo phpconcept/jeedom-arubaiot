@@ -29,13 +29,13 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
 			if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
 				echo '<div class="cursor changeIncludeState include card logoSecondary" data-mode="1" data-state="0">';
 				//echo '<i class="fas fa-sign-in-alt fa-rotate-90" style="color:red"></i>';
-				echo '<i class="fas fa-sign-in-alt fa-rotate-90" style="color:black"></i>';
+				echo '<i class="fas fa-sign-in-alt fa-rotate-90" ></i>';
 				echo '<br/>';
 				echo '<span>{{Arrêter l\'inclusion}}</span>';
 				echo '</div>';
 			} else {
 				echo '<div class="cursor changeIncludeState include card logoSecondary" data-mode="1" data-state="1">';
-				echo '<i class="fas fa-sign-in-alt fa-rotate-90" style="color:black"></i>';
+				echo '<i class="fas fa-sign-in-alt fa-rotate-90" ></i>';
 				echo '<br/>';
 				echo '<span>{{Mode inclusion}}</span>';
 				echo '</div>';
@@ -172,27 +172,29 @@ foreach (jeeObject::all() as $object) {
     </div>
 
     <div class="form-group">
-        <label class="col-sm-3 control-label">{{Type d'objet}}</label>
+        <label class="col-sm-3 control-label">{{Type d'objet}}
+        <sup><i class="fa fa-question-circle tooltips" title="{{Pour laisser le plugin découvrir le type, choisir 'Découvrir automatiquement'.}}"></i></sup>
+        </label>
         <div class="col-sm-3">
+          <select id="cluster" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="class_type">
+            <?php
+              $v_list = ArubaIot::supportedDeviceType('description' );
+              foreach ($v_list as $v_index => $v_item) {
+                echo '<option value="'.$v_index.'">'.$v_item.'</option>"';
+              }
+            ?>
+          </select>
+        </div>
 
-                <select id="cluster" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="class_type">
-<?php
+    </div>
 
-      $v_list = ArubaIot::supportedDeviceType('description' );
-
-foreach ($v_list as $v_index => $v_item) {
-  echo '<option value="'.$v_index.'">'.$v_item.'</option>"';
-}
-
-?>
-                </select>
-
-                        </div>
-
-							<div class="col-sm-1">
-								<i class="fas fa-question-circle cursor floatright" id="bt_helpClass"></i>
-							</div>
-
+    <div class="form-group">
+        <label class="col-sm-3 control-label">{{Auto-découverte des commandes}}
+        <sup><i class="fa fa-question-circle tooltips" title="{{Va ajouter les commandes au fur et à mesure de la réception des informations de télémétrie.}}"></i></sup>
+        </label>
+        <div class="col-sm-3">
+          <input type="checkbox" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="command_auto"/> {{Activer}}
+        </div>
     </div>
 
     <div class="form-group">
@@ -225,7 +227,9 @@ foreach ($v_list as $v_index => $v_item) {
 </form>
 </div>
       <div role="tabpanel" class="tab-pane" id="commandtab">
-<a class="btn btn-success btn-sm cmdAction pull-right" data-action="add" style="margin-top:5px;"><i class="fa fa-plus-circle"></i> {{Commandes}}</a><br/><br/>
+<a class="btn btn-success btn-sm cmdAction pull-right" data-action="add" style="margin-top:5px;"><i class="fa fa-plus-circle"></i> {{Commandes}}</a>
+<br/><br/>
+
 <table id="table_cmd" class="table table-bordered table-condensed">
     <thead>
         <tr>
@@ -242,20 +246,5 @@ foreach ($v_list as $v_index => $v_item) {
 </div>
 
 
-<script>
-
-
-	$('#bt_helpClass').on('click', function() {
-
-    bootbox.alert("This is the supported IOT BLE types supported ... today !");
-
-
-	});
-
-
-</script>
-
-
 <?php include_file('desktop', 'ArubaIot', 'js', 'ArubaIot');?>
 <?php include_file('core', 'plugin.template', 'js');?>
-
