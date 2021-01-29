@@ -25,7 +25,6 @@
 
   ArubaIotTool::log('info', "----- Starting ArubaIot Websocket Server Daemon (".date("Y-m-d H:i:s").")'");
 
-
   /**---------------------------------------------------------------------------
    * Class : ArubaIotTool
    * Description :
@@ -42,25 +41,7 @@
      * ---------------------------------------------------------------------------
      */
     public function log($p_level, $p_message) {
-              ArubaIotLog::log($p_level, 'websocket: '.$p_message);
-    /*
-      global $argv;
-
-
-      if (isset($argv[1]) && ($argv[1] == 'trace') && ($p_level == 'trace')) {
-          echo $p_message;
-          return;
-      }
-
-      if ($p_level != 'trace')  {
-        if (isset($argv[1]) && (($argv[1] == 'debug') || ($argv[1] == 'trace'))) {
-            echo '['.$p_level.']:'.$p_message."\n";
-        }
-        else {
-            log::add('ArubaIot', $p_level, 'websocket: '.$p_message);
-        }
-      }
-      */
+      ArubaIotLog::log($p_level, 'websocket: '.$p_message);
     }
     /* -------------------------------------------------------------------------*/
 
@@ -232,7 +213,7 @@
       }
 
       if ( isset($this->connection_id_list[$v_id]) ) {
-        ArubaIotTool::log('debug', "Removing connection '".$v_id."' for reporter '".$this->mac_address."'");
+        ArubaIotTool::log('info', "Removing connection '".$v_id."' for reporter '".$this->mac_address."'");
         unset($this->connection_id_list[$v_id]);
         $this->setRemoteIp('');
         $p_connection->my_reporter_id = '';
@@ -266,7 +247,7 @@
       }
 
       if (!isset($this->connection_id_list[$v_id])) {
-        ArubaIotTool::log('debug', "Adding new connection '".$v_id."' for reporter '".$this->mac_address."'");
+        ArubaIotTool::log('info', "Adding new connection '".$v_id."' for reporter '".$this->mac_address."'");
         $this->connection_id_list[$v_id] = array();
         $this->connection_id_list[$v_id]['type'] = $v_type;
         $this->setRemoteIp($p_connection->my_remote_ip);
@@ -364,14 +345,6 @@
       if (isset($this->reporters_list[$p_mac])) {
           return($this->reporters_list[$p_mac]);
       }
-      /*
-      foreach ($this->reporters_list as $v_reporter) {
-        if ($v_reporter->getMac() == $p_mac) {
-          return($v_reporter);
-        }
-      }
-      */
-      return(null);
     }
 
     public function getCachedDeviceByMac($p_mac) {
@@ -429,7 +402,7 @@
         }
       }
 
-      // ----- Get all equipment of from plugin 'ArubaIot'
+      // ----- Get all equipment from plugin 'ArubaIot'
       $this->updateDeviceList();
 
       return;
@@ -745,7 +718,6 @@
       $v_response = 'OK';
 
       return($v_response);
-
     }
     /* -------------------------------------------------------------------------*/
 
@@ -790,7 +762,7 @@
      */
     public function onClose(ConnectionInterface &$connection) {
 
-      ArubaIotTool::log('debug', "Closing Connection '".$connection->my_id."' (".date("Y-m-d H:i:s").")");
+      ArubaIotTool::log('info', "Closing Connection '".$connection->my_id."' (".date("Y-m-d H:i:s").")");
 
       // ----- Remove cross-links between connection and reporter
       // ----- Get reporter
@@ -926,7 +898,7 @@
 
             // ----- If object supporting triangulation, update triangulation
             // TBC : if triangulation updated, widget is not refreshed ...
-            $v_device->updateTriangulation($p_reporter, $v_jeedom_object, $v_object, $v_class_name);
+            $v_device->updateTriangulation($p_reporter, $v_jeedom_object, $v_object);
 
             // ----- Update jeedom wizard display if needed
             $v_device->checkChangedFlag($v_jeedom_object);
@@ -1419,6 +1391,7 @@ fwrite($fd, "\n");
         // AP is already the nearest, so if teh RSSI is very low this is an update
         // so an indication that the device is still here, not so far.
         $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1) || $this->widget_change_flag;
+        $this->widget_change_flag = $p_jeedom_object->checkAndUpdateCmd('rssi', $v_rssi) || $this->widget_change_flag;
 
         return(true);
       }
@@ -1478,6 +1451,7 @@ fwrite($fd, "\n");
         $this->nearest_ap_rssi = $v_rssi;
 
         $this->widget_change_flag = $p_jeedom_object->cmdUpdateNearestAP($p_reporter->getMac(), $p_reporter->getName()) || $this->widget_change_flag;
+        $this->widget_change_flag = $p_jeedom_object->checkAndUpdateCmd('rssi', $v_rssi) || $this->widget_change_flag;
 
         // ----- Update Presence flag to 1
         // AP is already the nearest, so if teh RSSI is very low this is an update
@@ -1498,6 +1472,134 @@ fwrite($fd, "\n");
       ArubaIotTool::log('debug', "Reporter '".$p_reporter->getMac()."' not a new nearest reporter compared to current '".$this->nearest_ap_mac."'. Skip telemetry data.");
 
       return(false);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : updateAbsence()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function updateAbsence() {
+
+      $v_timeout = config::byKey('presence_timeout', 'ArubaIot');
+
+      $v_absent = true;
+
+//      ArubaIotTool::log('debug', "NearestAP (".$this->nearest_ap_mac.") last seen : '".$this->nearest_ap_last_seen."', timeout : '".$v_timeout."', current time : '".time()."'");
+      ArubaIotTool::log('debug', "Check Absence for ".$this->mac_address.":Last-seen:".$this->presence_last_seen.",timeout:".$v_timeout."',current time:".time()."");
+
+//      if (($this->nearest_ap_last_seen+$v_timeout) > time() ) {
+      if (($this->presence_last_seen+$v_timeout) > time() ) {
+          $v_absent = false;
+      }
+
+      // ----- Update presence cmd
+      if ($v_absent) {
+
+        // ----- Get Jeedom object
+        $v_jeedom_object = eqLogic::byId($this->getJeedomObjectId());
+        if ($v_jeedom_object === null) {
+          // Should not occur, but if in removing an object phase ...
+          ArubaIotTool::log('debug', "-> Fail to find an object with this ID ..");
+          return(false);
+        }
+
+        /*
+        $v_jeedom_class = $v_jeedom_object->getConfiguration('class_type');
+
+        // ----- Look if this command is allowed for this class_name
+        if (!ArubaIot::isAllowedCmdForClass('presence', $v_jeedom_class)) {
+          ArubaIotTool::log('debug', "-> Command 'presence' not allowed for this class_name '".$v_jeedom_class."'. Look at settings");
+          return(false);
+        }
+        */
+
+        // TBC : Improvment ? May be here I should look for triangulation list
+        // and get the best one in the list with a last_seen value better than the current nearest AP ?
+
+        // ----- Reset nearestAP
+        $this->nearest_ap_mac = '';
+        $this->nearest_ap_rssi = -110;
+        $this->nearest_ap_last_seen = 0;
+        $this->presence_last_seen = 0;
+
+        ArubaIotTool::log('debug', "--> Presence flag is : missing");
+
+        // ----- Reset presence, nearestAP and RSSI when device is missing
+        $v_widget_change_flag = false;
+        $v_widget_change_flag = $v_jeedom_object->createAndUpdateCmd('presence', 0) || $v_widget_change_flag;
+        $v_widget_change_flag = $p_jeedom_object->cmdUpdateNearestAP('', '') || $v_widget_change_flag;
+        $v_widget_change_flag = $p_jeedom_object->checkAndUpdateCmd('rssi', -110) || $v_widget_change_flag;
+
+        if ($v_widget_change_flag) {
+          $v_jeedom_object->refreshWidget();
+        }
+      }
+      else {
+        ArubaIotTool::log('debug', "--> Presence flag is : presence");
+      }
+
+      return;
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : updateRssiTelemetry()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+     // DEPRECATED : included in updateNearestAP
+    public function updateRssiTelemetry_DEPRECATED(&$p_jeedom_object, $p_telemetry, $p_class_name='') {
+
+      //ArubaIotTool::log('debug', "Update Rssi Telemetry data");
+
+      /*
+      // ----- Look if this command is allowed for this class_name
+      if (!ArubaIot::isAllowedCmdForClass('rssi', $p_class_name)) {
+        ArubaIotTool::log('debug', "Command 'rssi' not allowed for this class_name '".$p_class_name."'. Look at settings");
+        return(false);
+      }
+      */
+
+      // ----- Update common telemetry data
+      $v_rssi = 0;
+      if ($p_telemetry->hasRSSI()) {
+        $v_val = explode(':', $p_telemetry->getRSSI());
+        $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : 0);
+      }
+      if ($v_rssi != 0) {
+        ArubaIotTool::log('debug', "--> RSSI changed for : ".$v_rssi);
+        $this->widget_change_flag = $p_jeedom_object->checkAndUpdateCmd('rssi', $v_rssi) || $this->widget_change_flag;
+      }
+
+      return($this->widget_change_flag);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : updateTriangulation()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function updateTriangulation(&$p_reporter, &$p_jeedom_object, $p_telemetry) {
+
+      // ----- Update common telemetry data
+      $v_rssi = -110;
+      if ($p_telemetry->hasRSSI()) {
+        $v_val = explode(':', $p_telemetry->getRSSI());
+        $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : 0);
+      }
+      if ($v_rssi != -110) {
+        ArubaIotTool::log('debug', "--> Update Triangulation data for ".$p_reporter->getMac()." RSSI : ".$v_rssi);
+
+        // TBC : Don't know if I need to update the widget each time for this value, that should not be visible ...
+        // triangulation values are more for calculation than to be displayed like than on the screen (unless troubleshooting)
+        //$this->widget_change_flag = $p_jeedom_object->cmdUpdateTriangulation($p_reporter->getMac(), $v_rssi, $p_reporter->getLastSeen()) || $this->widget_change_flag;
+        $p_jeedom_object->cmdUpdateTriangulation($p_reporter->getMac(), $v_rssi, $p_reporter->getLastSeen());
+      }
+
+      return($this->widget_change_flag);
     }
     /* -------------------------------------------------------------------------*/
 
@@ -1555,136 +1657,6 @@ fwrite($fd, "\n");
       }
 
       return($p_changed_flag);
-    }
-    /* -------------------------------------------------------------------------*/
-
-    /**---------------------------------------------------------------------------
-     * Method : updatePresenceByTime()
-     * Description :
-     * ---------------------------------------------------------------------------
-     */
-    public function updateAbsence() {
-
-      $v_timeout = config::byKey('presence_timeout', 'ArubaIot');
-
-      $v_absent = true;
-
-//      ArubaIotTool::log('debug', "NearestAP (".$this->nearest_ap_mac.") last seen : '".$this->nearest_ap_last_seen."', timeout : '".$v_timeout."', current time : '".time()."'");
-      ArubaIotTool::log('debug', "Check Absence for ".$this->mac_address.":Last-seen:".$this->presence_last_seen.",timeout:".$v_timeout."',current time:".time()."");
-
-//      if (($this->nearest_ap_last_seen+$v_timeout) > time() ) {
-      if (($this->presence_last_seen+$v_timeout) > time() ) {
-          $v_absent = false;
-      }
-
-      // ----- Update presence cmd
-      if ($v_absent) {
-
-        // ----- Get Jeedom object
-        $v_jeedom_object = eqLogic::byId($this->getJeedomObjectId());
-        if ($v_jeedom_object === null) {
-          // Should not occur, but if in removing an object phase ...
-          ArubaIotTool::log('debug', "-> Fail to find an object with this ID ..");
-          return(false);
-        }
-
-        /*
-        $v_jeedom_class = $v_jeedom_object->getConfiguration('class_type');
-
-        // ----- Look if this command is allowed for this class_name
-        if (!ArubaIot::isAllowedCmdForClass('presence', $v_jeedom_class)) {
-          ArubaIotTool::log('debug', "-> Command 'presence' not allowed for this class_name '".$v_jeedom_class."'. Look at settings");
-          return(false);
-        }
-        */
-
-        // TBC : Improvment ? May be here I should look for triangulation list
-        // and get the best one in the list with a last_seen value better than the current nearest AP ?
-
-        // ----- Reset nearestAP
-        $this->nearest_ap_mac = '';
-        $this->nearest_ap_rssi = -110;
-        $this->nearest_ap_last_seen = 0;
-        $this->presence_last_seen = 0;
-
-        ArubaIotTool::log('debug', "--> Presence flag is : missing");
-        //$v_val = $v_jeedom_object->createAndUpdateCmd('presence', 0, 'Presence', 'info', 'binary', true);
-        $v_val = $v_jeedom_object->createAndUpdateCmd('presence', 0);
-        if ($v_val)
-          $v_jeedom_object->refreshWidget();
-      }
-      else {
-        ArubaIotTool::log('debug', "--> Presence flag is : presence");
-      }
-
-      return;
-    }
-    /* -------------------------------------------------------------------------*/
-
-    /**---------------------------------------------------------------------------
-     * Method : updateRssiTelemetry()
-     * Description :
-     * ---------------------------------------------------------------------------
-     */
-    public function updateRssiTelemetry(&$p_jeedom_object, $p_telemetry, $p_class_name='') {
-
-      //ArubaIotTool::log('debug', "Update Rssi Telemetry data");
-
-      /*
-      // ----- Look if this command is allowed for this class_name
-      if (!ArubaIot::isAllowedCmdForClass('rssi', $p_class_name)) {
-        ArubaIotTool::log('debug', "Command 'rssi' not allowed for this class_name '".$p_class_name."'. Look at settings");
-        return(false);
-      }
-      */
-
-      // ----- Update common telemetry data
-      $v_rssi = 0;
-      if ($p_telemetry->hasRSSI()) {
-        $v_val = explode(':', $p_telemetry->getRSSI());
-        $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : 0);
-      }
-      if ($v_rssi != 0) {
-        ArubaIotTool::log('debug', "--> RSSI changed for : ".$v_rssi);
-        $this->widget_change_flag = $p_jeedom_object->checkAndUpdateCmd('rssi', $v_rssi) || $this->widget_change_flag;
-      }
-
-      return($this->widget_change_flag);
-    }
-    /* -------------------------------------------------------------------------*/
-
-    /**---------------------------------------------------------------------------
-     * Method : updateTriangulation()
-     * Description :
-     * ---------------------------------------------------------------------------
-     */
-    public function updateTriangulation(&$p_reporter, &$p_jeedom_object, $p_telemetry, $p_class_name='') {
-
-      ArubaIotTool::log('debug', "Update Triangulation data");
-
-      /*
-      // ----- Look if this command is allowed for this class_name
-      if (!ArubaIot::isAllowedCmdForClass('triangulation', $p_class_name)) {
-        ArubaIotTool::log('debug', "Command 'triangulation' not allowed for this class_name '".$p_class_name."'. Look at settings");
-        return(false);
-      }
-      */
-
-      // ----- Update common telemetry data
-      $v_rssi = 0;
-      if ($p_telemetry->hasRSSI()) {
-        $v_val = explode(':', $p_telemetry->getRSSI());
-        $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : 0);
-      }
-      if ($v_rssi != 0) {
-        ArubaIotTool::log('debug', "--> Changed Triangulation for RSSI : ".$v_rssi);
-
-        // TBC : Don't know if I need to update the widget each time for this value, that should not be visible ...
-        //$this->widget_change_flag = $p_jeedom_object->cmdUpdateTriangulation($p_reporter->getMac(), $v_rssi, $p_reporter->getLastSeen()) || $this->widget_change_flag;
-        $p_jeedom_object->cmdUpdateTriangulation($p_reporter->getMac(), $v_rssi, $p_reporter->getLastSeen());
-      }
-
-      return($this->widget_change_flag);
     }
     /* -------------------------------------------------------------------------*/
 
@@ -1850,7 +1822,7 @@ fwrite($fd, "\n");
       $v_changed_flag = false;
 
       // ----- Update common telemetry data
-      $this->widget_change_flag = $this->updateRssiTelemetry($v_jeedom_object, $p_telemetry, $p_class_name) || $this->widget_change_flag;
+      //$this->widget_change_flag = $this->updateRssiTelemetry($v_jeedom_object, $p_telemetry, $p_class_name) || $this->widget_change_flag;
 
       // ----- Update SwitchRocker info
       if ($p_telemetry->hasInputs()) {
