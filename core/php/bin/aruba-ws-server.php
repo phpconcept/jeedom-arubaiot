@@ -1529,8 +1529,8 @@ fwrite($fd, "\n");
         // ----- Reset presence, nearestAP and RSSI when device is missing
         $v_widget_change_flag = false;
         $v_widget_change_flag = $v_jeedom_object->createAndUpdateCmd('presence', 0) || $v_widget_change_flag;
-        $v_widget_change_flag = $p_jeedom_object->cmdUpdateNearestAP('', '') || $v_widget_change_flag;
-        $v_widget_change_flag = $p_jeedom_object->checkAndUpdateCmd('rssi', -110) || $v_widget_change_flag;
+        $v_widget_change_flag = $v_jeedom_object->cmdUpdateNearestAP('', '') || $v_widget_change_flag;
+        $v_widget_change_flag = $v_jeedom_object->checkAndUpdateCmd('rssi', -110) || $v_widget_change_flag;
 
         if ($v_widget_change_flag) {
           $v_jeedom_object->refreshWidget();
