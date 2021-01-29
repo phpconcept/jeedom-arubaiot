@@ -25,7 +25,6 @@
 
   ArubaIotTool::log('info', "----- Starting ArubaIot Websocket Server Daemon (".date("Y-m-d H:i:s").")'");
 
-
   /**---------------------------------------------------------------------------
    * Class : ArubaIotTool
    * Description :
@@ -42,25 +41,7 @@
      * ---------------------------------------------------------------------------
      */
     public function log($p_level, $p_message) {
-              ArubaIotLog::log($p_level, 'websocket: '.$p_message);
-    /*
-      global $argv;
-
-
-      if (isset($argv[1]) && ($argv[1] == 'trace') && ($p_level == 'trace')) {
-          echo $p_message;
-          return;
-      }
-
-      if ($p_level != 'trace')  {
-        if (isset($argv[1]) && (($argv[1] == 'debug') || ($argv[1] == 'trace'))) {
-            echo '['.$p_level.']:'.$p_message."\n";
-        }
-        else {
-            log::add('ArubaIot', $p_level, 'websocket: '.$p_message);
-        }
-      }
-      */
+      ArubaIotLog::log($p_level, 'websocket: '.$p_message);
     }
     /* -------------------------------------------------------------------------*/
 
@@ -232,7 +213,7 @@
       }
 
       if ( isset($this->connection_id_list[$v_id]) ) {
-        ArubaIotTool::log('debug', "Removing connection '".$v_id."' for reporter '".$this->mac_address."'");
+        ArubaIotTool::log('info', "Removing connection '".$v_id."' for reporter '".$this->mac_address."'");
         unset($this->connection_id_list[$v_id]);
         $this->setRemoteIp('');
         $p_connection->my_reporter_id = '';
@@ -266,7 +247,7 @@
       }
 
       if (!isset($this->connection_id_list[$v_id])) {
-        ArubaIotTool::log('debug', "Adding new connection '".$v_id."' for reporter '".$this->mac_address."'");
+        ArubaIotTool::log('info', "Adding new connection '".$v_id."' for reporter '".$this->mac_address."'");
         $this->connection_id_list[$v_id] = array();
         $this->connection_id_list[$v_id]['type'] = $v_type;
         $this->setRemoteIp($p_connection->my_remote_ip);
@@ -364,14 +345,6 @@
       if (isset($this->reporters_list[$p_mac])) {
           return($this->reporters_list[$p_mac]);
       }
-      /*
-      foreach ($this->reporters_list as $v_reporter) {
-        if ($v_reporter->getMac() == $p_mac) {
-          return($v_reporter);
-        }
-      }
-      */
-      return(null);
     }
 
     public function getCachedDeviceByMac($p_mac) {
@@ -429,7 +402,7 @@
         }
       }
 
-      // ----- Get all equipment of from plugin 'ArubaIot'
+      // ----- Get all equipment from plugin 'ArubaIot'
       $this->updateDeviceList();
 
       return;
@@ -745,7 +718,6 @@
       $v_response = 'OK';
 
       return($v_response);
-
     }
     /* -------------------------------------------------------------------------*/
 
@@ -790,7 +762,7 @@
      */
     public function onClose(ConnectionInterface &$connection) {
 
-      ArubaIotTool::log('debug', "Closing Connection '".$connection->my_id."' (".date("Y-m-d H:i:s").")");
+      ArubaIotTool::log('info', "Closing Connection '".$connection->my_id."' (".date("Y-m-d H:i:s").")");
 
       // ----- Remove cross-links between connection and reporter
       // ----- Get reporter
