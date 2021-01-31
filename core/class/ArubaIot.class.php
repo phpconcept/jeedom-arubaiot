@@ -55,7 +55,6 @@ class ArubaIot extends eqLogic {
 
         $status = trim(shell_exec('systemctl is-active ArubaIot-websocket'));
         $return['state'] = ($status === 'active') ? 'ok' : 'nok';
-        $return['log'] = 'ArubaIot_websocket';
 
         $return['launchable'] = 'ok';
         if (!file_exists('/etc/systemd/system/ArubaIot-websocket.service')) {

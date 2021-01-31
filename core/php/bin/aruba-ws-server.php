@@ -1367,10 +1367,14 @@ fwrite($fd, "\n");
         ArubaIotTool::log('debug', "Reporter '".$p_reporter->getMac()."' is the current nearest reporter. Update last seen value");
 
         // ----- No change in last seen value => repeated old value ...
+        // No : in fact we can receive 2 payloads with the same timestamp (in sec) with different values
+        // exemple is the switch up-idle-bottom values
+        /*
         if ($this->nearest_ap_last_seen == $v_lastseen) {
           ArubaIotTool::log('debug', "New last seen value is the same : repeated old telemetry data. Skip telemetry data.");
           return(false);
         }
+        */
 
         // ----- Should never occur ...
         if ($this->nearest_ap_last_seen > $v_lastseen) {
