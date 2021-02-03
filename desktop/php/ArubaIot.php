@@ -14,6 +14,13 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
 }
 
 ?>
+<script type="text/javascript">
+  $(document).ready(function() {
+    // do this stuff when the HTML is all ready
+    refreshDeviceList();
+  });
+
+</script>
 
 <div class="row row-overflow">
    <div class="col-xs-12 eqLogicThumbnailDisplay">
@@ -55,8 +62,21 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
         <span>{{Configuration}}</span>
       </div>
   </div>
+
+
   <legend><i class="fas fa-table"></i> {{Mes Equipements}}</legend>
 	   <input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic" />
+
+
+<?php
+// Here I moved this part of the display to a modal file : modal.device_list.php
+// By doing that I can refresh the list automatically, for
+// exemple when in inclusion mode
+
+// This part to be removed in the future.
+if (0) {
+?>
+
   <legend><i class="fas fa-table"></i> {{Equipements Enocean}}</legend>
 <div class="eqLogicThumbnailContainer">
     <?php
@@ -73,6 +93,8 @@ foreach ($eqLogics as $eqLogic) {
 }
 ?>
 </div>
+
+
   <legend><i class="fas fa-table"></i> {{Etiquettes Aruba}}</legend>
 <div class="eqLogicThumbnailContainer">
     <?php
@@ -89,6 +111,7 @@ foreach ($eqLogics as $eqLogic) {
 }
 ?>
 </div>
+
   <legend><i class="fas fa-table"></i> {{Autres Equipements IoT}}</legend>
 <div class="eqLogicThumbnailContainer">
     <?php
@@ -105,6 +128,15 @@ foreach ($eqLogics as $eqLogic) {
 }
 ?>
 </div>
+
+<?php
+}
+?>
+
+        <div id="inclusion_message_tbd" style="display:none;">
+        <legend> {{Nouveaux équipements détectés : }}<span id="inclusion_message_count" ></span></legend>
+        </div>
+        <div id="device_list"></div>
 
 </div>
 
