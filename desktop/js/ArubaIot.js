@@ -165,11 +165,13 @@ function changeIncludeState(p_state,_mode,p_type='') {
         $('.changeIncludeState').attr('data-state', 0);
         $('.changeIncludeState.card span').text('{{Arrêter l\'inclusion}}');
         $('#div_inclusionAlert').showAlert({message: '{{Vous êtes en mode inclusion. Recliquez sur le bouton d\'inclusion pour sortir de ce mode}}', level: 'warning'});
+        startRefreshDeviceList();
       } else {
         $.hideAlert();
         $('.changeIncludeState').attr('data-state', 1);
         $('.changeIncludeState.card span').text('{{Mode inclusion}}');
         $('#div_inclusionAlert').hideAlert();
+        stopRefreshDeviceList();
       }
 
   $.ajax({
@@ -206,3 +208,26 @@ $('.displayReporters').off('click').on('click', function () {
 });
 
 
+/*
+ * Display  ist of the equipements in the plugin dashboard list
+ */
+var refresh_timeout;
+
+function startRefreshDeviceList() {
+  $('#inclusion_message_tbd').show();
+  document.getElementById("inclusion_message_count").innerHTML =   "0";
+
+  refresh_timeout = setInterval(refreshDeviceList, 3000);
+}
+
+function refreshDeviceList() {
+  $('#device_list').load('index.php?v=d&plugin=ArubaIot&modal=modal.device_list');
+  $('#inclusion_message_tbd').append('.');
+  document.getElementById("inclusion_message_count").innerHTML =   "1";
+}
+
+function stopRefreshDeviceList() {
+  clearInterval(refresh_timeout);
+  $('#device_list').load('index.php?v=d&plugin=ArubaIot&modal=modal.device_list');
+  $('#inclusion_message_tbd').hide();
+}

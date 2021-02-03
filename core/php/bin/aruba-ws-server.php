@@ -1384,7 +1384,12 @@ fwrite($fd, "\n");
 
         // ----- Update latest update
         $this->nearest_ap_last_seen = $v_lastseen;
-        $this->presence_last_seen = $v_lastseen;
+
+        // ----- Update presence, but check that no go back in time
+        if ($this->presence_last_seen < $v_lastseen) {
+          $this->presence_last_seen = $v_lastseen;
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1) || $this->widget_change_flag;
+        }
 
         // ----- Update latest RSSI.
         //  if no RSSI, keep the old one ... ?
@@ -1394,7 +1399,6 @@ fwrite($fd, "\n");
         // ----- Update Presence flag to 1
         // AP is already the nearest, so if teh RSSI is very low this is an update
         // so an indication that the device is still here, not so far.
-        $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1) || $this->widget_change_flag;
         $this->widget_change_flag = $p_jeedom_object->checkAndUpdateCmd('rssi', $v_rssi) || $this->widget_change_flag;
 
         return(true);
@@ -1451,16 +1455,15 @@ fwrite($fd, "\n");
         // ----- Swap for new nearest AP
         $this->nearest_ap_mac = $p_reporter->getMac();
         $this->nearest_ap_last_seen = $v_lastseen;
-        $this->presence_last_seen = $v_lastseen;
         $this->nearest_ap_rssi = $v_rssi;
 
         $this->widget_change_flag = $p_jeedom_object->cmdUpdateNearestAP($p_reporter->getMac(), $p_reporter->getName()) || $this->widget_change_flag;
         $this->widget_change_flag = $p_jeedom_object->checkAndUpdateCmd('rssi', $v_rssi) || $this->widget_change_flag;
 
-        // ----- Update Presence flag to 1
-        // AP is already the nearest, so if teh RSSI is very low this is an update
-        // so an indication that the device is still here, not so far.
-        $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1) || $this->widget_change_flag;
+        if ($this->presence_last_seen < $v_lastseen) {
+          $this->presence_last_seen = $v_lastseen;
+          $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1) || $this->widget_change_flag;
+        }
 
         return(true);
       }

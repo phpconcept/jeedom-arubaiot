@@ -37,6 +37,7 @@ arubaiot_jeedom
 		+modal
 			desktop\modal\modal.ArubaIot.php
 			desktop\modal\modal.reporters.php
+			desktop\modal\modal.device_list.php
 		+php
 			desktop\php\ArubaIot.php
 	+core
@@ -55,20 +56,20 @@ arubaiot_jeedom
 			core\class\ArubaIotLog.class.php
 [Open project files]
 0=core\class\ArubaIot.class.php
-1=core\i18n\en_US.json
-2=core\i18n\fr_FR.json
-3=core\php\ArubaIot.inc.php
-4=desktop\php\ArubaIot.php
-5=desktop\modal\modal.ArubaIot.php
-6=desktop\js\ArubaIot.js
-7=plugin_info\install.php
-8=plugin_info\configuration.php
-9=plugin_info\info.json
-10=core\php\bin\aruba-ws-server.php
-11=core\ajax\ArubaIot.ajax.php
-12=README.md
-13=C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-nb-telemetry.proto
-14=C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-nb.proto
+1=core\i18n\fr_FR.json
+2=core\php\ArubaIot.inc.php
+3=desktop\php\ArubaIot.php
+4=desktop\modal\modal.ArubaIot.php
+5=desktop\js\ArubaIot.js
+6=plugin_info\install.php
+7=plugin_info\configuration.php
+8=plugin_info\info.json
+9=core\php\bin\aruba-ws-server.php
+10=core\ajax\ArubaIot.ajax.php
+11=README.md
+12=C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-nb-telemetry.proto
+13=C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-nb.proto
+14=core\i18n\en_US.json
 15=C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-types.proto
 16=desktop\js\ArubaIot_Configuration.js
 17=core\class\ArubaIotReporter.class.php
@@ -78,16 +79,13 @@ arubaiot_jeedom
 21=3rparty\src\aruba_telemetry\Sensors.php
 22=C:\Users\blavet\Dropbox\00-Vincent\Dev\jeedom\plugins\ArubaIot\ToDo.txt
 23=C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\Lab_Wlan_Iot_Central.cfg
-24=C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\WLAN-Template-2021-01-23.cfg
+24=desktop\modal\modal.device_list.php
 [Selected Project Files]
 Main=
-Selected=core\class\ArubaIot.class.php
+Selected=core\php\bin\aruba-ws-server.php
 [core\class\ArubaIot.class.php]
 TopLine=457
 Caret=1,473
-[core\i18n\en_US.json]
-TopLine=26
-Caret=17,37
 [core\i18n\fr_FR.json]
 TopLine=1
 Caret=1,1
@@ -136,6 +134,9 @@ Caret=26,169
 [C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-nb.proto]
 TopLine=37
 Caret=54,48
+[core\i18n\en_US.json]
+TopLine=1
+Caret=17,37
 [C:\Users\blavet\Dropbox\00-Vincent\Dev\php\appli\pcsengine\websocket\aruba-iot-protobuf-spec-AP\aruba-iot-types.proto]
 TopLine=60
 Caret=13,67
@@ -149,7 +150,7 @@ Caret=1,21
 TopLine=9
 Caret=31,20
 [core\class\ArubaIotLog.class.php]
-TopLine=24
+TopLine=25
 Caret=43,48
 [desktop\modal\modal.reporters.php]
 TopLine=1
@@ -159,10 +160,10 @@ TopLine=1
 Caret=1,1
 [C:\Users\blavet\Dropbox\00-Vincent\Dev\jeedom\plugins\ArubaIot\ToDo.txt]
 TopLine=47
-Caret=1,74
+Caret=1,65
 [C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\Lab_Wlan_Iot_Central.cfg]
-TopLine=108
+TopLine=110
 Caret=36,133
-[C:\Users\blavet\OneDrive\OneDrive - Hewlett Packard Enterprise\OnlineDocuments\80-Labs\MyHomeLab\WLAN-Template-2021-01-23.cfg]
-TopLine=181
-Caret=35,205
+[desktop\modal\modal.device_list.php]
+TopLine=1
+Caret=11,28
