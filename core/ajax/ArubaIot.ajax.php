@@ -32,6 +32,13 @@ try {
 		ajax::success();
 	}
 
+	if (init('action') == 'getIncludedDeviceCount') {
+		$v_val = ArubaIot::getIncludedDeviceCount(init('state'), init('type'));
+		$return = array();
+		$return['count'] = $v_val;
+		ajax::success($return);
+	}
+
     throw new Exception(__('Aucune méthode correspondante à : ', __FILE__) . init('action'));
     /*     * *********Catch exeption*************** */
 } catch (Exception $e) {

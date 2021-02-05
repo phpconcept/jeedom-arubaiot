@@ -213,16 +213,43 @@ $('.displayReporters').off('click').on('click', function () {
  */
 var refresh_timeout;
 
+function refreshDeviceList() {
+
+  $('#device_list').load('index.php?v=d&plugin=ArubaIot&modal=modal.device_list');
+}
+
 function startRefreshDeviceList() {
   $('#inclusion_message_tbd').show();
   document.getElementById("inclusion_message_count").innerHTML =   "0";
 
-  refresh_timeout = setInterval(refreshDeviceList, 3000);
+  refresh_timeout = setInterval(refreshDeviceCount, 3000);
 }
 
-function refreshDeviceList() {
-  $('#device_list').load('index.php?v=d&plugin=ArubaIot&modal=modal.device_list');
-  $('#inclusion_message_tbd').append('.');
+function refreshDeviceCount() {
+
+  $.ajax({
+    type: "POST",
+    url: "plugins/ArubaIot/core/ajax/ArubaIot.ajax.php",
+    data: {
+      action: "getIncludedDeviceCount",
+      state: 'tbd'
+    },
+    dataType: 'json',
+    error: function (request, status, error) {
+      handleAjaxError(request, status, error);
+    },
+    success: function (data) {
+      if (data.state != 'ok') {
+        $('#div_alert').showAlert({message: data.result, level: 'danger'});
+        return;
+      }
+      document.getElementById("inclusion_message_count").innerHTML = data.result.count;
+    }
+  });
+
+
+  //$('#device_list').load('index.php?v=d&plugin=ArubaIot&modal=modal.device_list');
+  //$('#inclusion_message_tbd').append('.');
   document.getElementById("inclusion_message_count").innerHTML =   "1";
 }
 

@@ -286,6 +286,7 @@
     protected $reporters_allow_list;
     protected $include_mode;
     protected $access_token;
+    protected $include_device_count;
 
     /**---------------------------------------------------------------------------
      * Method : init()
@@ -304,6 +305,7 @@
       $this->access_token = '';
       $this->include_mode = false;
       $this->up_time = 0;
+      $this->include_device_count = 0;
     }
     /* -------------------------------------------------------------------------*/
 
@@ -489,10 +491,14 @@
 
       ArubaIotTool::log('debug', "New API Connection from ".$p_connection->my_id."");
 
+      $v_response = array();
+      $v_response['state'] = 'error';
+      $v_response['response'] = 'Unknown error';
+
       if (($v_data = json_decode($p_msg, true)) === null) {
-        $v_response = "Missing or bad json data in API call";
-        ArubaIotTool::log('debug', $v_response);
-        return($v_response);
+        $v_response['response'] = "Missing or bad json data in API call";
+        ArubaIotTool::log('debug', $v_response['response']);
+        return(json_encode($v_response));
       }
 
       ArubaIotTool::log('trace', $v_data);
@@ -502,9 +508,9 @@
 
       // ----- Look for valid API Key
       if (!isset($v_data['api_key']) || ($v_data['api_key'] != jeedom::getApiKey('ArubaIot'))) {
-        $v_response = "Bad API key";
-        ArubaIotTool::log('debug', $v_response);
-        return($v_response);
+        $v_response['response'] = "Bad API key";
+        ArubaIotTool::log('debug', $v_response['response']);
+        return(json_encode($v_response));
       }
 
       ArubaIotTool::log('debug', "Valid API key received");
@@ -512,9 +518,9 @@
       // ----- Look for missing event
       if (  !isset($v_data['event']) || !is_array($v_data['event'])
           || !isset($v_data['event']['name']) ) {
-        $v_response = "Missing event info";
-        ArubaIotTool::log('debug', $v_response);
-        return($v_response);
+        $v_response['response'] = "Missing event info";
+        ArubaIotTool::log('debug', $v_response['response']);
+        return(json_encode($v_response));
       }
 
       ArubaIotTool::log('debug', "Receive event '".$v_data['event']['name']."'");
@@ -524,13 +530,13 @@
       $v_method = 'apiEvent_'.$v_data['event']['name'];
       if (method_exists($this, $v_method)) {
           $v_response = $this->$v_method((isset($v_data['event']['data'])?$v_data['event']['data']:array()));
+          return($v_response);
       }
       else {
           // ----- Do nothing !
-          $v_response = 'Unknown event';
+          $v_response['response'] = 'Unknown event';
+          return(json_encode($v_response));
       }
-
-      return($v_response);
 
     }
     /* -------------------------------------------------------------------------*/
@@ -541,15 +547,37 @@
      * ---------------------------------------------------------------------------
      */
     public function apiEvent_exeeemple($p_data) {
-      $v_response = '';
+      $v_response = array();
+      $v_response['state'] = 'error';
+      $v_response['response'] = 'Unknown error';
 
       if (!isset($p_data['state'])) {
-        $v_response = "Missing event data";
-        ArubaIotTool::log('debug', $v_response);
-        return($v_response);
+        $v_response['response'] = "Missing event data";
+        ArubaIotTool::log('debug', $v_response['response']);
+        return(json_encode($v_response));
       }
 
-      return($v_response);
+      $v_response['state'] = 'ok';
+      $v_response['response'] = 'TBD';
+
+      return(json_encode($v_response));
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : apiEvent_include_device_count()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function apiEvent_include_device_count($p_data) {
+      $v_response = array();
+      $v_response['state'] = 'error';
+      $v_response['response'] = array();
+
+      $v_response['state'] = 'ok';
+      $v_response['response']['count'] = $this->include_device_count;
+
+      return(json_encode($v_response));
     }
     /* -------------------------------------------------------------------------*/
 
@@ -559,12 +587,14 @@
      * ---------------------------------------------------------------------------
      */
     public function apiEvent_device_remove($p_data) {
-      $v_response = '';
+      $v_response = array();
+      $v_response['state'] = 'error';
+      $v_response['response'] = 'Unknown error';
 
       if (!isset($p_data['mac_address'])) {
-        $v_response = "Missing event data";
-        ArubaIotTool::log('debug', $v_response);
-        return($v_response);
+        $v_response['response'] = "Missing event data";
+        ArubaIotTool::log('debug', $v_response['response']);
+        return(json_encode($v_response));
       }
 
       ArubaIotTool::log('debug', "Remove device ".$p_data['mac_address']."");
@@ -577,7 +607,10 @@
         ArubaIotTool::log('debug', "Device '".$p_data['mac_address']."' is not found in the cache.");
       }
 
-      return($v_response);
+      $v_response['state'] = 'ok';
+      $v_response['response'] = '';
+
+      return(json_encode($v_response));
     }
     /* -------------------------------------------------------------------------*/
 
@@ -587,12 +620,14 @@
      * ---------------------------------------------------------------------------
      */
     public function apiEvent_device_refresh($p_data) {
-      $v_response = '';
+      $v_response = array();
+      $v_response['state'] = 'error';
+      $v_response['response'] = 'Unknown error';
 
       if (!isset($p_data['mac_address']) || !isset($p_data['id'])
           || ($p_data['mac_address'] == '') || ($p_data['id'] == '')) {
-        $v_response = "Missing event data";
-        ArubaIotTool::log('debug', $v_response);
+        $v_response['response'] = "Missing event data";
+        ArubaIotTool::log('debug', $v_response['response']);
         return($v_response);
       }
 
@@ -600,6 +635,9 @@
 
       if ($p_data['mac_address'] == '00:00:00:00:00:00') {
         ArubaIotTool::log('debug', "Not yet a valid MAC@, waiting ...");
+
+        $v_response['state'] = 'ok';
+        $v_response['response'] = '';
         return($v_response);
       }
 
@@ -622,7 +660,10 @@
 
       }
 
-      return($v_response);
+      $v_response['state'] = 'ok';
+      $v_response['response'] = '';
+
+      return(json_encode($v_response));
     }
     /* -------------------------------------------------------------------------*/
 
@@ -632,7 +673,9 @@
      * ---------------------------------------------------------------------------
      */
     public function apiEvent_reporter_list($p_data) {
-      $v_response = '';
+      $v_response = array();
+      $v_response['state'] = 'error';
+      $v_response['response'] = 'Unknown error';
 
       ArubaIotTool::log('debug', "Send reporter list");
 
@@ -658,9 +701,10 @@
         $v_response_array['reporters'][] = $v_item;
       }
 
-      $v_response = json_encode($v_response_array);
+      $v_response['state'] = 'ok';
+      $v_response['response'] = $v_response_array;
 
-      return($v_response);
+      return(json_encode($v_response));
     }
     /* -------------------------------------------------------------------------*/
 
@@ -670,19 +714,24 @@
      * ---------------------------------------------------------------------------
      */
     public function apiEvent_debug_reporters($p_data) {
-      $v_response = '';
+      $v_response = array();
+      $v_response['state'] = 'error';
+      $v_response['response'] = 'Unknown error';
 
       if (!isset($p_data['state'])) {
-        $v_response = "Missing event data";
+        $v_response['response'] = "Missing event data";
         ArubaIotTool::log('debug', $v_response);
-        return($v_response);
+        return(json_encode($v_response));
       }
 
       foreach ($this->reporters_list as $v_reporter) {
         echo var_dump($v_reporter);
       }
 
-      return($v_response);
+      $v_response['state'] = 'ok';
+      $v_response['response'] = 'Unknown error';
+
+      return(json_encode($v_response));
     }
     /* -------------------------------------------------------------------------*/
 
@@ -692,11 +741,14 @@
      * ---------------------------------------------------------------------------
      */
     public function apiEvent_include_mode($p_data) {
+      $v_response = array();
+      $v_response['state'] = 'error';
+      $v_response['response'] = 'Unknown error';
 
       if (!isset($p_data['state'])) {
-        $v_response = "Missing include_mode event data";
+        $v_response['response'] = "Missing include_mode event data";
         ArubaIotTool::log('debug', $v_response);
-        return($v_response);
+        return(json_encode($v_response));
       }
 
       $this->include_mode = ($p_data['state'] == 1?true:false);
@@ -715,9 +767,13 @@
         }
       }
 
-      $v_response = 'OK';
+      // ----- Reset new device count
+      $this->include_device_count = 0;
 
-      return($v_response);
+      $v_response['state'] = 'ok';
+      $v_response['response'] = '';
+
+      return(json_encode($v_response));
     }
     /* -------------------------------------------------------------------------*/
 
@@ -867,6 +923,8 @@
             $v_device->setJeedomObjectId($v_jeedom_device->getId());
             $this->cached_devices[$v_device_mac] = $v_device;
             ArubaIotTool::log('debug', "add in list.");
+
+            $this->include_device_count++;
 
           }
 

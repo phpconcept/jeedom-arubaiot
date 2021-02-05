@@ -110,6 +110,11 @@ class ArubaIot extends eqLogic {
       $v_request_http->setNoReportError(true);
       $v_request_http->setPost($v_data_json);
       $v_return = $v_request_http->exec(15,2);
+      /*
+      $v_result  = json_decode($v_return, true);
+      $v_result['state'] = ok / error
+      $v_result['response'] = data ....
+      */
       if ($v_return === false) {
         ArubaIotLog::log('ArubaIot', 'debug', 'Unable to fetch ' . $v_url);
         return('');
@@ -137,6 +142,23 @@ class ArubaIot extends eqLogic {
       $v_data = array('state' => $p_state, 'type' => $v_type_str );
       self::talkToWebsocket('include_mode', $v_data);
 
+	}
+
+
+	public static function getIncludedDeviceCount() {
+      $v_data = array('state' => $p_state, 'type' => $v_type_str );
+      $v_val = self::talkToWebsocket('include_device_count', $v_data);
+
+      $v_result  = json_decode($v_val, true);
+
+      if (isset($v_result['state'])
+          && ($v_result['state'] == 'ok')
+          && isset($v_result['response'])
+          && isset($v_result['response']['count'])) {
+        return($v_result['response']['count']);
+      }
+
+      return($v_val);
 	}
 
 

@@ -28,20 +28,25 @@ $v_result = ArubaIot::talkToWebsocket('reporter_list', $v_data);
 
 //var_dump($v_result);
 
+ArubaIotLog::log('ArubaIot', 'debug', 'websocket Result ' . $v_result);
+
 $v_result_array = json_decode($v_result, true);
 
-if (isset($v_result_array['websocket'])) {
-  $v_websocket = $v_result_array['websocket'];
+if (isset($v_result_array['state'])
+    && ($v_result_array['state'] == 'ok')
+    && isset($v_result_array['response']['websocket'])) {
+  $v_websocket = $v_result_array['response']['websocket'];
   $v_websocket['status'] = "Up";
+  $v_list = (isset($v_result_array['response']['reporters']) ? $v_result_array['response']['reporters'] : array());
 }
 else {
   $v_websocket = array();
   $v_websocket['status'] = 'Down';
   $v_websocket['ip_address'] = 'n/a';
   $v_websocket['tcp_port'] = 'n/a';
+  $v_list = array();
 }
 
-$v_list = (isset($v_result_array['reporters']) ? $v_result_array['reporters'] : array());
 
 
 ?>
