@@ -46,6 +46,45 @@
     /* -------------------------------------------------------------------------*/
 
     /**---------------------------------------------------------------------------
+     * Method : dump()
+     * Description :
+     *   A placeholder to encapsulate log message, and be able do some
+     *   troubleshooting locally.
+     * ---------------------------------------------------------------------------
+     */
+    public function dump($p_message) {
+
+    /*
+
+      $v_value = explode(';', $p_message);
+      if (!isset($v_value[0])) {
+        $v_value =  array();
+        $v_value[0] = '  ';
+      }
+
+      $v_header = "[".date("Y-m-d H:i:s")." - ".time()."] : ";
+
+      $v_filemane = "/var/www/html/log/arubaiot-dump-".date("Y-m-d").".log";
+      $fd = fopen($v_filemane, 'a');
+      $i=0;
+      foreach ($v_value as $v_item) {
+        if (($i == 0) && ($v_item != '')) {
+          fwrite($fd, "\n".$v_header.$v_item."\n");
+        }
+        else {
+          fwrite($fd, $v_header." -- ".$v_item."\n");
+        }
+        $i++;
+      }
+      fclose($fd);
+      */
+
+
+
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
      * Method : macToString()
      * Description :
      *   utility to format MAC@ from ArubaTelemetry protobuf format to string
@@ -509,6 +548,8 @@
      * ---------------------------------------------------------------------------
      */
     public function init() {
+
+      ArubaIotTool::dump('Start Websocket -----------');
 
       // ----- Store start time
       $this->up_time = time();
@@ -1549,6 +1590,7 @@ fwrite($fd, "\n");
     protected $nearest_ap_rssi;
     protected $nearest_ap_last_seen;
     protected $presence_last_seen;
+    protected $presence;
 
     /**---------------------------------------------------------------------------
      * Method : __construct()
@@ -1564,6 +1606,7 @@ fwrite($fd, "\n");
       $this->nearest_ap_rssi = -110;
       $this->nearest_ap_last_seen = 0;
       $this->presence_last_seen = 0;
+      $this->presence = 0;
 
       $this->widget_change_flag = false;
     }
@@ -1656,6 +1699,11 @@ fwrite($fd, "\n");
         $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : $v_rssi);
       }
 
+      if ($this->mac_address == "54:6C:0E:05:A3:5C")
+      {
+        ArubaIotTool::dump($this->mac_address.";reporter: ".$p_reporter->getName()."(".$p_reporter->getMac().");lastseen:".date("Y-m-d H:i:s", $v_lastseen)."(".$v_lastseen.");previous lastseen:".date("Y-m-d H:i:s", $this->nearest_ap_last_seen)."(".$this->nearest_ap_last_seen.");diff:".($v_lastseen-$this->nearest_ap_last_seen)." sec;presence_lastseen:".date("Y-m-d H:i:s", $this->presence_last_seen)."(".$this->presence_last_seen.");diff:".($v_lastseen-$this->presence_last_seen)." sec;rssi:".$v_rssi.";previous:".$this->nearest_ap_mac);
+      }
+
       // ----- Look if this is the current best reporter (nearest ap)
       if ($this->nearest_ap_mac == $p_reporter->getMac()) {
         ArubaIotTool::log('debug', "Reporter '".$p_reporter->getMac()."' is the current nearest reporter. Update last seen value");
@@ -1682,6 +1730,7 @@ fwrite($fd, "\n");
         // ----- Update presence, but check that no go back in time
         if ($this->presence_last_seen < $v_lastseen) {
           $this->presence_last_seen = $v_lastseen;
+          $this->presence = 1;
           $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1) || $this->widget_change_flag;
         }
 
@@ -1689,6 +1738,11 @@ fwrite($fd, "\n");
         //  if no RSSI, keep the old one ... ?
         //  an object should always send an RSSI or never send an RSSI.
         $this->nearest_ap_rssi = $v_rssi;
+
+      if ($this->mac_address == "54:6C:0E:05:A3:5C")
+      {
+        ArubaIotTool::dump("; -- update presence to 1");
+      }
 
         // ----- Update Presence flag to 1
         // AP is already the nearest, so if teh RSSI is very low this is an update
@@ -1756,18 +1810,31 @@ fwrite($fd, "\n");
 
         if ($this->presence_last_seen < $v_lastseen) {
           $this->presence_last_seen = $v_lastseen;
+          $this->presence = 1;
           $this->widget_change_flag = $p_jeedom_object->createAndUpdateCmd('presence', 1) || $this->widget_change_flag;
         }
+
+      if ($this->mac_address == "54:6C:0E:05:A3:5C")
+      {
+        ArubaIotTool::dump("; -- Update values; ap_lastseen:".date("Y-m-d H:i:s", $v_lastseen)."(".$v_lastseen."); previous:".date("Y-m-d H:i:s", $this->nearest_ap_last_seen)."(".$this->nearest_ap_last_seen."); presence_lastseen:".date("Y-m-d H:i:s", $this->presence_last_seen)."(".$this->presence_last_seen."); rssi:".$v_rssi);
+      }
 
         return(true);
       }
 
       // ----- Compare new AP lastseen to nearestAP timestamp
-      if ($v_lastseen > $this->presence_last_seen) {
+      // Update timer only if already in present state
+      if (($v_lastseen > $this->presence_last_seen) && ($this->presence == 1)) {
         // ----- The new reporter is not a better nearest AP, but it has seen the device
         // with a better timestamp, so update the timestamp for presence update
         $this->presence_last_seen = $v_lastseen;
         ArubaIotTool::log('debug', "Do not update nearest reporter, but update presence timestamp.");
+
+      if ($this->mac_address == "54:6C:0E:05:A3:5C")
+      {
+        ArubaIotTool::dump("; -- Update presence only; new presence_lastseen:".date("Y-m-d H:i:s", $this->presence_last_seen)."(".$this->presence_last_seen.")");
+      }
+
       }
 
       ArubaIotTool::log('debug', "Reporter '".$p_reporter->getMac()."' not a new nearest reporter compared to current '".$this->nearest_ap_mac."'. Skip telemetry data.");
@@ -1782,6 +1849,11 @@ fwrite($fd, "\n");
      * ---------------------------------------------------------------------------
      */
     public function updateAbsence() {
+
+      // ----- Look if already absent
+      if ($this->presence == 0) {
+        return;
+      }
 
       $v_timeout = config::byKey('presence_timeout', 'ArubaIot');
 
@@ -1819,11 +1891,17 @@ fwrite($fd, "\n");
         // TBC : Improvment ? May be here I should look for triangulation list
         // and get the best one in the list with a last_seen value better than the current nearest AP ?
 
+      if ($this->mac_address == "54:6C:0E:05:A3:5C")
+      {
+        ArubaIotTool::dump($this->mac_address." ******************* Absence;timeout:".$v_timeout."sec;previous lastseen:".date("Y-m-d H:i:s", $this->nearest_ap_last_seen)."(".$this->nearest_ap_last_seen.");diff:".(time()-$this->nearest_ap_last_seen)." sec;presence_lastseen:".date("Y-m-d H:i:s", $this->presence_last_seen)."(".$this->presence_last_seen.");diff:".(time()-$this->presence_last_seen)." sec");
+      }
+
         // ----- Reset nearestAP
         $this->nearest_ap_mac = '';
         $this->nearest_ap_rssi = -110;
         $this->nearest_ap_last_seen = 0;
         $this->presence_last_seen = 0;
+        $this->presence = 0;
 
         ArubaIotTool::log('debug', "--> Presence flag is : missing");
 
