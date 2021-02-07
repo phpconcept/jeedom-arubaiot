@@ -207,6 +207,13 @@ $('.displayReporters').off('click').on('click', function () {
 
 });
 
+function refreshStats() {
+alert('ok');
+  //$('#stats').load('index.php?v=d&plugin=ArubaIot&modal=modal.stats');
+}
+
+
+
 
 /*
  * Display  ist of the equipements in the plugin dashboard list

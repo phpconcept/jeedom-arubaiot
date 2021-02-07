@@ -182,6 +182,28 @@ else {
     </div>
 </div>
 
+<div class="col-md-12">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">Statistiques
+            <a class="btn btn-success btn-xs pull-right btRefreshStats" style="top: -2px !important; right: -6px !important;"><i class="fas fa-sync icon-white"></i> {{Rafraichir}}</a>
+            </h3>
+        </div>
+        <div class="panel-body">
+
+
+    <div id="stats" >
+
+<?php // loaded by javascript ?>
+
+    </div>
+
+
+
+        </div>
+    </div>
+</div>
+
 <script>
     
     $("#btSaveList").click(function() {
@@ -189,15 +211,31 @@ else {
     });
     
 
+    $("#btRefreshStats").click(function() {
+//        alert('For future use !');
+      refreshStats();
+    });
+
+
+    $(".btRefreshStats").click(function() {
+//        alert('For future use !');
+      refreshStats();
+    });
+
+
     $(document).ready(function ($) {
-    var $table = $("#reporters_list").stupidtable(); 
-    var $th_to_sort = $table.find("thead th").eq("<?php /*echo scan_ip_widget_network::getOrderBy($orderBy)*/ ?>");
-    $th_to_sort.stupidsort();
 
 
-});
+      var $table = $("#reporters_list").stupidtable();
+      var $th_to_sort = $table.find("thead th").eq("<?php /*echo scan_ip_widget_network::getOrderBy($orderBy)*/ ?>");
+      $th_to_sort.stupidsort();
+
+      refreshStats();
+
+
+    });
 
 </script>
 
-<?php /*include_file('desktop', 'reporters_list', 'js', 'scan_ip'); */?>
+<?php include_file('desktop', 'modal_reporters', 'js', 'ArubaIot'); ?>
 <?php include_file('desktop', 'lib/stupidtable.min', 'js', 'ArubaIot');  ?>

@@ -1,6 +1,6 @@
 <?php
 /**
- * Aruba Websocket Demo Server
+ * Aruba Websocket Server for Jeedom
  *
  *
  */
@@ -89,6 +89,16 @@
     protected $date_created;
     protected $lastseen;
 
+    // ----- Stats data
+    protected $stat_telemetry_payload_sum;
+    protected $stat_telemetry_msg_count;
+    protected $stat_telemetry_payload_max;
+    protected $stat_telemetry_payload_min;
+    protected $stat_msg_rate_average;
+    protected $stat_msg_rate_sum;
+    protected $stat_msg_rate_min;
+    protected $stat_msg_rate_max;
+
     public function __construct($p_mac) {
       $this->mac_address = filter_var(trim(strtoupper($p_mac)), FILTER_VALIDATE_MAC);
       $this->connection_id_list = array();
@@ -99,8 +109,18 @@
       $this->hardware_type = '';
       $this->software_version = '';
       $this->software_build = '';
-      $this->date_created = date("Y-m-d H:i:s");
+      $this->date_created = time();
       $this->lastseen = 0;
+
+      $this->stat_telemetry_payload_sum = 0;
+      $this->stat_telemetry_msg_count = 0;
+      $this->stat_telemetry_payload_max = 0;
+      $this->stat_telemetry_payload_min = 0;
+
+      $this->stat_msg_rate_average = 0;
+      $this->stat_msg_rate_sum = 0;
+      $this->stat_msg_rate_min = 0;
+      $this->stat_msg_rate_max = 0;
     }
 
     public function setStatus($p_status) {
@@ -169,12 +189,24 @@
     }
 
     public function setLastSeen($p_time) {
+      // ----- stats
+      if ($this->lastseen != 0) {
+        $v_rate = $p_time - $this->lastseen;
+        $this->stats('msg_rate', $v_rate);
+      }
+
+      // ----- Update
       $this->lastseen = $p_time;
     }
 
     public function getLastSeen() {
       return($this->lastseen);
     }
+
+    public function getUptime() {
+      return($this->date_created);
+    }
+
 
     /**---------------------------------------------------------------------------
      * Method : hasTelemetryCnx()
@@ -261,6 +293,94 @@
     }
     /* -------------------------------------------------------------------------*/
 
+    /**---------------------------------------------------------------------------
+     * Method : stats()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function stats($v_type, $v_data) {
+
+      if ($v_type == 'data_payload') {
+
+        $this->stat_telemetry_msg_count++;
+
+        $this->stat_telemetry_payload_sum += $v_data;
+        if ($v_data > $this->stat_telemetry_payload_max) {
+          $this->stat_telemetry_payload_max = $v_data;
+        }
+        if (($v_data < $this->stat_telemetry_payload_min) || ($this->stat_telemetry_payload_min == 0)) {
+          $this->stat_telemetry_payload_min = $v_data;
+        }
+
+      }
+
+      else if ($v_type == 'msg_rate') {
+
+        $this->stat_msg_rate_sum += $v_data;
+
+        $this->stat_msg_rate_average = $this->stat_msg_rate_sum / ($this->stat_telemetry_msg_count-1);
+
+        if ($v_data > $this->stat_msg_rate_max) {
+          $this->stat_msg_rate_max = $v_data;
+        }
+        if (($v_data < $this->stat_msg_rate_min) || ($this->stat_msg_rate_min == 0)) {
+          $this->stat_msg_rate_min = $v_data;
+        }
+
+      }
+
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : getStats()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function getStats() {
+      $v_result = array();
+
+      $v_result['msg_count'] = $this->stat_telemetry_msg_count;
+      $v_result['msg_total_bytes'] = $this->stat_telemetry_payload_sum;
+      if ($this->stat_telemetry_msg_count != 0) {
+        $v_result['msg_size_average'] = ($this->stat_telemetry_payload_sum/$this->stat_telemetry_msg_count);
+      }
+      else {
+        $v_result['msg_size_average'] = 0;
+      }
+      $v_result['msg_size_max'] = $this->stat_telemetry_payload_max;
+      $v_result['msg_size_min'] = $this->stat_telemetry_payload_min;
+      $v_result['msg_rate_average'] = $this->stat_msg_rate_average;
+      $v_result['msg_rate_max'] = $this->stat_msg_rate_max;
+      $v_result['msg_rate_min'] = $this->stat_msg_rate_min;
+
+      return($v_result);
+
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : display_stats()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function display_stats() {
+
+      ArubaIotTool::log('debug', "------ Stats Reporter :".$this->name);
+      ArubaIotTool::log('debug', "  - Total received msg : ".$this->stat_telemetry_msg_count." ");
+      ArubaIotTool::log('debug', "  - Total received bytes : ".$this->stat_telemetry_payload_sum." bytes");
+      ArubaIotTool::log('debug', "  - Average msg size : ".($this->stat_telemetry_payload_sum/$this->stat_telemetry_msg_count)." bytes");
+      ArubaIotTool::log('debug', "  - Max msg size : ".$this->stat_telemetry_payload_max." bytes");
+      ArubaIotTool::log('debug', "  - Min msg size : ".$this->stat_telemetry_payload_min." bytes");
+      ArubaIotTool::log('debug', "------------");
+      ArubaIotTool::log('debug', "  - Average interval between msg : ".$this->stat_msg_rate_average." sec");
+      ArubaIotTool::log('debug', "  - Max interval between msg : ".$this->stat_msg_rate_max." sec");
+      ArubaIotTool::log('debug', "  - Min interval between msg : ".$this->stat_msg_rate_min." sec");
+      ArubaIotTool::log('debug', "------------");
+
+    }
+    /* -------------------------------------------------------------------------*/
+
   }
   /* -------------------------------------------------------------------------*/
 
@@ -288,6 +408,10 @@
     protected $access_token;
     protected $include_device_count;
 
+    // ----- Statistics data
+    protected $payload_data;
+    protected $raw_data;
+
     /**---------------------------------------------------------------------------
      * Method : init()
      * Description :
@@ -306,6 +430,11 @@
       $this->include_mode = false;
       $this->up_time = 0;
       $this->include_device_count = 0;
+
+      // ----- Reset stats
+      $this->payload_data = 0;
+      $this->raw_data = 0;
+
     }
     /* -------------------------------------------------------------------------*/
 
@@ -559,6 +688,33 @@
 
       $v_response['state'] = 'ok';
       $v_response['response'] = 'TBD';
+
+      return(json_encode($v_response));
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : apiEvent_get_stats()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function apiEvent_get_stats($p_data) {
+      $v_response = array();
+      $v_response['state'] = 'error';
+      $v_response['response'] = 'Unknown error';
+
+      /*
+      if (!isset($p_data['state'])) {
+        $v_response['response'] = "Missing event data";
+        ArubaIotTool::log('debug', $v_response['response']);
+        return(json_encode($v_response));
+      }
+      */
+
+      $v_response['state'] = 'ok';
+      $v_response['response'] = array();
+
+      $v_response['response'] = $this->getStats();
 
       return(json_encode($v_response));
     }
@@ -1068,6 +1224,10 @@
 
       ArubaIotTool::log('debug',  "Received message from ".$p_connection->my_id."");
 
+      // ----- Stats
+      $v_stat_data_payload = strlen($p_msg);
+      $this->stats('data_payload', $v_stat_data_payload);
+
       // ----- Parse Aruba protobuf message
       // TBC : I should check that the telemetry object is ok
       $v_at_telemetry_msg = new aruba_telemetry\Telemetry($p_msg);
@@ -1233,6 +1393,9 @@ fwrite($fd, "\n");
         $v_reporter->setSoftwareBuild($v_soft);
       }
 
+      // ----- Stats
+      $v_reporter->stats('data_payload', $v_stat_data_payload);
+
       // ----- Update last seen value
       $v_reporter->setLastSeen($v_at_reporter->getTime());
 
@@ -1285,8 +1448,81 @@ fwrite($fd, "\n");
         $v_device->updateAbsence();
       }
 
+
+      /*
+      ArubaIotTool::log('debug', "------ Stats");
+      ArubaIotTool::log('debug', "  - raw_data : ".$this->raw_data." bytes");
+      ArubaIotTool::log('debug', "  - payload_data : ".$this->payload_data." bytes");
+      ArubaIotTool::log('debug', "------------");
+
+      $v_uptime = time() - $this->up_time;
+
+      ArubaIotTool::log('debug', "  - raw_data throuput : ".($this->payload_data/$v_uptime)." bytes/secondes");
+      ArubaIotTool::log('debug', "  - payload_data throuput : ".($this->payload_data/$v_uptime)." bytes/secondes");
+      ArubaIotTool::log('debug', "------------");
+
+
+      foreach ($this->reporters_list as $v_reporter)
+        $v_reporter->display_stats();
+        */
+
     }
     /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : stats()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function stats($v_type, $v_data) {
+
+      switch ($v_type) {
+
+        case 'raw_data':
+      //ArubaIotTool::log('debug', "  ************************ raw_data : ".$v_data." bytes");
+          $this->raw_data += $v_data;
+        break;
+        case 'data_payload':
+      //ArubaIotTool::log('debug', "  ************************ data_payload : ".$v_data." bytes");
+          $this->payload_data += $v_data;
+        break;
+        default;
+      }
+
+
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : getStats()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function getStats() {
+      $v_result = array();
+
+      $v_result['global'] = array();
+      $v_result['global']['raw_data_total_size'] = $this->raw_data;
+      $v_result['global']['msg_total_size'] = $this->payload_data;
+      $v_result['global']['start_time'] = $this->up_time;
+      $v_result['global']['uptime'] = ($this->up_time != 0 ? time() - $this->up_time : 0);
+
+      $v_result['reporters'] = array();
+      foreach ($this->reporters_list as $v_reporter) {
+        $v_name = $v_reporter->getName();
+        $v_result['reporters'][$v_name] = array();
+        $v_result['reporters'][$v_name]['name'] = $v_reporter->getName();
+        $v_result['reporters'][$v_name]['mac_address'] = $v_reporter->getMac();
+        $v_result['reporters'][$v_name]['start_time'] = $v_reporter->getUptime();
+        $v_result['reporters'][$v_name]['uptime'] = ($v_reporter->getUptime() != 0 ? time() - $v_reporter->getUptime() : 0);
+        $v_result['reporters'][$v_name]['stats'] = $v_reporter->getStats();
+      }
+
+      return($v_result);
+    }
+    /* -------------------------------------------------------------------------*/
+
+
   }
   /* -------------------------------------------------------------------------*/
 
@@ -1322,7 +1558,7 @@ fwrite($fd, "\n");
     public function __construct($p_mac) {
       $this->mac_address = filter_var(trim(strtoupper($p_mac)), FILTER_VALIDATE_MAC);
       $this->jeedom_object_id = '';
-      $this->date_created = date("Y-m-d H:i:s");
+      $this->date_created = time();
 
       $this->nearest_ap_mac = '';
       $this->nearest_ap_rssi = -110;
@@ -1606,39 +1842,6 @@ fwrite($fd, "\n");
       }
 
       return;
-    }
-    /* -------------------------------------------------------------------------*/
-
-    /**---------------------------------------------------------------------------
-     * Method : updateRssiTelemetry()
-     * Description :
-     * ---------------------------------------------------------------------------
-     */
-     // DEPRECATED : included in updateNearestAP
-    public function updateRssiTelemetry_DEPRECATED(&$p_jeedom_object, $p_telemetry, $p_class_name='') {
-
-      //ArubaIotTool::log('debug', "Update Rssi Telemetry data");
-
-      /*
-      // ----- Look if this command is allowed for this class_name
-      if (!ArubaIot::isAllowedCmdForClass('rssi', $p_class_name)) {
-        ArubaIotTool::log('debug', "Command 'rssi' not allowed for this class_name '".$p_class_name."'. Look at settings");
-        return(false);
-      }
-      */
-
-      // ----- Update common telemetry data
-      $v_rssi = 0;
-      if ($p_telemetry->hasRSSI()) {
-        $v_val = explode(':', $p_telemetry->getRSSI());
-        $v_rssi = (isset($v_val[1]) ? intval($v_val[1]) : 0);
-      }
-      if ($v_rssi != 0) {
-        ArubaIotTool::log('debug', "--> RSSI changed for : ".$v_rssi);
-        $this->widget_change_flag = $p_jeedom_object->checkAndUpdateCmd('rssi', $v_rssi) || $this->widget_change_flag;
-      }
-
-      return($this->widget_change_flag);
     }
     /* -------------------------------------------------------------------------*/
 
@@ -1985,13 +2188,13 @@ fwrite($fd, "\n");
       $buffer = '';
       $parser = null;
       $connection->on('data', function ($data) use (&$aruba_iot_websocket, &$connection, &$parser, &$headerComplete, &$buffer, $negotiator, $closeFrameChecker, $uException, $socket) {
+          // ----- Stats
+          $aruba_iot_websocket->stats('raw_data', strlen($data));
+
           if ($headerComplete) {
               $parser->onData($data);
               return;
           }
-
-          // ----- New connection
-          //$aruba_iot_websocket->onOpen($connection);
 
           // ----- Extract HTTP Header from payload
           $buffer .= $data;
@@ -2070,7 +2273,6 @@ fwrite($fd, "\n");
 
           $parser = new \Ratchet\RFC6455\Messaging\MessageBuffer($closeFrameChecker,
               function (MessageInterface $message, MessageBuffer $messageBuffer) use (&$aruba_iot_websocket, &$connection) {
-
 
                 // onData() method is called for each received message, extracted from Websocket frame format
                 // But still in protobuf format for Aruba Websocket
