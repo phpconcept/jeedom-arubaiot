@@ -127,7 +127,7 @@ class ArubaIot extends eqLogic {
 	}
 
 
-	public static function changeIncludeState($p_state, $p_type='') {
+	public static function changeIncludeState($p_state, $p_type='', $p_generic_with_local=0, $p_generic_with_mac=0, $p_generic_mac_prefix='', $p_generic_max_devices=3) {
 
       ArubaIotLog::log('ArubaIot', 'info',  "Change inclusion state to : ".$p_state);
 
@@ -139,7 +139,12 @@ class ArubaIot extends eqLogic {
         ArubaIotLog::log('ArubaIot', 'info',  "Classes to includes are : ".$v_type_str);
       }
 
-      $v_data = array('state' => $p_state, 'type' => $v_type_str );
+      $v_data = array('state' => $p_state,
+                      'type' => $v_type_str,
+                      'generic_with_local' => $p_generic_with_local,
+                      'generic_with_mac' => $p_generic_with_mac,
+                      'generic_mac_prefix' => $p_generic_mac_prefix,
+                      'generic_max_devices' => $p_generic_max_devices );
       self::talkToWebsocket('include_mode', $v_data);
 
 	}
