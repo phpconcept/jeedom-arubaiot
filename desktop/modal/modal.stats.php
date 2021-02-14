@@ -59,21 +59,21 @@ else {
 
     <div id="stats" class="panel panel-primary" style="width: 100%; margin: -5px -5px 10px 5px;">
         <div class="panel-heading" >
-            <h3 class="panel-title">Statistiques Globales
+            <h3 class="panel-title">{{Statistiques Globales}}
             </h3>
         </div>
         <div class="panel-body">
 
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Total données reçues : </label>
-                <div><?php echo $v_global['raw_data_total_size']; ?> bytes</div>
+                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Total données reçues}} : </label>
+                <div><?php echo $v_global['raw_data_total_size']; ?> {{bytes}}</div>
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Bande passante moyenne consommée : </label>
-                <div><?php echo round(($v_global['uptime'] != 0 ? $v_global['raw_data_total_size']/$v_global['uptime'] : 0), 2); ?> bytes/sec</div>
+                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Bande passante moyenne consommée}} : </label>
+                <div><?php echo round(($v_global['uptime'] != 0 ? $v_global['raw_data_total_size']/$v_global['uptime'] : 0), 2); ?> {{bytes/sec}}</div>
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Total données télémetrie reçues : </label>
+                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Total données télémetrie reçues}} : </label>
                 <div><?php echo $v_global['msg_total_size']; ?> bytes</div>
             </div>
 
@@ -95,51 +95,51 @@ else {
 
     <div id="stats" class="panel panel-primary" style="width: 100%; margin: -5px -5px 10px 5px;">
         <div class="panel-heading" >
-            <h3 class="panel-title">Statistiques du Rapporteur <?php echo $v_reporter['name']; ?>
+            <h3 class="panel-title">{{Statistiques du Rapporteur}} <?php echo $v_reporter['name']; ?>
             </h3>
         </div>
         <div class="panel-body">
 
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Taille totale des données reçues : </label>
+                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Taille totale des données reçues}} : </label>
                 <div><?php echo $v_reporter['stats']['msg_total_bytes']; ?> bytes</div>
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Bande passante moyenne consommée : </label>
+                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Bande passante moyenne consommée}} : </label>
                 <div><?php echo round(($v_reporter['uptime'] != 0 ? $v_reporter['stats']['msg_total_bytes']/$v_reporter['uptime'] : 0),2); ?> bytes/sec</div>
             </div>
             <div>
                 &nbsp;
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Nombre de messages reçus : </label>
+                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Nombre de messages reçus}} : </label>
                 <div><?php echo $v_reporter['stats']['msg_count']; ?></div>
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Taille moyenne d'un message : </label>
+                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Taille moyenne d'un message}} : </label>
                 <div><?php echo round($v_reporter['stats']['msg_size_average'], 0); ?> bytes</div>
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Taille maximale d'un message : </label>
+                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Taille maximale d'un message}} : </label>
                 <div><?php echo $v_reporter['stats']['msg_size_max']; ?> bytes</div>
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Taille minimum d'un message : </label>
+                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Taille minimum d'un message}} : </label>
                 <div><?php echo $v_reporter['stats']['msg_size_min']; ?> bytes</div>
             </div>
             <div>
                 &nbsp;
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Interval moyen entre deux messages : </label>
+                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Interval moyen entre deux messages}} : </label>
                 <div><?php echo round($v_reporter['stats']['msg_rate_average'],0); ?> secondes</div>
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Interval maximal entre deux messages : </label>
+                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Interval maximal entre deux messages}} : </label>
                 <div><?php echo $v_reporter['stats']['msg_rate_max']; ?> secondes</div>
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Interval minimal entre deux messages : </label>
+                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Interval minimal entre deux messages}} : </label>
                 <div><?php echo $v_reporter['stats']['msg_rate_min']; ?> secondes</div>
             </div>
 

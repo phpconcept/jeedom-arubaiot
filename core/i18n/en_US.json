@@ -2,7 +2,7 @@
     "plugins/arubaiot/desktop/php/ArubaIot.php": {
         "401 - Accès non autorisé": "401 - Denied access",
         "Vous etes en mode inclusion. Recliquez sur le bouton d\'inclusion pour sortir de ce mode": "You are in inclusion mode. Click again on inclusion button to exit this mode.",
-        Gestion": "Management",
+        "Gestion": "Management",
         "Ajouter": "Add",
         "Arrêter inclusion": "Stop inclusion",
         "Mode inclusion": "Inclusion mode",
@@ -13,6 +13,7 @@
         "Equipements Enocean": "Enocean Devices",
         "Etiquettes Aruba": "Aruba Tags",
         "Autres Equipements IoT": "Others IoT Devices",
+        "Nouveaux équipements détectés": "Newly detected Devices",
         "Configuration avancée": "Advanced configuration",
         "Dupliquer": "Duplicate",
         "Supprimer": "Delete",
@@ -27,12 +28,87 @@
         "Visible": "Visible",
         "Adresse MAC": "MAC Address",
         "Type d'objet": "Object Type",
-        "Nom du Fabriquant": "Vendro Name",
+        "Pour laisser le plugin découvrir le type, choisir 'Découvrir automatiquement'.": "To have the plugin find the right type, select 'Auto-discover'.",
+        "Auto-découverte des commandes" : "Commands auto-discovery",
+        "Va ajouter les commandes au fur et à mesure de la réception des informations de télémétrie." : "Commands will be created a soon as corresponding telemetry data will be received.",
+        "Activer" : "Activate",
+        "Nom du Fabriquant": "Vender Name",
         "Nom Local": "Local Name",
         "Modèle": "Model",
         "Nom": "Name",
         "Type": "Type",
         "Action": "Action",
+
+        "#": "#"
+    },
+    "plugins/arubaiot/desktop/modal/modal.reporters.php": {
+        "401 - Accès non autorisé": "401 - Denied access",
+        "Sauvegarder": "Save",
+        "Nom": "Name",
+        "Adresse MAC": "MAC Address",
+        "IP Locale" : "Local IP",
+        "IP Publique" : "Public IP",
+        "Telemetrie" : "Telemetry",
+        "RTLS" : "RTLS",
+        "Modèle" : "Model",
+        "Version" : "Version",
+        "Date de mise à jour" : "Update time",
+        "Rafraichir" : "Refresh",
+
+
+
+        "#": "#"
+    },
+    "plugins/arubaiot/desktop/modal/modal.device_list.php": {
+        "401 - Accès non autorisé": "401 - Denied access",
+        "Equipements Enocean" : "Enocean Devices",
+        "Etiquettes Aruba" : "Aruba Tags",
+        "Autres Equipements IoT" : "Other IoT Devices",
+
+        "#": "#"
+    },
+    "plugins/arubaiot/desktop/modal/modal.stats.php": {
+        "401 - Accès non autorisé": "401 - Denied access",
+        "Statistiques Globales" : "Global Statistics",
+        "Total données reçues" : "Total received data",
+        "bytes" : "octets",
+        "Bande passante moyenne consommée" : "Average used bandwidth",
+        "bytes/sec" : "octets/sec",
+        "Total données télémetrie reçues" : "Total telemetry received data",
+        "Statistiques du Rapporteur" : "Statistics for Reporter",
+        "Taille totale des données reçues" : "Total size of received data",
+        "Nombre de messages reçus" : "Number of received messages",
+        "Taille moyenne d'un message" : "Average size of a message",
+        "Taille maximale d'un message" : "Maximum size of a message",
+        "Taille minimum d'un message" : "Minimum size of a message",
+        "Interval moyen entre deux messages" : "Average interval between two messages",
+        "secondes" : "secondes",
+        "Interval maximal entre deux messages" : "Maximum interval between two messages",
+        "Interval minimal entre deux messages" : "Minimum intervale between two messages",
+
+        "#": "#"
+    },
+    "plugins/arubaiot/plugin_info/configuration.php": {
+        "Mode normal": "Normal mode",
+        "Mode avanc&eacute;" : "Advanced mode",
+        "Mode debug" : "Debug mode",
+        "Equipements" : "Devices",
+        "Delai detection d'absence (sec)" : "Missing detection delay (sec)",
+        "Temps minimum d'attente avant de d&eacute;clarer l'objet absent (10 sec min)." : "Minimum waiting time before declaring device missing (10 sec min).",
+        "Rapporteurs" : "Reporters",
+        "Jeton d'acc&eacute;s" : "Access Token",
+        "Liste d'autorisation" : "Allow List",
+        "Cycle d'hyst&eacute;r&eacute;sis RSSI du meilleur rapporteur" : "Nearest Reporter RSSI hysteresis interval",
+        "Valeur (en dBm) de l'interval du cycle d'hysteresis avant de changer de rapporteur le plus proche." : "Value (in dBm) of the hysteresis cycle interval before changing for a better nearest reporter.",
+        "RSSI minimum pour devenir le rapporteur le plus proche" : "Minimum RSSI to become a Nearest Reporter",
+        "Valeur RSSI minimum (en dBm) pour pouvoir devenir un rapporteur le plus proche. (recommand&eacute;e -85)." : "Minimum RRSI value (in dBm) to be able to become the nearest reporter (recommanded -85).",
+        "Nombre maximum de rapporteurs pour la triangulation" : "Maximum number of Reporters for triangulation",
+        "Nombre maximum de Rapporteurs &agrave; conserver dans le cache pour la triangulation. (minimum 3)" : "Maximum number of reporters to store for triangulation. (minimum 3)",
+        "Websocket" : "Websocket",
+        "Adresse IP du Websocket" : "Websocket IP Address",
+        "pour adresse locale" : "for local address",
+        "Port TCP du Websocket" : "Websocket TCP Port",
+        "Debug" : "Debug",
 
         "#": "#"
     }

@@ -21,26 +21,28 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 function ArubaIot_install() {
 
 
-  // ----- Set default parameters
+  // ----- Websocket - default parameters
   config::save('ws_ip_address', '0.0.0.0', 'ArubaIot');
   config::save('ws_port', 8081, 'ArubaIot');
-  config::save('include_mode', 0, 'ArubaIot');
+
+  // ----- Reporters - defaults
   config::save('reporters_allow_list', '', 'ArubaIot');
+  config::save('access_token', '', 'ArubaIot');
 
-//  $v_device_type_allow_list = implode(',',ArubaIot::supportedDeviceType());
-//  config::save('device_type_allow_list', $v_device_type_allow_list, 'ArubaIot');
-  config::save('presence_timeout', 60, 'ArubaIot');
-
-  //config::save('nearest_ap_timeout', 120, 'ArubaIot');
   config::save('nearest_ap_hysteresis', 2, 'ArubaIot');
   config::save('triangulation_max_ap', 5, 'ArubaIot');
   config::save('nearest_ap_min_rssi', -85, 'ArubaIot');
 
+  // ----- Devices - defaults
+  config::save('presence_timeout', 60, 'ArubaIot');
 
+  // ----- Internal flag
+  config::save('include_mode', 0, 'ArubaIot');
 
-//  log::add('ArubaIot', 'info', 'Supported devices : '.$v_device_type_allow_list);
-
-
+      // ----- Internal flag
+      // I had to make a trick by using a device attribute to flag not to send back an api to websocket when in inclusion mode,
+      // because the global att do not seems to be updated here ...
+  config::save('trick_save_from_daemon', 'off', 'ArubaIot');
 
   // ----- Start Daemon
   log::add('ArubaIot', 'info', 'Installing ArubaIot Websocket daemon');

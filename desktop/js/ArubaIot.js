@@ -207,13 +207,6 @@ $('.displayReporters').off('click').on('click', function () {
 
 });
 
-function refreshStats() {
-alert('ok');
-  //$('#stats').load('index.php?v=d&plugin=ArubaIot&modal=modal.stats');
-}
-
-
-
 
 /*
  * Display  ist of the equipements in the plugin dashboard list
@@ -226,7 +219,7 @@ function refreshDeviceList() {
 }
 
 function startRefreshDeviceList() {
-  $('#inclusion_message_tbd').show();
+  $('#inclusion_message_container').show();
   document.getElementById("inclusion_message_count").innerHTML =   "0";
 
   refresh_timeout = setInterval(refreshDeviceCount, 3000);
@@ -256,12 +249,12 @@ function refreshDeviceCount() {
 
 
   //$('#device_list').load('index.php?v=d&plugin=ArubaIot&modal=modal.device_list');
-  //$('#inclusion_message_tbd').append('.');
+  //$('#inclusion_message_container').append('.');
   document.getElementById("inclusion_message_count").innerHTML =   "1";
 }
 
 function stopRefreshDeviceList() {
   clearInterval(refresh_timeout);
   $('#device_list').load('index.php?v=d&plugin=ArubaIot&modal=modal.device_list');
-  $('#inclusion_message_tbd').hide();
+  $('#inclusion_message_container').hide();
 }

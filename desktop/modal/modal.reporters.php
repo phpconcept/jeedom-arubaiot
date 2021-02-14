@@ -136,9 +136,9 @@ else {
                     <tr style="background-color: grey !important; color: white !important;">
                         <th data-sort="string" class="scanTd" style="width:200px;"><span class="scanHender"><b class="caret"></b> {{Nom}}</span></th>
                         <th data-sort="string" style="width:200px;" class="scanTd"><span class="scanHender"><b class="caret"></b> {{Adresse MAC}}</span></th>
-                        <th data-sort="string" class="scanTd" style="width:110px;"><span class="scanHender"><b class="caret"></b> {{Local IP}}</span></th>
-                        <th data-sort="string" class="scanTd" style="width:110px;"><span class="scanHender"><b class="caret"></b> {{Remote IP}}</span></th>
-                        <th data-sort="string" class="scanTd" style="text-align: center; width:100px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{Telemetry}}</span></th>
+                        <th data-sort="string" class="scanTd" style="width:110px;"><span class="scanHender"><b class="caret"></b> {{IP Locale}}</span></th>
+                        <th data-sort="string" class="scanTd" style="width:110px;"><span class="scanHender"><b class="caret"></b> {{IP Publique}}</span></th>
+                        <th data-sort="string" class="scanTd" style="text-align: center; width:100px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{Telemetrie}}</span></th>
                         <th data-sort="string" style="text-align: center; width:100px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{RTLS}}</span></th>
                         <th data-sort="string" style=" width:150px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{Modèle}}</span></th>
                         <th data-sort="string" style=" width:200px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{Version}}</span></th>

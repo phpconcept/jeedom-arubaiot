@@ -26,53 +26,6 @@ class ArubaIotReporter_NOT_USED_YET extends eqLogic {
 
     /*     * ***********************Methode static*************************** */
 
-	public static function talkToWebsocket($p_event, $p_data) {
-
-      $v_data = array();
-      $v_data['api_version'] = "1.0";
-      $v_data['api_key'] = jeedom::getApiKey('ArubaIotReporter');
-      $v_data['event'] = array();
-      $v_data['event']['name'] = $p_event;
-      $v_data['event']['data'] = $p_data;
-      $v_data_json = json_encode($v_data);
-
-      //log::add('ArubaIotReporter', 'debug', 'json = ' . $v_data_json);
-
-      $v_url = 'http://127.0.0.1:8081/api';
-      $v_request_http = new com_http($v_url);
-      $v_request_http->setNoSslCheck(true);
-      $v_request_http->setNoReportError(true);
-      $v_request_http->setPost($v_data_json);
-      $v_return = $v_request_http->exec(15,2);
-      if ($v_return === false) {
-        log::add('ArubaIotReporter', 'debug', 'Unable to fetch ' . $v_url);
-        return;
-      } else {
-        log::add('ArubaIotReporter', 'debug', 'Post ' . $v_url);
-        log::add('ArubaIotReporter', 'debug', 'Result ' . $v_return);
-      }
-
-
-
-	}
-
-
-	public static function getReportersForModal() {
-
-      $v_data = array();
-
-      $i=0;
-      $v_data[$i]['name'] = "Reporter 1";
-      $v_data[$i]['mac'] = "XX:XX:XX:XX:XX:XX";
-      $v_data[$i]['ip'] = "10.10.10.10";
-      $v_data[$i]['telemetry'] = 1;
-      $v_data[$i]['rtls'] = 1;
-
-      return($v_data);
-
-	}
-
-
 
 
 }

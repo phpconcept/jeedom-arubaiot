@@ -63,6 +63,10 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
       </div>
   </div>
 
+        <div id="inclusion_message_container" class="alert alert-info" style="display:none;">
+        <span> {{Nouveaux équipements détectés}} : </span><span id="inclusion_message_count" ></span>
+        </div>
+
 
   <legend><i class="fas fa-table"></i> {{Mes Equipements}}</legend>
 	   <input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic" />
@@ -73,70 +77,10 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
 // By doing that I can refresh the list automatically, for
 // exemple when in inclusion mode
 
-// This part to be removed in the future.
-if (0) {
 ?>
-
-  <legend><i class="fas fa-table"></i> {{Equipements Enocean}}</legend>
-<div class="eqLogicThumbnailContainer">
-    <?php
-foreach ($eqLogics as $eqLogic) {
-    $v_class = $eqLogic->getConfiguration('class_type', '');
-    if (($v_class == 'enoceanSensor') || ($v_class == 'enoceanSwitch')) {
-    	$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-    	echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
-    	echo '<img src="' . $eqLogic->getImage() . '"/>';
-    	echo '<br>';
-    	echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
-    	echo '</div>';
-    }
-}
-?>
-</div>
-
-
-  <legend><i class="fas fa-table"></i> {{Etiquettes Aruba}}</legend>
-<div class="eqLogicThumbnailContainer">
-    <?php
-foreach ($eqLogics as $eqLogic) {
-    $v_class = $eqLogic->getConfiguration('class_type', '');
-    if ($v_class == 'arubaTag') {
-    	$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-    	echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
-    	echo '<img src="' . $eqLogic->getImage() . '"/>';
-    	echo '<br>';
-    	echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
-    	echo '</div>';
-    }
-}
-?>
-</div>
-
-  <legend><i class="fas fa-table"></i> {{Autres Equipements IoT}}</legend>
-<div class="eqLogicThumbnailContainer">
-    <?php
-foreach ($eqLogics as $eqLogic) {
-    $v_class = $eqLogic->getConfiguration('class_type', '');
-    if (($v_class != 'arubaTag') && ($v_class != 'enoceanSensor') && ($v_class != 'enoceanSwitch')) {
-    	$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-    	echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
-    	echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
-    	echo '<br>';
-    	echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
-    	echo '</div>';
-    }
-}
-?>
-</div>
-
-<?php
-}
-?>
-
-        <div id="inclusion_message_tbd" style="display:none;">
-        <legend> {{Nouveaux équipements détectés : }}<span id="inclusion_message_count" ></span></legend>
-        </div>
         <div id="device_list"></div>
+
+
 
 </div>
 
