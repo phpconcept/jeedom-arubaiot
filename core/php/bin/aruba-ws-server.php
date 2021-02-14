@@ -441,11 +441,16 @@
     protected $cached_devices;
     protected $devices_list;
 
-    protected $device_type_allow_list;
     protected $reporters_allow_list;
-    protected $include_mode;
     protected $access_token;
+
+    protected $include_mode;
     protected $include_device_count;
+    protected $device_type_allow_list;
+    protected $include_generic_with_local;
+    protected $include_generic_with_mac;
+    protected $include_generic_mac_prefix;
+    protected $include_generic_max_devices;
 
     // ----- Statistics data
     protected $payload_data;
@@ -461,14 +466,20 @@
       $this->reporters_list = array();
       $this->cached_devices = array();
       $this->reporters_allow_list = array();
-      $this->device_type_allow_list = array();
       $this->ip_address = "0.0.0.0";
       $this->tcp_port = "8081";
       $this->device_type_allow_list = '';
       $this->access_token = '';
-      $this->include_mode = false;
       $this->up_time = 0;
+
+      // ----- Include mode attributes
+      $this->include_mode = false;
       $this->include_device_count = 0;
+      $this->device_type_allow_list = array();
+      $this->include_generic_with_local = 0;
+      $this->include_generic_with_mac = 0;
+      $this->include_generic_mac_prefix = '';
+      $this->include_generic_max_devices = 3;
 
       // ----- Reset stats
       $this->payload_data = 0;
@@ -665,7 +676,9 @@
       $v_response['state'] = 'error';
       $v_response['response'] = 'Unknown error';
 
-      if (($v_data = json_decode($p_msg, true)) === null) {
+       ArubaIotTool::log('debug', 'JSON Data :'.$p_msg);
+
+     if (($v_data = json_decode($p_msg, true)) === null) {
         $v_response['response'] = "Missing or bad json data in API call";
         ArubaIotTool::log('debug', $v_response['response']);
         return(json_encode($v_response));
@@ -962,6 +975,21 @@
         else {
           ArubaIotTool::log('debug', "Missing classes to include ! ");
         }
+
+        if (in_array('generic', $this->device_type_allow_list)) {
+          $this->include_generic_with_local = (isset($p_data['generic_with_local']) ? $p_data['generic_with_local'] : 0);
+          $this->include_generic_with_mac = (isset($p_data['generic_with_mac']) ? $p_data['generic_with_mac'] : 0);
+          $this->include_generic_mac_prefix = strtoupper((isset($p_data['generic_mac_prefix']) ? $p_data['generic_mac_prefix'] : ''));
+          $this->include_generic_max_devices = (isset($p_data['generic_max_devices']) ? $p_data['generic_max_devices'] : 3);
+        }
+      }
+
+      // ----- Stop include mode
+      else {
+        $this->include_generic_with_local = 0;
+        $this->include_generic_with_mac = 0;
+        $this->include_generic_mac_prefix = '';
+        $this->include_generic_max_devices = 3;
       }
 
       // ----- Reset new device count
@@ -1030,6 +1058,68 @@
     /* -------------------------------------------------------------------------*/
 
     /**---------------------------------------------------------------------------
+     * Method : deviceIncludeValidation()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    public function deviceIncludeValidation($p_device_mac, $p_class_name, $p_telemetry) {
+
+      ArubaIotTool::log('debug',  "Check include mode for device ".$p_device_mac);
+
+      $v_result = true;
+
+      if (!$this->include_mode) {
+        return(false);
+      }
+      if (!in_array($p_class_name, $this->device_type_allow_list)) {
+        return(false);
+      }
+
+      /*
+          protected $include_generic_with_local;
+    protected $include_generic_with_mac;
+    protected $include_generic_mac_prefix;
+    protected $include_generic_max_devices;
+        */
+
+      if ($p_class_name == 'generic') {
+
+        // ----- Look for device count
+        if ($this->include_generic_max_devices < 1) {
+          ArubaIotTool::log('debug',  "Max generic device inclusion reached. Do not include.");
+          return(false);
+        }
+
+      ArubaIotTool::log('debug',  "Check prefix mode '".$this->include_generic_with_mac."'");
+      ArubaIotTool::log('debug',  "Check prefix '".$this->include_generic_mac_prefix."'");
+
+        // ----- Look for mac prefix
+        if (($this->include_generic_with_mac) && ($this->include_generic_mac_prefix != '')) {
+          ArubaIotTool::log('debug',  "Check MAC prefix '".$this->include_generic_mac_prefix."' for MAC '".$p_device_mac."'");
+          if (strpos($p_device_mac, $this->include_generic_mac_prefix) !== 0) {
+            ArubaIotTool::log('debug',  "No valid prefix mac for device. Do not include.");
+            return(false);
+          }
+        }
+
+        // ----- Look for local name
+        if ($this->include_generic_with_local) {
+
+          if (!$p_telemetry->hasVendorName() && !$p_telemetry->hasLocalName() && !$p_telemetry->hasModel()) {
+            ArubaIotTool::log('debug',  "No local value for device. Do not include.");
+            return(false);
+          }
+
+        }
+
+      }
+
+
+      return(true);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
      * Method : onMsgTelemetry()
      * Description :
      * ---------------------------------------------------------------------------
@@ -1090,7 +1180,9 @@
           $v_device = $this->getCachedDeviceByMac($v_device_mac);
 
           // ----- Create new device if allowed class and inclusion mode on
-          if (($v_device == null) && $this->include_mode && in_array($v_class_name, $this->device_type_allow_list)) {
+          //if (($v_device == null) && $this->include_mode && in_array($v_class_name, $this->device_type_allow_list)) {
+          if (($v_device == null) && $this->deviceIncludeValidation($v_device_mac, $v_class_name, $v_object)) {
+
             ArubaIotTool::log('info', "Inclusion of a new device.");
             ArubaIotTool::log('debug', "Create a new device.");
             $v_msglog .= "|         new ";
@@ -1122,6 +1214,9 @@
             ArubaIotTool::log('debug', "add in list.");
 
             $this->include_device_count++;
+            if ($v_class_name == 'generic') {
+              $this->include_generic_max_devices--;
+            }
 
           }
 
