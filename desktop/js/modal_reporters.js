@@ -1,4 +1,3 @@
-<?php
 
 /* This file is part of Jeedom.
  *
@@ -16,16 +15,10 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* * ***************************Includes********************************* */
-require_once dirname(__FILE__) . '/../../../../plugins/ArubaIot/core/php/ArubaIot.inc.php';
-
-class ArubaIotReporter_NOT_USED_YET extends eqLogic {
-    /*     * *************************Attributs****************************** */
 
 
-
-    /*     * ***********************Methode static*************************** */
-
-
-
+function refreshStats() {
+  $('#stats').load('index.php?v=d&plugin=ArubaIot&modal=modal.stats');
 }
+
+

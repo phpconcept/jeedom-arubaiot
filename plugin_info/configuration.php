@@ -30,7 +30,7 @@ if (!isConnect()) {
         <div class="col-lg-2" style="right:15px; position: absolute;">
             <select onchange="fct_arubaiot_display_mode(); " class="configKey form-control" data-l1key="config_display_mode" id="arubaiot_display_mode">
                 <option value="normal">{{Mode normal}}</option>
-                <option value="advanced">{{Mode avancé}}</option>
+                <option value="advanced">{{Mode avanc&eacute;}}</option>
                 <option value="debug">{{Mode debug}}</option>
             </select>
         </div>
@@ -42,23 +42,13 @@ if (!isConnect()) {
         <div class="form-group">
             <div class="col-sm-4"></div>
             <div class="col-sm-5">
-                   <div style="background-color: #039be5; padding: 2px 5px; color: white; margin: 10px 0; font-weight: bold;">{{Devices}}</div>
+                   <div style="background-color: #039be5; padding: 2px 5px; color: white; margin: 10px 0; font-weight: bold;">{{Equipements}}</div>
             </div>
         </div>
 
-<?php if (0) {  ?>
         <div class="form-group">
-            <label class="col-lg-4 control-label">{{Device Types Allow List}}
-            <sup><i class="fa fa-question-circle tooltips" title="{{Types d'objects qui seront pris en compte lors du mode inclusion.}}"></i></sup>
-            </label>
-            <div class="col-lg-5">
-                <input class="configKey form-control" data-l1key="device_type_allow_list" value="" />
-            </div>
-        </div>
-<?php  } ?>
-        <div class="form-group">
-            <label class="col-lg-4 control-label">{{Delais detection d'absence (sec)}}
-            <sup><i class="fa fa-question-circle tooltips" title="{{Temps minimum d'attente avant de déclarer l'objet absent (10 sec min).}}"></i></sup>
+            <label class="col-lg-4 control-label">{{Delai detection d'absence (sec)}}
+            <sup><i class="fa fa-question-circle tooltips" title="{{Temps minimum d'attente avant de d&eacute;clarer l'objet absent (10 sec min).}}"></i></sup>
             </label>
             <div class="col-lg-5">
                 <input class="configKey form-control" data-l1key="presence_timeout" />
@@ -68,19 +58,19 @@ if (!isConnect()) {
         <div class="form-group">
             <div class="col-sm-4"></div>
             <div class="col-sm-5">
-                   <div style="background-color: #039be5; padding: 2px 5px; color: white; margin: 10px 0; font-weight: bold;">{{Reporters}}</div>
+                   <div style="background-color: #039be5; padding: 2px 5px; color: white; margin: 10px 0; font-weight: bold;">{{Rapporteurs}}</div>
             </div>
         </div>
 
 
         <div class="form-group">
-            <label class="col-lg-4 control-label">{{Reporters Access Token}}</label>
+            <label class="col-lg-4 control-label">{{Jeton d'acc&eacute;s}}</label>
             <div class="col-lg-5">
                 <input class="configKey form-control" data-l1key="access_token" value="" />
             </div>
         </div>
         <div class="form-group">
-            <label class="col-lg-4 control-label">{{Reporters Allow List}}</label>
+            <label class="col-lg-4 control-label">{{Liste d'autorisation}}</label>
             <div class="col-lg-5">
                 <input class="configKey form-control" data-l1key="reporters_allow_list" value="" />
             </div>
@@ -89,7 +79,7 @@ if (!isConnect()) {
         <div id="show_avance" style="display:none;">
 
           <div class="form-group">
-              <label class="col-lg-4 control-label">{{Nearest Reporter RSSI hysteresis interval}}
+              <label class="col-lg-4 control-label">{{Cycle d'hyst&eacute;r&eacute;sis RSSI du meilleur rapporteur}}
               <sup><i class="fa fa-question-circle tooltips" title="{{Valeur (en dBm) de l'interval du cycle d'hysteresis avant de changer de rapporteur le plus proche.}}"></i></sup>
               </label>
               <div class="col-lg-5">
@@ -98,8 +88,8 @@ if (!isConnect()) {
           </div>
 
           <div class="form-group">
-              <label class="col-lg-4 control-label">{{Minimum RSSI to become a Nearest Reporter}}
-              <sup><i class="fa fa-question-circle tooltips" title="{{Valeur RSSI minimum (en dBm) pour pouvoir devenir un rapporteur le plus proche. (recommandée -85).}}"></i></sup>
+              <label class="col-lg-4 control-label">{{RSSI minimum pour devenir le rapporteur le plus proche}}
+              <sup><i class="fa fa-question-circle tooltips" title="{{Valeur RSSI minimum (en dBm) pour pouvoir devenir un rapporteur le plus proche. (recommand&eacute;e -85).}}"></i></sup>
               </label>
               <div class="col-lg-5">
                   <input class="configKey form-control" data-l1key="nearest_ap_min_rssi" value="" />
@@ -107,28 +97,14 @@ if (!isConnect()) {
           </div>
 
           <div class="form-group">
-              <label class="col-lg-4 control-label">{{Maximum number of Reporters for triangulation}}
-              <sup><i class="fa fa-question-circle tooltips" title="{{Nombre maximum de Rapporteurs à conserver dans le cache pour la triangulation. Minimum 3.}}"></i></sup>
+              <label class="col-lg-4 control-label">{{Nombre maximum de rapporteurs pour la triangulation}}
+              <sup><i class="fa fa-question-circle tooltips" title="{{Nombre maximum de Rapporteurs &agrave; conserver dans le cache pour la triangulation. (minimum 3)}}"></i></sup>
               </label>
               <div class="col-lg-5">
                   <input class="configKey form-control" data-l1key="triangulation_max_ap" value="" />
               </div>
           </div>
 
-<?php if (0) {  ?>
-          <div class="form-group">
-              <label class="col-lg-4 control-label">{{AP transport interval}}</label>
-              <div class="col-lg-5">
-                  <input class="configKey form-control" data-l1key="ap_transport_interval" value="" />
-              </div>
-          </div>
-          <div class="form-group">
-              <label class="col-lg-4 control-label">{{AP aging time}}</label>
-              <div class="col-lg-5">
-                  <input class="configKey form-control" data-l1key="ap_aging_time" value="" />
-              </div>
-          </div>
-<?php }  ?>
         </div>
 
         <div class="form-group">
@@ -139,13 +115,13 @@ if (!isConnect()) {
         </div>
 
         <div class="form-group">
-            <label class="col-lg-4 control-label">{{Websocket IP Address}}</label>
+            <label class="col-lg-4 control-label">{{Adresse IP du Websocket}}</label>
             <div class="col-lg-5">
                 <input class="configKey form-control" data-l1key="ws_ip_address" value="0.0.0.0"/> (0.0.0.0 {{pour adresse locale}})
             </div>
         </div>
         <div class="form-group">
-            <label class="col-lg-4 control-label">{{Websocket TCP Port}}</label>
+            <label class="col-lg-4 control-label">{{Port TCP du Websocket}}</label>
             <div class="col-lg-5">
                 <input class="configKey form-control" data-l1key="ws_port" value="8081" />
             </div>
@@ -159,16 +135,6 @@ if (!isConnect()) {
                      <div style="background-color: #039be5; padding: 2px 5px; color: white; margin: 10px 0; font-weight: bold;">{{Debug}}</div>
               </div>
           </div>
-
-
-<?php if (0) { ?>
-          <div class="form-group">
-              <label class="col-lg-4 control-label">{{AP transport interval}}</label>
-              <div class="col-lg-5">
-                  <input class="configKey form-control" data-l1key="ap_transport_interval" value="" />
-              </div>
-          </div>
-<?php /*endif (0) */ } ?>
 
         </div>
 

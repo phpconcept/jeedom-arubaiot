@@ -28,20 +28,25 @@ $v_result = ArubaIot::talkToWebsocket('reporter_list', $v_data);
 
 //var_dump($v_result);
 
+ArubaIotLog::log('ArubaIot', 'debug', 'websocket Result ' . $v_result);
+
 $v_result_array = json_decode($v_result, true);
 
-if (isset($v_result_array['websocket'])) {
-  $v_websocket = $v_result_array['websocket'];
+if (isset($v_result_array['state'])
+    && ($v_result_array['state'] == 'ok')
+    && isset($v_result_array['response']['websocket'])) {
+  $v_websocket = $v_result_array['response']['websocket'];
   $v_websocket['status'] = "Up";
+  $v_list = (isset($v_result_array['response']['reporters']) ? $v_result_array['response']['reporters'] : array());
 }
 else {
   $v_websocket = array();
   $v_websocket['status'] = 'Down';
   $v_websocket['ip_address'] = 'n/a';
   $v_websocket['tcp_port'] = 'n/a';
+  $v_list = array();
 }
 
-$v_list = (isset($v_result_array['reporters']) ? $v_result_array['reporters'] : array());
 
 
 ?>
@@ -131,9 +136,9 @@ $v_list = (isset($v_result_array['reporters']) ? $v_result_array['reporters'] : 
                     <tr style="background-color: grey !important; color: white !important;">
                         <th data-sort="string" class="scanTd" style="width:200px;"><span class="scanHender"><b class="caret"></b> {{Nom}}</span></th>
                         <th data-sort="string" style="width:200px;" class="scanTd"><span class="scanHender"><b class="caret"></b> {{Adresse MAC}}</span></th>
-                        <th data-sort="string" class="scanTd" style="width:110px;"><span class="scanHender"><b class="caret"></b> {{Local IP}}</span></th>
-                        <th data-sort="string" class="scanTd" style="width:110px;"><span class="scanHender"><b class="caret"></b> {{Remote IP}}</span></th>
-                        <th data-sort="string" class="scanTd" style="text-align: center; width:100px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{Telemetry}}</span></th>
+                        <th data-sort="string" class="scanTd" style="width:110px;"><span class="scanHender"><b class="caret"></b> {{IP Locale}}</span></th>
+                        <th data-sort="string" class="scanTd" style="width:110px;"><span class="scanHender"><b class="caret"></b> {{IP Publique}}</span></th>
+                        <th data-sort="string" class="scanTd" style="text-align: center; width:100px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{Telemetrie}}</span></th>
                         <th data-sort="string" style="text-align: center; width:100px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{RTLS}}</span></th>
                         <th data-sort="string" style=" width:150px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{Modèle}}</span></th>
                         <th data-sort="string" style=" width:200px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{Version}}</span></th>
@@ -177,6 +182,28 @@ $v_list = (isset($v_result_array['reporters']) ? $v_result_array['reporters'] : 
     </div>
 </div>
 
+<div class="col-md-12">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">Statistiques
+            <a class="btn btn-success btn-xs pull-right btRefreshStats" style="top: -2px !important; right: -6px !important;"><i class="fas fa-sync icon-white"></i> {{Rafraichir}}</a>
+            </h3>
+        </div>
+        <div class="panel-body">
+
+
+    <div id="stats" >
+
+<?php // loaded by javascript ?>
+
+    </div>
+
+
+
+        </div>
+    </div>
+</div>
+
 <script>
     
     $("#btSaveList").click(function() {
@@ -184,15 +211,31 @@ $v_list = (isset($v_result_array['reporters']) ? $v_result_array['reporters'] : 
     });
     
 
+    $("#btRefreshStats").click(function() {
+//        alert('For future use !');
+      refreshStats();
+    });
+
+
+    $(".btRefreshStats").click(function() {
+//        alert('For future use !');
+      refreshStats();
+    });
+
+
     $(document).ready(function ($) {
-    var $table = $("#reporters_list").stupidtable(); 
-    var $th_to_sort = $table.find("thead th").eq("<?php /*echo scan_ip_widget_network::getOrderBy($orderBy)*/ ?>");
-    $th_to_sort.stupidsort();
 
 
-});
+      var $table = $("#reporters_list").stupidtable();
+      var $th_to_sort = $table.find("thead th").eq("<?php /*echo scan_ip_widget_network::getOrderBy($orderBy)*/ ?>");
+      $th_to_sort.stupidsort();
+
+      refreshStats();
+
+
+    });
 
 </script>
 
-<?php /*include_file('desktop', 'reporters_list', 'js', 'scan_ip'); */?>
+<?php include_file('desktop', 'modal_reporters', 'js', 'ArubaIot'); ?>
 <?php include_file('desktop', 'lib/stupidtable.min', 'js', 'ArubaIot');  ?>

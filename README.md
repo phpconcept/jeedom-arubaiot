@@ -121,6 +121,7 @@ iot useTransportProfile Test
 ## Change Logs
 
 Release v0.6 (in-dev) :
+- Add a counter with number of new detected devices while in insertion mode.
 - Adding additional telemetry data as commands (not tested in real life)
 - Code optimisation (easier to add commands in the future)
 - Change in presence and nearestAP : a minimum RSSI value can be configured to
