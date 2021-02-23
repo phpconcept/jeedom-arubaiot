@@ -124,6 +124,9 @@ iot useTransportProfile Test
 
 ## Change Logs
 
+Release v0.7 (dev) :
+
+
 Release v0.6 (beta) :
 - Add statistics for reporters. This might be usefull for knowing bandwidth
 consuption of IOT telemetry between each AP and the websocket.
