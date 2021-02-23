@@ -80,6 +80,10 @@ Reporters List and Status :
 
 ![reporter](docs/images/reporter_list.png)
 
+Reporters Statistics :
+
+![reporter](docs/images/reporter_stats.png)
+
 Devices Visibility
 
 ![device](docs/images/device_visibility.png)
@@ -121,6 +125,10 @@ iot useTransportProfile Test
 ## Change Logs
 
 Release v0.6 (in-dev) :
+- Add statistics for reporters. This might be usefull for knowing bandwidth
+consuption of IOT telemetry between each AP and the websocket.
+- Add filtering option when starting the inclusion mode. This will mainly limit
+ the number of generic BLE devices auto inserted.
 - Add a counter with number of new detected devices while in insertion mode.
 - Adding additional telemetry data as commands (not tested in real life)
 - Code optimisation (easier to add commands in the future)
