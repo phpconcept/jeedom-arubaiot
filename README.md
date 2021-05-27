@@ -23,7 +23,7 @@ The plugin is supporting the following type of BLE objects. For each object is s
 
 The following attributes can be configured :
 
-- Presence Timeout :
+- Presence Timeout ('presence_timeout') :
 The minimun value (in second) after which the device can be set to presence=0 (absence).
 
 - Reporters Access Token :
@@ -35,6 +35,9 @@ all reporters are accepted.
 
 - Nearest Reporter Timeout :
 The time in sec after which the nearest reporter is reset by a better one when no updated information received from it for a device.
+
+- Minimum RSSI to become a Nearest Reporter :
+The minimum RSSI value in dbm to declare a reporter the current nearest reporter.
 
 - Nearest Reporter RSSI hysteresis interval :
 The minimum incremental value in dbm of the RSSI to declare a reporter a better reporter than the current nearest reporter. This value allow to implement an hysteresis cycle, and lower the flip-flap that may occur when 2 reporters report a very similar RSSI.
@@ -124,8 +127,12 @@ iot useTransportProfile Test
 
 ## Change Logs
 
-Release v0.7 (dev) :
-
+Release v0.7 (beta) :
+- Add new configuration parameters for triangulation : triangulation_timeout and triangulation_min_rssi.
+- Add new configuration parameters for presence calculation tuning : 'presence_min_rssi', 
+'presence_rssi_hysteresis'
+- Change in presence calculation. Starting 0.7, the presence calculation is
+dissociated from the nearestAP and latest RSSI calculation.
 
 Release v0.6 (beta) :
 - Add statistics for reporters. This might be usefull for knowing bandwidth
@@ -186,7 +193,26 @@ As of Release v0.6, known caveats are :
 - When an access point is removed, the telemetry connexion status are not updated in the reporters list. (Cosmetic)
 
 
-## Behind the Scene
+## Technical Aspects
+
+### Presence calculation
+
+Presence of a device is calculated following these rules :
+- When a device is missing (or not yet present), when a telemetry payload is 
+received with a timestamp inside the "Presence Timeout" interval (configurable)
+and when the RSSI is better than the configured value 'presence_min_rssi', 
+then the status is changed to "presence".
+- When a device is in "presence" status, when a telemetry payload is received
+with a timestamp inside the 'presence_timeout' interval (configurable) and when 
+the RSSI is better than the configured value "Minimum NearestAP RSSI" minus 
+the 'presence_rssi_hysteresis' then the presence timestamp 
+is updated, and the presence status do not change.  
+
+
+### Nearest AP calculation
+
+
+### Behind the Scene
 
 Explanation of some principles behind all this.
 

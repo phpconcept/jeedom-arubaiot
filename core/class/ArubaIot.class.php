@@ -899,6 +899,79 @@ JSON_EOT;
     /* -------------------------------------------------------------------------*/
 
     /**---------------------------------------------------------------------------
+     * Method : purgeTriangulation()
+     * Description :
+     * Parameters :
+     * Returned value : true on changed value, false otherwise.
+     * ---------------------------------------------------------------------------
+     */
+    public function purgeTriangulation() {
+     
+      // ----- Look if cmd or create it
+      if (!$this->createCmd('triangulation')) {
+        return(false);
+      }
+
+      // ----- Look for existing command
+      $v_cmd = $this->getCmd(null, 'triangulation');
+
+      // ----- Get latest value
+      $v_latest_value = $v_cmd->execCmd();
+      ArubaIotLog::log('debug', "Latest triangulation value is :".$v_latest_value);
+
+      // ----- To array
+      $v_triangulation = json_decode($v_latest_value, true);
+      if (!is_array($v_triangulation)) {
+        $v_triangulation = array();
+      }
+      
+      $this->purgeTriangulation($v_triangulation);
+      
+      // ----- JSONify
+      $v_value = json_encode($v_triangulation);
+      ArubaIotLog::log('debug', "New triangulation value :".$v_value);
+
+      // ----- Set the value and update the flag
+      $v_changed_flag = $this->checkAndUpdateCmd('triangulation', $v_value);
+
+      return($v_changed_flag);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : purgeTriangulationList()
+     * Description :
+     * Parameters :
+     * Returned value : true on changed value, false otherwise.
+     * ---------------------------------------------------------------------------
+     */
+    public function purgeTriangulationList(&$p_triangulation_list) {
+
+      $v_triangulation = &$p_triangulation_list;
+      
+      // ---- Get minimum RSSI & timeout
+      $v_timeout = config::byKey('triangulation_timeout', 'ArubaIot');
+      $v_min_rssi = config::byKey('triangulation_min_rssi', 'ArubaIot');
+      
+      // ---- Scan values and remove outdated values
+      foreach ($v_triangulation as $key => $item) {
+        $v_remove_flag = false;
+        if ($item['rssi'] < $v_min_rssi) {
+          $v_remove_flag = true;
+        }
+        if (($item['timestamp']+$v_timeout) < time()) {
+          $v_remove_flag = true;
+        }
+        if ($v_remove_flag) {
+          unset($v_triangulation[$key]);
+        }
+      }
+
+      return;
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
      * Method : cmdUpdateTriangulation()
      * Description :
      * Parameters :
@@ -940,6 +1013,9 @@ JSON_EOT;
       }
       $v_triangulation[$p_reporter_mac]['rssi'] = $p_rssi;
       $v_triangulation[$p_reporter_mac]['timestamp'] = $p_timestamp;
+      
+      // ----- Purge triangulation values
+      $this->purgeTriangulationList($v_triangulation);
 
       if ($new_rssi_flag) {
         // ----- Keep only X top best reporters, with best timestamp
@@ -947,7 +1023,7 @@ JSON_EOT;
         if ($v_target_max < 3) $v_target_max = 3;
         ArubaIotLog::log('debug', "Current number of reporters for triangulation :".sizeof($v_triangulation));
         ArubaIotLog::log('debug', "Maximum number of reporters configured :".$v_target_max);
-        // TBC : keep 3 best
+        // TBC : keep $v_target_max best
         if (sizeof($v_triangulation) > $v_target_max) {
           $v_rssi_list = array();
           foreach ($v_triangulation as $key => $item) {
