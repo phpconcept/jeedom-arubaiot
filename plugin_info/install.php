@@ -29,12 +29,17 @@ function ArubaIot_install() {
   config::save('reporters_allow_list', '', 'ArubaIot');
   config::save('access_token', '', 'ArubaIot');
 
-  config::save('nearest_ap_hysteresis', 2, 'ArubaIot');
-  config::save('triangulation_max_ap', 5, 'ArubaIot');
+  config::save('nearest_ap_hysteresis', 5, 'ArubaIot');
   config::save('nearest_ap_min_rssi', -85, 'ArubaIot');
+
+  config::save('triangulation_max_ap', 5, 'ArubaIot');
+  config::save('triangulation_timeout', 3600, 'ArubaIot');
+  config::save('triangulation_min_rssi', -90, 'ArubaIot');
 
   // ----- Devices - defaults
   config::save('presence_timeout', 60, 'ArubaIot');
+  config::save('presence_min_rssi', -85, 'ArubaIot');
+  config::save('presence_rssi_hysteresis', 5, 'ArubaIot');
 
   // ----- Internal flag
   config::save('include_mode', 0, 'ArubaIot');
@@ -65,6 +70,27 @@ function ArubaIot_install() {
 
 function ArubaIot_update() {
     
+  // ----- Add new attributes
+  $v_val = config::searchKey('triangulation_timeout', 'ArubaIot');
+  if (sizeof($v_val) == 0) {
+    config::save('triangulation_timeout', 3600, 'ArubaIot');
+  }
+
+  $v_val = config::searchKey('triangulation_min_rssi', 'ArubaIot');
+  if (sizeof($v_val) == 0) {
+    config::save('triangulation_min_rssi', -90, 'ArubaIot');
+  }
+  
+  $v_val = config::searchKey('presence_min_rssi', 'ArubaIot');
+  if (sizeof($v_val) == 0) {
+    config::save('presence_min_rssi', -85, 'ArubaIot');
+  }
+  
+  $v_val = config::searchKey('presence_rssi_hysteresis', 'ArubaIot');
+  if (sizeof($v_val) == 0) {
+    config::save('presence_rssi_hysteresis', 5, 'ArubaIot');
+  }
+  
   // ----- Restart Daemon
   log::add('ArubaIot', 'info', 'Updating (restart) ArubaIot Websocket daemon');
   exec(system::getCmdSudo() . 'systemctl restart ArubaIot-websocket');

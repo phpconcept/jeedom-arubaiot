@@ -56,6 +56,24 @@ if (!isConnect()) {
         </div>
 
         <div class="form-group">
+            <label class="col-lg-4 control-label">{{Pr&eacute;sence minimum RSSI}}
+            <sup><i class="fa fa-question-circle tooltips" title="{{Valeur minimal du RSSI pour qu'un &eacute;quipement soit d&eacute;clar&eacute; pr&eacute;sent.}}"></i></sup>
+            </label>
+            <div class="col-lg-5">
+                <input class="configKey form-control" data-l1key="presence_min_rssi" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-lg-4 control-label">{{Pr&eacute;sence RSSI Interval Cycle d'hyst&eacute;r&eacute;sis}}
+            <sup><i class="fa fa-question-circle tooltips" title="{{Valeur (en dBm) de l'interval du cycle d'hysteresis avant de passer en statut absent.}}"></i></sup>
+            </label>
+            <div class="col-lg-5">
+                <input class="configKey form-control" data-l1key="presence_rssi_hysteresis" />
+            </div>
+        </div>
+
+        <div class="form-group">
             <div class="col-sm-4"></div>
             <div class="col-sm-5">
                    <div style="background-color: #039be5; padding: 2px 5px; color: white; margin: 10px 0; font-weight: bold;">{{Rapporteurs}}</div>
@@ -78,14 +96,12 @@ if (!isConnect()) {
 
         <div id="show_avance" style="display:none;">
 
-          <div class="form-group">
-              <label class="col-lg-4 control-label">{{Cycle d'hyst&eacute;r&eacute;sis RSSI du meilleur rapporteur}}
-              <sup><i class="fa fa-question-circle tooltips" title="{{Valeur (en dBm) de l'interval du cycle d'hysteresis avant de changer de rapporteur le plus proche.}}"></i></sup>
-              </label>
-              <div class="col-lg-5">
-                  <input class="configKey form-control" data-l1key="nearest_ap_hysteresis" value="" />
-              </div>
-          </div>
+        <div class="form-group">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-5">
+                   <div style="background-color: #039be5; padding: 2px 5px; color: white; margin: 10px 0; font-weight: bold;">{{Meilleur Rapporteur}}</div>
+            </div>
+        </div>
 
           <div class="form-group">
               <label class="col-lg-4 control-label">{{RSSI minimum pour devenir le rapporteur le plus proche}}
@@ -97,11 +113,45 @@ if (!isConnect()) {
           </div>
 
           <div class="form-group">
+              <label class="col-lg-4 control-label">{{Cycle d'hyst&eacute;r&eacute;sis RSSI du meilleur rapporteur}}
+              <sup><i class="fa fa-question-circle tooltips" title="{{Valeur (en dBm) de l'interval du cycle d'hysteresis avant de changer de rapporteur le plus proche.}}"></i></sup>
+              </label>
+              <div class="col-lg-5">
+                  <input class="configKey form-control" data-l1key="nearest_ap_hysteresis" value="" />
+              </div>
+          </div>
+
+        <div class="form-group">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-5">
+                   <div style="background-color: #039be5; padding: 2px 5px; color: white; margin: 10px 0; font-weight: bold;">{{Triangulation}}</div>
+            </div>
+        </div>
+
+          <div class="form-group">
               <label class="col-lg-4 control-label">{{Nombre maximum de rapporteurs pour la triangulation}}
               <sup><i class="fa fa-question-circle tooltips" title="{{Nombre maximum de Rapporteurs &agrave; conserver dans le cache pour la triangulation. (minimum 3)}}"></i></sup>
               </label>
               <div class="col-lg-5">
                   <input class="configKey form-control" data-l1key="triangulation_max_ap" value="" />
+              </div>
+          </div>
+
+          <div class="form-group">
+              <label class="col-lg-4 control-label">{{RSSI minimum pour la triangulation}}
+              <sup><i class="fa fa-question-circle tooltips" title="{{RSSI minimum pour prendre en compte le rapporteur dans la triangulation}}"></i></sup>
+              </label>
+              <div class="col-lg-5">
+                  <input class="configKey form-control" data-l1key="triangulation_min_rssi" value="" />
+              </div>
+          </div>
+
+          <div class="form-group">
+              <label class="col-lg-4 control-label">{{Timeout pour la triangulation}}
+              <sup><i class="fa fa-question-circle tooltips" title="{{Temps maxium pendant lequel une valeur de RSSI est conserv&eacute;e}}"></i></sup>
+              </label>
+              <div class="col-lg-5">
+                  <input class="configKey form-control" data-l1key="triangulation_timeout" value="" />
               </div>
           </div>
 
