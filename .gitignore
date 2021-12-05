@@ -1,0 +1,16 @@
+# ----- Ignore everything
+#/*
+
+# ----- Files to ignore
+#*.ppr
+#*.lock
+
+# ----- Folders to ignore
+/3rparty/awss
+
+# ----- Files to accept
+#!aruba-ws-server.php
+
+# ----- Folders to add
+#!/src
+
