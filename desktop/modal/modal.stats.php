@@ -33,10 +33,10 @@ ArubaIotLog::log('ArubaIot', 'debug', 'websocket Result ' . $v_result);
 
 $v_result_array = json_decode($v_result, true);
 
-if (isset($v_result_array['state'])
-    && ($v_result_array['state'] == 'ok')
-    && isset($v_result_array['response']['global'])) {
-  $v_global = $v_result_array['response']['global'];
+if (isset($v_result_array['status'])
+    && ($v_result_array['status'] == 'success')
+    && isset($v_result_array['data']['global'])) {
+  $v_global = $v_result_array['data']['global'];
 }
 else {
   $v_global = array();
@@ -44,10 +44,10 @@ else {
   $v_global['msg_total_size']=0;
 }
 
-if (isset($v_result_array['state'])
-    && ($v_result_array['state'] == 'ok')
-    && isset($v_result_array['response']['reporters'])) {
-  $v_reporters = $v_result_array['response']['reporters'];
+if (isset($v_result_array['status'])
+    && ($v_result_array['status'] == 'success')
+    && isset($v_result_array['data']['reporters'])) {
+  $v_reporters = $v_result_array['data']['reporters'];
 }
 else {
   $v_reporters = array();

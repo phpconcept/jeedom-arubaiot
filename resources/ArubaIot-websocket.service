@@ -1,12 +1,13 @@
 [Unit]
-Description=ArubaIot Websocket Sever
+Description=ArubaIot Websocket Server
 Documentation=https://www.phpconcept.net
 After=network.target
 
 [Service]
 User=www-data
-WorkingDirectory=/var/www/html/plugins/ArubaIot/core/php
-ExecStart=/usr/bin/php bin/aruba-ws-server.php
+WorkingDirectory=/var/www/html/plugins/ArubaIot/3rparty/awss/
+#ExecStart=/usr/bin/php aruba-ws-server.php -extension ../../core/php/bin/ArubaWssJeedom.class.php
+ExecStart=/usr/bin/php aruba-ws-server.php -extension ../../core/php/bin/ArubaWssJeedom.class.php > /dev/null 2>/dev/null
 Restart=on-failure
 RestartSec=1000ms
 SyslogIdentifier=ArubaIot-websocket

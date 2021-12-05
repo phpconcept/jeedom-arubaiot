@@ -32,12 +32,12 @@ ArubaIotLog::log('ArubaIot', 'debug', 'websocket Result ' . $v_result);
 
 $v_result_array = json_decode($v_result, true);
 
-if (isset($v_result_array['state'])
-    && ($v_result_array['state'] == 'ok')
-    && isset($v_result_array['response']['websocket'])) {
-  $v_websocket = $v_result_array['response']['websocket'];
+if (isset($v_result_array['status'])
+    && ($v_result_array['status'] == 'success')
+    && isset($v_result_array['data']['websocket'])) {
+  $v_websocket = $v_result_array['data']['websocket'];
   $v_websocket['status'] = "Up";
-  $v_list = (isset($v_result_array['response']['reporters']) ? $v_result_array['response']['reporters'] : array());
+  $v_list = (isset($v_result_array['data']['reporters']) ? $v_result_array['data']['reporters'] : array());
 }
 else {
   $v_websocket = array();

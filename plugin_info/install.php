@@ -43,6 +43,9 @@ function ArubaIot_install() {
 
   // ----- Internal flag
   config::save('include_mode', 0, 'ArubaIot');
+  
+  // This is used for debugging the websocket : to have local console debug display.
+  config::save('internal_console_log', 'off', 'ArubaIot');  // value could be 'off', 'debug' or 'trace'"
 
       // ----- Internal flag
       // I had to make a trick by using a device attribute to flag not to send back an api to websocket when in inclusion mode,

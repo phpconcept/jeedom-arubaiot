@@ -151,16 +151,16 @@ class ArubaIot extends eqLogic {
 
 
 	public static function getIncludedDeviceCount() {
-      $v_data = array('state' => $p_state, 'type' => $v_type_str );
+      $v_data = array();
       $v_val = self::talkToWebsocket('include_device_count', $v_data);
 
       $v_result  = json_decode($v_val, true);
 
-      if (isset($v_result['state'])
-          && ($v_result['state'] == 'ok')
-          && isset($v_result['response'])
-          && isset($v_result['response']['count'])) {
-        return($v_result['response']['count']);
+      if (isset($v_result['status'])
+          && ($v_result['status'] == 'success')
+          && isset($v_result['data'])
+          && isset($v_result['data']['count'])) {
+        return($v_result['data']['count']);
       }
 
       return($v_val);
@@ -586,7 +586,7 @@ JSON_EOT;
         ArubaIotLog::log('ArubaIot', 'debug', "MAC is :".$v_mac);
         if (($v_mac != '00:00:00:00:00:00') && ($v_mac != '')) {
           $v_data = array('mac_address' => $v_mac, 'id' => $v_id );
-          self::talkToWebsocket('device_refresh', $v_data);
+          self::talkToWebsocket('device_update', $v_data);
         }
         else {
           ArubaIotLog::log('ArubaIot', 'debug', "MAC is null or empty, don't send refresh api message");

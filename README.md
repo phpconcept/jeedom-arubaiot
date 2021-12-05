@@ -127,6 +127,11 @@ iot useTransportProfile Test
 
 ## Change Logs
 
+Release v1.0 (dev) :
+- Code improvement to use a more generic websocket code, and have jeedom implementation as an extension.
+- Support for ArubaOS 8.8 software
+- Adding support for BLE Gatt protocol in websocket server
+
 Release v0.7 (beta) :
 - Add new configuration parameters for triangulation : triangulation_timeout and triangulation_min_rssi.
 - Add new configuration parameters for presence calculation tuning : 'presence_min_rssi', 
