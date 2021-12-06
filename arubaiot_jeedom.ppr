@@ -15,16 +15,16 @@ ProjectFilesOnly=0
 HTServer=localhost
 [Project tree]
 arubaiot_jeedom
+	+3rparty
+		+awss
+			3rparty\awss\aruba-ws-server.php
+			3rparty\awss\README.md
 	+docs
 		README.md
 		C:\Users\blavet\Dropbox\00-Vincent\Dev\jeedom\plugins\ArubaIot\ToDo.txt
 	+Telemetry
-		3rparty\src\aruba_telemetry\Sensors.php
-		3rparty\src\aruba_telemetry\Reported.php
-		3rparty\src\aruba_telemetry\RockerSwitch.php
-		3rparty\src\aruba_telemetry\rockerSwitchPosition.php
-		3rparty\src\aruba_telemetry\Telemetry.php
-		3rparty\src\aruba_telemetry\WiFiData.php
+		3rparty\awss\src\aruba_telemetry\Reporter.php
+		3rparty\awss\src\aruba_telemetry\BleData.php
 	+resources
 		resources\ArubaIot-websocket.service
 	+plugin_info
@@ -48,7 +48,6 @@ arubaiot_jeedom
 			core\ajax\ArubaIot.ajax.php
 		+php
 			+bin
-				core\php\bin\aruba-ws-server.php
 				core\php\bin\ArubaWssJeedom.class.php
 			core\php\ArubaIot.inc.php
 		+i18n
@@ -72,19 +71,21 @@ arubaiot_jeedom
 10=core\i18n\en_US.json
 11=desktop\js\ArubaIot_Configuration.js
 12=core\class\ArubaIotReporter.class.php
-13=3rparty\src\aruba_telemetry\Telemetry.php
-14=core\class\ArubaIotLog.class.php
-15=3rparty\src\aruba_telemetry\Sensors.php
-16=desktop\modal\modal.device_list.php
-17=desktop\js\modal_reporters.js
-18=desktop\modal\modal.stats.php
-19=desktop\modal\modal.reporters.php
-20=plugin_info\configuration.php
-21=core\php\bin\ArubaWssJeedom.class.php
-22=resources\ArubaIot-websocket.service
+13=core\class\ArubaIotLog.class.php
+14=desktop\modal\modal.device_list.php
+15=desktop\js\modal_reporters.js
+16=desktop\modal\modal.stats.php
+17=desktop\modal\modal.reporters.php
+18=plugin_info\configuration.php
+19=core\php\bin\ArubaWssJeedom.class.php
+20=resources\ArubaIot-websocket.service
+21=3rparty\awss\aruba-ws-server.php
+22=3rparty\awss\src\aruba_telemetry\Reporter.php
+23=3rparty\awss\src\aruba_telemetry\BleData.php
+24=3rparty\awss\README.md
 [Selected Project Files]
 Main=
-Selected=core\ajax\ArubaIot.ajax.php
+Selected=3rparty\awss\aruba-ws-server.php
 [core\class\ArubaIot.class.php]
 TopLine=23
 Caret=1,23
@@ -124,15 +125,9 @@ Caret=1,2
 [core\class\ArubaIotReporter.class.php]
 TopLine=5
 Caret=1,29
-[3rparty\src\aruba_telemetry\Telemetry.php]
-TopLine=10
-Caret=31,20
 [core\class\ArubaIotLog.class.php]
 TopLine=20
 Caret=1,49
-[3rparty\src\aruba_telemetry\Sensors.php]
-TopLine=1
-Caret=1,1
 [desktop\modal\modal.device_list.php]
 TopLine=9
 Caret=28,19
@@ -149,8 +144,22 @@ Caret=28,19
 TopLine=59
 Caret=1,1
 [core\php\bin\ArubaWssJeedom.class.php]
-TopLine=1
-Caret=3,12
+TopLine=341
+Caret=54,363
 [resources\ArubaIot-websocket.service]
 TopLine=1
 Caret=11,9
+[3rparty\awss\aruba-ws-server.php]
+TopLine=627
+Caret=35,655
+Mark1=70,2705
+Mark2=74,3874
+[3rparty\awss\src\aruba_telemetry\Reporter.php]
+TopLine=284
+Caret=1,302
+[3rparty\awss\src\aruba_telemetry\BleData.php]
+TopLine=157
+Caret=1,175
+[3rparty\awss\README.md]
+TopLine=275
+Caret=1,293

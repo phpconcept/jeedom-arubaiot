@@ -282,9 +282,11 @@
       
       // ----- Look for all changed flags
       foreach ($this->change_flag as $v_key => $v_flag) {
+      /* si le flag est là alors c'est qu'il est actif
         if (!$v_flag) {
           continue;
         }
+        */
       
         switch ($v_key) {
           case 'presence' :
@@ -301,7 +303,8 @@
           break;
 
           case 'telemetry_value' :
-            $v_refresh_flag = $this->doUpdateTelemetryValues($v_jeedom_object) || $v_refresh_flag;
+          var_dump($v_flag);
+            $v_refresh_flag = $this->doUpdateTelemetryValues($v_jeedom_object, $v_flag) || $v_refresh_flag;
           break;
 
           case 'battery' :
@@ -353,7 +356,28 @@
      * Description :
      * ---------------------------------------------------------------------------
      */
-    private function doUpdateTelemetryValues(&$p_jeedom_object) {
+    private function doUpdateTelemetryValues(&$p_jeedom_object, $v_flag_list) {
+      ArubaWssTool::log('debug', "ArubaWssDeviceJeedom::doUpdateTelemetryValues()");
+      $v_refresh_flag = false;
+      
+      foreach ($v_flag_list as $v_name => $v_value) {
+        ArubaWssTool::log('debug', " Look for '".$this->telemetry_value_list[$v_name]['name']."'");
+        if (isset($this->telemetry_value_list[$v_name])) {
+          ArubaWssTool::log('debug', " -> Update '".$this->telemetry_value_list[$v_name]['name']."'");
+          $v_refresh_flag = $p_jeedom_object->createAndUpdateCmd($this->telemetry_value_list[$v_name]['name'], $this->telemetry_value_list[$v_name]['value']) || $v_refresh_flag;      
+        }
+      }
+      
+      return($v_refresh_flag);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : doUpdateTelemetryValues()
+     * Description :
+     * ---------------------------------------------------------------------------
+     */
+    private function doUpdateTelemetryValues_SAVE(&$p_jeedom_object) {
       ArubaWssTool::log('debug', "ArubaWssDeviceJeedom::doUpdateTelemetryValues()");
       $v_refresh_flag = false;
       
