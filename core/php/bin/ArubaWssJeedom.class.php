@@ -291,6 +291,7 @@
         switch ($v_key) {
           case 'presence' :
             $v_refresh_flag = $v_jeedom_object->createAndUpdateCmd('presence', $this->presence) || $v_refresh_flag;
+            ArubaWssTool::log('debug', "-> Jeedom update presence");
           break;
 
           case 'nearest_ap' :
@@ -300,36 +301,45 @@
             }
             $v_refresh_flag = $v_jeedom_object->cmdUpdateNearestAP($this->nearest_ap_mac, $v_reporter_name) || $v_refresh_flag;
             $v_refresh_flag = $v_jeedom_object->checkAndUpdateCmd('rssi', $this->nearest_ap_rssi) || $v_refresh_flag;
+            ArubaWssTool::log('debug', "-> Jeedom update nearest_ap and rssi (".$this->nearest_ap_rssi.")");
           break;
 
           case 'telemetry_value' :
-          var_dump($v_flag);
             $v_refresh_flag = $this->doUpdateTelemetryValues($v_jeedom_object, $v_flag) || $v_refresh_flag;
+            ArubaWssTool::log('debug', "-> Jeedom update telemetry value");
           break;
 
           case 'battery' :
             $v_jeedom_object->batteryStatus($this->battery_value);
             //$v_refresh_flag = true;
+            ArubaWssTool::log('debug', "-> Jeedom update battery (no flag)");
           break;
 
           case 'classname' :
             $v_jeedom_object->setConfiguration('class_type', $this->classname);
             $v_config_flag = true;
+            ArubaWssTool::log('debug', "-> Jeedom update classname");
           break;
           case 'vendor_name' :
             $v_jeedom_object->setConfiguration('vendor_name', $this->vendor_name);
             $v_config_flag = true;
+            ArubaWssTool::log('debug', "-> Jeedom update vendor_name");
           break;
           case 'local_name' :
             $v_jeedom_object->setConfiguration('local_name', $this->local_name);
             $v_config_flag = true;
+            ArubaWssTool::log('debug', "-> Jeedom update local_name");
           break;
           case 'model' :
             $v_jeedom_object->setConfiguration('model',  $this->model);
             $v_config_flag = true;
+            ArubaWssTool::log('debug', "-> Jeedom update model");
+          break;
+          case 'rssi' :
+            // TBC
           break;
           default :
-            ArubaWssTool::log('debug', "-> Unexpected cahnge flag called '".$v_key."'");
+            ArubaWssTool::log('debug', "-> Unexpected change flag called '".$v_key."'");
         }      
       }
       
