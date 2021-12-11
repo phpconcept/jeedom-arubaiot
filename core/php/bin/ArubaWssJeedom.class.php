@@ -233,14 +233,17 @@
     public function loadMe() {
     
       // ----- Reset jeedom id, will be reset if object found
-      $this->jeedom_object_id == '';
+      $this->jeedom_object_id = '';
       
       // ----- Search for Jeedom Id for this mac@
       $v_eq_list = eqLogic::byType('ArubaIot');
       foreach($v_eq_list as $v_eq_device) {
         $v_mac = strtoupper($v_eq_device->getConfiguration('mac_address', ''));
         if ($v_mac == $this->mac_address) {
-          // ----- Format name
+          // ----- Store Jeedom object
+          $this->jeedom_object_id = $v_eq_device->getId();
+          
+          // ----- Get name from Jeedom Human name
           // received name is : [parent][parent][name] : extract name
           $v_hname = $v_eq_device->getHumanName();
           ArubaWssTool::log('info', "Load device : ".$v_hname." (".$v_mac.")");
@@ -252,12 +255,11 @@
           }
           $this->setName($v_name);
 
-          // ----- Store Jeedom object
-          $this->jeedom_object_id = $v_eq_device->getId();
+          return(true);
         }
       }
       
-      return(($this->jeedom_object_id != ''));
+      return(false);
     }
     /* -------------------------------------------------------------------------*/
 
@@ -267,7 +269,7 @@
      * ---------------------------------------------------------------------------
      */
     public function doPostActionTelemetry($p_type='') {
-      ArubaWssTool::log('debug', "ArubaWssDeviceJeedom::doPostActionTelemetry()");
+      ArubaWssTool::log('debug:jeedom', "ArubaWssDeviceJeedom::doPostActionTelemetry()");
       
       $v_refresh_flag = false;
       $v_config_flag = false;

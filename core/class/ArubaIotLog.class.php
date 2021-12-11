@@ -29,6 +29,26 @@ class ArubaIotLog extends eqLogic {
      * ---------------------------------------------------------------------------
      */
     public static function log($p_level, $p_message) {
+      
+      // ----- If included as a third party in Aruba Websocket Server
+      if (class_exists(ArubaWssTool)) {
+        ArubaWssTool::log($p_level, $p_message);
+      }
+      else {
+        log::add('ArubaIot', $p_level, $p_message);
+      }
+
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : log()
+     * Description :
+     *   A placeholder to encapsulate log message, and be able do some
+     *   troubleshooting locally.
+     * ---------------------------------------------------------------------------
+     */
+    public static function log_SAVE($p_level, $p_message) {
       global $argv;
 
       if (!isset($argv[1]) || (($argv[1] != 'console-debug') && ($argv[1] != 'console-trace'))) {
