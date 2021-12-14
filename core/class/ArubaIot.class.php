@@ -66,7 +66,7 @@ class ArubaIot extends eqLogic {
 
     public static function deamon_start($_debug = false)
     {
-        ArubaIotLog::log('ArubaIot', 'info', 'Starting ArubaIot daemon');
+        ArubaIotLog::log( 'info', 'Starting ArubaIot daemon');
         exec(system::getCmdSudo() . 'systemctl restart ArubaIot-websocket');
         $i = 0;
         while ($i < 30) {
@@ -78,20 +78,57 @@ class ArubaIot extends eqLogic {
             $i++;
         }
         if ($i >= 30) {
-            ArubaIotLog::log('ArubaIot', 'error', 'Unable to start daemon');
+            ArubaIotLog::log( 'error', 'Unable to start daemon');
             return false;
         }
     }
 
     public static function deamon_stop()
     {
-        ArubaIotLog::log('ArubaIot', 'info', 'Stopping ArubaIot daemon');
+        ArubaIotLog::log( 'info', 'Stopping ArubaIot daemon');
         exec(system::getCmdSudo() . 'systemctl stop ArubaIot-websocket');
     }
 
+	public static function dependancy_info() {
+      $return = array();
+      $return['progress_file'] = jeedom::getTmpFolder('ArubaIot') . '/dependance';
+      $return['log'] = log::getPathToLog(__CLASS__ . '_dep');
+      $return['state'] = 'ok';
+      if (file_exists($return['progress_file'])) {
+        $return['state'] = 'in_progress';
+      }
+      else if (config::byKey('lastDependancyInstallTime', 'ArubaIot') == ''){
+        $return['state'] = 'nok';
+      }
+      else if (strtotime(config::byKey('lastDependancyInstallTime', 'ArubaIot')) < strtotime('01-02-2018')){
+        $return['state'] = 'nok';
+      }
+      else if (!file_exists(__DIR__.'/../../3rparty/awss/aruba-ws-server.php')){
+        $return['state'] = 'nok';
+      }
+      return $return;
+	}
 
+	public static function dependancy_install() {
+      $dep_info = self::dependancy_info();
+      log::remove(__CLASS__ . '_dep');
+      return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('ArubaIot') . '/dependance', 'log' => log::getPathToLog(__CLASS__ . '_dep'));
+	}
+
+
+    /*     * ***********************Methodes specifiques ArubaIot*************************** */
 
 	public static function talkToWebsocket($p_event, $p_data) {
+
+      // ----- Send API message to websocket, only if the command is not triggered from the websocket ...
+      // This is a trick ...
+      // This class is included in Websocket Jeedom plugin. When included, then no need to send back an API message.
+      // Looking if websocket class exists is a good trick to know if the class is used inside the websocket or in Jeedom engine
+      if (class_exists(ArubaWebsocket)) {
+        ArubaIotLog::log( 'debug', 'talkToWebsocket() : called from websocket, Ignore.');
+        return('');  
+      }
+
 
       $v_data = array();
       $v_data['api_version'] = "1.0";
@@ -101,7 +138,7 @@ class ArubaIot extends eqLogic {
       $v_data['event']['data'] = $p_data;
       $v_data_json = json_encode($v_data);
 
-      //ArubaIotLog::log('ArubaIot', 'debug', 'json = ' . $v_data_json);
+      //ArubaIotLog::log( 'debug', 'json = ' . $v_data_json);
       $v_port = config::byKey('ws_port', 'ArubaIot');
 
       $v_url = 'http://127.0.0.1:'.$v_port.'/api';
@@ -116,11 +153,11 @@ class ArubaIot extends eqLogic {
       $v_result['response'] = data ....
       */
       if ($v_return === false) {
-        ArubaIotLog::log('ArubaIot', 'debug', 'Unable to fetch ' . $v_url);
+        ArubaIotLog::log( 'debug', 'Unable to fetch ' . $v_url);
         return('');
       } else {
-        ArubaIotLog::log('ArubaIot', 'debug', 'Post ' . $v_url);
-        ArubaIotLog::log('ArubaIot', 'debug', 'Result ' . $v_return);
+        ArubaIotLog::log( 'debug', 'Post ' . $v_url);
+        ArubaIotLog::log( 'debug', 'Result ' . $v_return);
         return($v_return);
       }
 
@@ -129,14 +166,14 @@ class ArubaIot extends eqLogic {
 
 	public static function changeIncludeState($p_state, $p_type='', $p_generic_with_local=0, $p_generic_with_mac=0, $p_generic_mac_prefix='', $p_generic_max_devices=3) {
 
-      ArubaIotLog::log('ArubaIot', 'info',  "Change inclusion state to : ".$p_state);
+      ArubaIotLog::log( 'info',  "Change inclusion state to : ".$p_state);
 
       config::save('include_mode', $p_state, 'ArubaIot');
 
       if ($p_type != '') {
         $v_list = json_decode($p_type, true);
         $v_type_str = implode(',', $v_list);
-        ArubaIotLog::log('ArubaIot', 'info',  "Classes to includes are : ".$v_type_str);
+        ArubaIotLog::log( 'info',  "Classes to includes are : ".$v_type_str);
       }
 
       $v_data = array('state' => $p_state,
@@ -151,16 +188,16 @@ class ArubaIot extends eqLogic {
 
 
 	public static function getIncludedDeviceCount() {
-      $v_data = array('state' => $p_state, 'type' => $v_type_str );
+      $v_data = array();
       $v_val = self::talkToWebsocket('include_device_count', $v_data);
 
       $v_result  = json_decode($v_val, true);
 
-      if (isset($v_result['state'])
-          && ($v_result['state'] == 'ok')
-          && isset($v_result['response'])
-          && isset($v_result['response']['count'])) {
-        return($v_result['response']['count']);
+      if (isset($v_result['status'])
+          && ($v_result['status'] == 'success')
+          && isset($v_result['data'])
+          && isset($v_result['data']['count'])) {
+        return($v_result['data']['count']);
       }
 
       return($v_val);
@@ -532,16 +569,27 @@ JSON_EOT;
 
 
     /*     * *********************Méthodes d'instance************************* */
+    
+    /*
+      preInsert ⇒ Méthode appellée avant la création de votre objet
+      postInsert ⇒ Méthode appellée après la création de votre objet
+      preUpdate ⇒ Méthode appellée avant la mise à jour de votre objet
+      postUpdate ⇒ Méthode appellée après la mise à jour de votre objet
+      preSave ⇒ Méthode appellée avant la sauvegarde (creation et mise à jour donc) de votre objet
+      postSave ⇒ Méthode appellée après la sauvegarde de votre objet
+      preRemove ⇒ Méthode appellée avant la supression de votre objet
+      postRemove ⇒ Méthode appellée après la supression de votre objet    
+    */
 
     public function preInsert() {
 
       // ----- Default values if configuration is empty
       if ($this->getConfiguration('mac_address', '') == '') {
-        ArubaIotLog::log('ArubaIot', 'debug', 'MAC is empty, change to 00:00:00:00:00:00');
+        ArubaIotLog::log( 'debug', 'MAC is empty, change to 00:00:00:00:00:00');
         $this->setConfiguration('mac_address', '00:00:00:00:00:00');
       }
       if ($this->getConfiguration('class_type', '') == '') {
-        ArubaIotLog::log('ArubaIot', 'debug', 'class_type is empty, change to auto');
+        ArubaIotLog::log( 'debug', 'class_type is empty, change to auto');
         $this->setConfiguration('class_type', 'auto');
       }
 
@@ -567,35 +615,36 @@ JSON_EOT;
 
     public function postSave() {
 
+      ArubaIotLog::log('debug', "postSave()");
+
       // ----- Create default cmd (if needed) for this class
       $this->createAllCmd();
 
-      $v_class_type = $this->getConfiguration('class_type');
-
-      // ----- Call only if not in inclusion mode, because then the daemon is awware of all the new devices
-      // I had to make a trick by using a device attribute to flag not to send back an api when in inclusion mode, because the
-      // global att do not seems to be updated here ...
-      $v_trick_save_from_daemon = $this->getConfiguration('trick_save_from_daemon');
-      ArubaIotLog::log('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon."");
-      if ( ($v_trick_save_from_daemon == '') || ($v_trick_save_from_daemon == 'off') ) {
-//      $v_include_mode = config::byKey('include_mode', 'ArubaIot');
-//      if ($v_include_mode == 0) {
-        ArubaIotLog::log('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", send refresh api message");
+      //$v_class_type = $this->getConfiguration('class_type');
+                                  
+      // ----- Send API message to websocket, only if the save command is not triggered by the websocket ...
+      // This is a trick ...
+      // This class is included in Websocket Jeedom plugin. When included, then no need to send back an API message.
+      // Looking of websocket class exists is a good trick to know if the class is used in the websocket or in Jeedom engine
+      if (!class_exists(ArubaWebsocket)) {
         $v_id = $this->getId();
         $v_mac = $this->getConfiguration('mac_address');
-        ArubaIotLog::log('ArubaIot', 'debug', "MAC is :".$v_mac);
+                            
+        ArubaIotLog::log( 'debug', "Send refresh api message for ".$v_mac);
+        
         if (($v_mac != '00:00:00:00:00:00') && ($v_mac != '')) {
           $v_data = array('mac_address' => $v_mac, 'id' => $v_id );
-          self::talkToWebsocket('device_refresh', $v_data);
+          self::talkToWebsocket('device_update', $v_data);
         }
         else {
-          ArubaIotLog::log('ArubaIot', 'debug', "MAC is null or empty, don't send refresh api message");
+          ArubaIotLog::log('debug', "MAC is null or empty, don't send refresh api message");
         }
+
       }
       else {
-        ArubaIotLog::log('ArubaIot', 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", don't send refresh api message");
+        ArubaIotLog::log('debug', "trick_save_from_daemon : don't send refresh api message");
       }
-
+      
     }
 
     public function preUpdate() {
@@ -731,14 +780,14 @@ JSON_EOT;
 
       // ----- Look if command already exists in device
       if (is_object($v_cmd)) {
-        ArubaIotLog::log('debug', "Command '".$p_cmd_id."' already defined in device.");
+        //ArubaIotLog::log('debug', "Command '".$p_cmd_id."' already defined in device.");
         return(true);
       }
 
       // ----- Look if command auto add is activated
       $v_val = $this->getConfiguration('command_auto', '');
       if ($v_val != "1") {
-        ArubaIotLog::log('debug', "Command auto add disabled. Don't add command '".$p_cmd_id."'.");
+        //ArubaIotLog::log('debug', "Command auto add disabled. Don't add command '".$p_cmd_id."'.");
         return(false);
       }
 
@@ -789,7 +838,7 @@ JSON_EOT;
           $v_historization = 0;
         }
 
-        ArubaIotLog::log('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
+        ArubaIotLog::log('debug', "Create Cmd '".$p_cmd_id."' for device.");
         $v_cmd = new ArubaIotCmd();
         $v_cmd->setName($v_cmd_info['name']);
 
@@ -826,11 +875,9 @@ JSON_EOT;
      * Returned value : true on changed value, false otherwise.
      * ---------------------------------------------------------------------------
      */
-    //public function createAndUpdateCmd($p_cmd_id, $p_cmd_value, $p_cmd_name='', $p_cmd_type='info', $p_cmd_subtype='string', $p_cmd_isHistorized=false) {
     public function createAndUpdateCmd($p_cmd_id, $p_cmd_value) {
 
       // ----- Look if cmd or crete it
-      //if (!$this->createCmd($p_cmd_id, $p_cmd_name, $p_cmd_type, $p_cmd_subtype, $p_cmd_isHistorized)) {
       if (!$this->createCmd($p_cmd_id)) {
         return(false);
       }
@@ -879,7 +926,7 @@ JSON_EOT;
           return(false);
         }
 
-        ArubaIotLog::log('ArubaIot', 'debug', "Create Cmd '".$p_cmd_id."' for device.");
+        ArubaIotLog::log('debug', "Create Cmd '".$p_cmd_id."' for device.");
         $v_cmd = new ArubaIotCmd();
         $v_cmd->setName(__($p_cmd_name, __FILE__));
 
@@ -1106,7 +1153,7 @@ class ArubaIotCmd extends cmd {
 
     public function execute($_options = array()) {
         
-        //ArubaIotLog::log('ArubaIot', 'info',  "Commande reçue !");
+        //ArubaIotLog::log('info',  "Commande reçue !");
         ArubaIotLog::log('info', "Commande reçue !");
 
         if ($this->getType() != 'action') {

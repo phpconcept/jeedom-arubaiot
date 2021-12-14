@@ -1,0 +1,11 @@
+# ----- Ignore everything
+#/*
+
+# ----- Files to ignore
+#*.ppr
+#*.lock
+
+# ----- Folders to ignore
+/3rparty
+/3rparty/awss/
+

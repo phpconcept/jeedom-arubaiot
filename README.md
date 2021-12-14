@@ -125,7 +125,38 @@ transportInterval 60
 iot useTransportProfile Test
 ```
 
+When using generic BLE devices, the following configuration could be used :
+
+```cli
+iot radio-profile Test
+radio-mode ble
+
+iot use-radio-profile Test
+
+iot transportProfile Test
+endpointType telemetry-websocket
+payloadContent all
+endpointURL ws://<jeedom_ip_address>:8081/telemetry
+endpointToken 12346
+transportInterval 60
+
+bleDataForwarding
+macOuiFilter A4C138,E6FE37
+
+iot useTransportProfile Test
+```
+
+Please replace MAC@ prefixes A4C138,E6FE37 by the right ones.
+
 ## Change Logs
+
+Release v1.0 (beta) :
+- Enable "dependence" feature of Jeedom. Isolate websocket server (AWSS) code download from jeedom plugin code.
+- Support for BLE advertissements. Which allow for Xiaomi temperature sensors, and Jinou temperature sensors.
+- Support for Aruba Websocket Server 1.2-beta
+- Code improvement to use a more generic websocket code, and have jeedom implementation as an extension.
+- Support for ArubaOS 8.8 software
+- Adding support for BLE Gatt protocol in websocket server
 
 Release v0.7 (beta) :
 - Add new configuration parameters for triangulation : triangulation_timeout and triangulation_min_rssi.

@@ -18,6 +18,7 @@
 
 require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 
+// Fonction exécutée automatiquement après l'installation du plugin
 function ArubaIot_install() {
 
 
@@ -43,6 +44,9 @@ function ArubaIot_install() {
 
   // ----- Internal flag
   config::save('include_mode', 0, 'ArubaIot');
+  
+  // This is used for debugging the websocket : to have local console debug display.
+  config::save('internal_console_log', 'off', 'ArubaIot');  // value could be 'off', 'debug' or 'trace'"
 
       // ----- Internal flag
       // I had to make a trick by using a device attribute to flag not to send back an api to websocket when in inclusion mode,
@@ -68,6 +72,7 @@ function ArubaIot_install() {
 
 }
 
+// Fonction exécutée automatiquement après la mise à jour du plugin
 function ArubaIot_update() {
     
   // ----- Add new attributes
@@ -98,6 +103,7 @@ function ArubaIot_update() {
 }
 
 
+// Fonction exécutée automatiquement après la suppression du plugin
 function ArubaIot_remove() {
 
   log::add('ArubaIot', 'info', 'Removing ArubaIot Websocket daemon');
