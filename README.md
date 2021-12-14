@@ -150,6 +150,9 @@ Please replace MAC@ prefixes A4C138,E6FE37 by the right ones.
 
 ## Change Logs
 
+Release v1.1 (beta) :
+- Correct upgrade of dependency and daemon process
+
 Release v1.0 (beta) :
 - Enable "dependence" feature of Jeedom. Isolate websocket server (AWSS) code download from jeedom plugin code.
 - Support for BLE advertissements. Which allow for Xiaomi temperature sensors, and Jinou temperature sensors.
