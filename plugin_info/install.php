@@ -96,6 +96,10 @@ function ArubaIot_update() {
     config::save('presence_rssi_hysteresis', 5, 'ArubaIot');
   }
   
+  // ----- Reinstall service file (it might have been changed since first release)
+  exec(system::getCmdSudo() . 'cp '.dirname(__FILE__).'/../resources/ArubaIot-websocket.service /etc/systemd/system/ArubaIot-websocket.service');
+  exec(system::getCmdSudo() . 'systemctl daemon-reload');
+  
   // ----- Restart Daemon
   log::add('ArubaIot', 'info', 'Updating (restart) ArubaIot Websocket daemon');
   exec(system::getCmdSudo() . 'systemctl restart ArubaIot-websocket');
@@ -107,6 +111,7 @@ function ArubaIot_update() {
 function ArubaIot_remove() {
 
   log::add('ArubaIot', 'info', 'Removing ArubaIot Websocket daemon');
+  config::save('lastDependancyInstallTime', '', 'ArubaIot');
   exec(system::getCmdSudo() . 'systemctl disable ArubaIot-websocket');
   exec(system::getCmdSudo() . 'systemctl stop ArubaIot-websocket');
   exec(system::getCmdSudo() . 'rm /etc/systemd/system/ArubaIot-websocket.service');

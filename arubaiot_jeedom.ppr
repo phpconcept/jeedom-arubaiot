@@ -84,7 +84,7 @@ arubaiot_jeedom
 22=resources\install_apt.sh
 [Selected Project Files]
 Main=
-Selected=core\class\ArubaIot.class.php
+Selected=plugin_info\install.php
 [core\class\ArubaIot.class.php]
 TopLine=1
 Caret=29,8
@@ -104,8 +104,8 @@ Caret=15,7
 TopLine=239
 Caret=19,259
 [plugin_info\install.php]
-TopLine=34
-Caret=70,63
+TopLine=74
+Caret=55,61
 [plugin_info\info.json]
 TopLine=1
 Caret=25,11
