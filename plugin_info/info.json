@@ -10,7 +10,7 @@
 	"require" : "4.0",
     "version": "0.8-dev",
 	"category" : "automation protocol",
-	"hasDependency" : false,
+	"hasDependency" : true,
 	"hasOwnDeamon" : true,
 	"changelog" : "https://github.com/phpconcept/jeedom-arubaiot/blob/main/README.md",
 	"documentation" : "https://github.com/phpconcept/jeedom-arubaiot/blob/main/README.md",

@@ -21,16 +21,17 @@ arubaiot_jeedom
 			3rparty\awss\README.md
 	+docs
 		README.md
-		C:\Users\blavet\Dropbox\00-Vincent\Dev\jeedom\plugins\ArubaIot\ToDo.txt
 	+Telemetry
 		3rparty\awss\src\aruba_telemetry\Reporter.php
 		3rparty\awss\src\aruba_telemetry\BleData.php
 	+resources
 		resources\ArubaIot-websocket.service
+		resources\install_apt.sh
 	+plugin_info
 		plugin_info\install.php
 		plugin_info\configuration.php
 		plugin_info\info.json
+		plugin_info\pre_install.php
 	+desktop
 		-js
 			desktop\js\ArubaIot.js
@@ -66,7 +67,7 @@ arubaiot_jeedom
 5=desktop\js\ArubaIot.js
 6=plugin_info\install.php
 7=plugin_info\info.json
-8=core\ajax\ArubaIot.ajax.php
+8=..\aruba\core\class\aruba.class.php
 9=README.md
 10=core\i18n\en_US.json
 11=core\class\ArubaIotReporter.class.php
@@ -83,12 +84,15 @@ arubaiot_jeedom
 22=desktop\js\ArubaIot_Configuration.js
 23=3rparty\awss\src\aruba_telemetry\BleData.php
 24=3rparty\awss\README.md
+25=plugin_info\pre_install.php
+26=resources\install_apt.sh
+27=core\ajax\ArubaIot.ajax.php
 [Selected Project Files]
 Main=
-Selected=core\class\ArubaIot.class.php
+Selected=core\ajax\ArubaIot.ajax.php
 [core\class\ArubaIot.class.php]
-TopLine=1010
-Caret=1,881
+TopLine=87
+Caret=1,114
 [core\i18n\fr_FR.json]
 TopLine=1
 Caret=1,1
@@ -105,17 +109,17 @@ Caret=15,7
 TopLine=239
 Caret=19,259
 [plugin_info\install.php]
-TopLine=24
-Caret=37,48
+TopLine=26
+Caret=1,22
 [plugin_info\info.json]
 TopLine=1
-Caret=20,11
-[core\ajax\ArubaIot.ajax.php]
-TopLine=26
-Caret=28,38
+Caret=1,14
+[..\aruba\core\class\aruba.class.php]
+TopLine=82
+Caret=1,105
 [README.md]
-TopLine=119
-Caret=59,133
+TopLine=117
+Caret=1,148
 [core\i18n\en_US.json]
 TopLine=69
 Caret=40,106
@@ -138,7 +142,7 @@ Caret=18,146
 TopLine=19
 Caret=28,19
 [plugin_info\configuration.php]
-TopLine=59
+TopLine=1
 Caret=1,1
 [core\php\bin\ArubaWssJeedom.class.php]
 TopLine=200
@@ -162,5 +166,14 @@ Caret=1,2
 TopLine=157
 Caret=1,175
 [3rparty\awss\README.md]
-TopLine=29
-Caret=63,293
+TopLine=272
+Caret=1,290
+[plugin_info\pre_install.php]
+TopLine=1
+Caret=3,26
+[resources\install_apt.sh]
+TopLine=1
+Caret=3,20
+[core\ajax\ArubaIot.ajax.php]
+TopLine=1
+Caret=1,1

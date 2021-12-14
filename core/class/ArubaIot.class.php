@@ -87,9 +87,33 @@ class ArubaIot extends eqLogic {
     {
         ArubaIotLog::log( 'info', 'Stopping ArubaIot daemon');
         exec(system::getCmdSudo() . 'systemctl stop ArubaIot-websocket');
+        
+        $tep = log::getPathToLog(__CLASS__ . '_daemon');
+        ArubaIotLog::log( 'error', 'log file :'.$tep);
     }
 
+	public static function dependancy_info() {
+	$return = array();
+	$return['progress_file'] = jeedom::getTmpFolder('ArubaIot') . '/dependance';
+	$return['state'] = 'ok';
+	if(config::byKey('lastDependancyInstallTime', 'ArubaIot') == ''){
+		$return['state'] = 'nok';
+	}else if(strtotime(config::byKey('lastDependancyInstallTime', 'ArubaIot')) < strtotime('01-02-2018')){
+		$return['state'] = 'nok';
+	}else if (!file_exists(__DIR__.'/../../3rparty/awss/aruba-ws-server.php')){
+		$return['state'] = 'nok';
+	}
+	return $return;
+	}
 
+	public static function dependancy_install() {
+	$dep_info = self::dependancy_info();
+	log::remove(__CLASS__ . '_dep');
+	return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('ArubaIot') . '/dependance', 'log' => log::getPathToLog(__CLASS__ . '_dep'));
+	}
+
+
+    /*     * ***********************Methodes specifiques ArubaIot*************************** */
 
 	public static function talkToWebsocket($p_event, $p_data) {
 
@@ -542,6 +566,17 @@ JSON_EOT;
 
 
     /*     * *********************Méthodes d'instance************************* */
+    
+    /*
+      preInsert ⇒ Méthode appellée avant la création de votre objet
+      postInsert ⇒ Méthode appellée après la création de votre objet
+      preUpdate ⇒ Méthode appellée avant la mise à jour de votre objet
+      postUpdate ⇒ Méthode appellée après la mise à jour de votre objet
+      preSave ⇒ Méthode appellée avant la sauvegarde (creation et mise à jour donc) de votre objet
+      postSave ⇒ Méthode appellée après la sauvegarde de votre objet
+      preRemove ⇒ Méthode appellée avant la supression de votre objet
+      postRemove ⇒ Méthode appellée après la supression de votre objet    
+    */
 
     public function preInsert() {
 
