@@ -117,7 +117,10 @@ iot use-radio-profile Test
 
 iot transportProfile Test
 endpointType telemetry-websocket
-payloadContent all
+payloadContent managed-beacons
+payloadContent managed-tags
+payloadContent enocean-switches
+payloadContent enocean-sensors
 endpointURL ws://<jeedom_ip_address>:8081/telemetry
 endpointToken 12346
 transportInterval 60
@@ -135,7 +138,10 @@ iot use-radio-profile Test
 
 iot transportProfile Test
 endpointType telemetry-websocket
-payloadContent all
+payloadContent managed-beacons
+payloadContent managed-tags
+payloadContent enocean-switches
+payloadContent enocean-sensors
 endpointURL ws://<jeedom_ip_address>:8081/telemetry
 endpointToken 12346
 transportInterval 60
