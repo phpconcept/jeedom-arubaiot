@@ -90,23 +90,29 @@ class ArubaIot extends eqLogic {
     }
 
 	public static function dependancy_info() {
-	$return = array();
-	$return['progress_file'] = jeedom::getTmpFolder('ArubaIot') . '/dependance';
-	$return['state'] = 'ok';
-	if(config::byKey('lastDependancyInstallTime', 'ArubaIot') == ''){
-		$return['state'] = 'nok';
-	}else if(strtotime(config::byKey('lastDependancyInstallTime', 'ArubaIot')) < strtotime('01-02-2018')){
-		$return['state'] = 'nok';
-	}else if (!file_exists(__DIR__.'/../../3rparty/awss/aruba-ws-server.php')){
-		$return['state'] = 'nok';
-	}
-	return $return;
+      $return = array();
+      $return['progress_file'] = jeedom::getTmpFolder('ArubaIot') . '/dependance';
+      $return['log'] = log::getPathToLog(__CLASS__ . '_dep');
+      $return['state'] = 'ok';
+      if (file_exists($return['progress_file'])) {
+        $return['state'] = 'in_progress';
+      }
+      else if (config::byKey('lastDependancyInstallTime', 'ArubaIot') == ''){
+        $return['state'] = 'nok';
+      }
+      else if (strtotime(config::byKey('lastDependancyInstallTime', 'ArubaIot')) < strtotime('01-02-2018')){
+        $return['state'] = 'nok';
+      }
+      else if (!file_exists(__DIR__.'/../../3rparty/awss/aruba-ws-server.php')){
+        $return['state'] = 'nok';
+      }
+      return $return;
 	}
 
 	public static function dependancy_install() {
-	$dep_info = self::dependancy_info();
-	log::remove(__CLASS__ . '_dep');
-	return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('ArubaIot') . '/dependance', 'log' => log::getPathToLog(__CLASS__ . '_dep'));
+      $dep_info = self::dependancy_info();
+      log::remove(__CLASS__ . '_dep');
+      return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('ArubaIot') . '/dependance', 'log' => log::getPathToLog(__CLASS__ . '_dep'));
 	}
 
 

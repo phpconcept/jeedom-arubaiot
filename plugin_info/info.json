@@ -11,6 +11,7 @@
     "version": "1.0-dev",
 	"category" : "automation protocol",
 	"hasDependency" : true,
+    "maxDependancyInstallTime" : 10,
 	"hasOwnDeamon" : true,
 	"changelog" : "https://github.com/phpconcept/jeedom-arubaiot/blob/main/README.md",
 	"documentation" : "https://github.com/phpconcept/jeedom-arubaiot/blob/main/README.md",

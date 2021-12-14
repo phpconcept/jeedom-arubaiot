@@ -1,4 +1,4 @@
-PROGRESS_FILE=/tmp/dependancy_ArubaIot_in_progress
+PROGRESS_FILE=/tmp/jeedom/dependancy_ArubaIot_in_progress
 if [ ! -z $1 ]; then
 	PROGRESS_FILE=$1
 fi
@@ -9,8 +9,13 @@ echo "*             Installation des dépendances             *"
 echo "********************************************************"
 BASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
+# ----- Log date
+DATE=`date "+%Y-%m-%d %H:%M:%S"`
+echo "Date : ${DATE}"
+
 echo ""
 echo "----- Update APT repository"
+sudo apt-get clean
 sudo apt-get update
 
 echo ""
