@@ -8,7 +8,7 @@
 	"licence" : "AGPL",
 	"author" : "Vincent",
 	"require" : "4.0",
-    "version": "0.8-dev",
+    "version": "1.0-dev",
 	"category" : "automation protocol",
 	"hasDependency" : true,
 	"hasOwnDeamon" : true,

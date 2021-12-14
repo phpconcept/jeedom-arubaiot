@@ -87,9 +87,6 @@ class ArubaIot extends eqLogic {
     {
         ArubaIotLog::log( 'info', 'Stopping ArubaIot daemon');
         exec(system::getCmdSudo() . 'systemctl stop ArubaIot-websocket');
-        
-        $tep = log::getPathToLog(__CLASS__ . '_daemon');
-        ArubaIotLog::log( 'error', 'log file :'.$tep);
     }
 
 	public static function dependancy_info() {
@@ -642,44 +639,6 @@ JSON_EOT;
         ArubaIotLog::log('debug', "trick_save_from_daemon : don't send refresh api message");
       }
       
-    }
-
-    public function postSave_SAVE() {
-
-      ArubaIotLog::log('debug', "postSave()");
-
-      // ----- Create default cmd (if needed) for this class
-      $this->createAllCmd();
-
-      $v_class_type = $this->getConfiguration('class_type');
-                                  
-      // ----- Call only if not in inclusion mode, because then the daemon is awware of all the new devices
-      // I had to make a trick by using a device attribute to flag not to send back an api when in inclusion mode, because the
-      // global att do not seems to be updated here ...
-      $v_trick_save_from_daemon = $this->getConfiguration('trick_save_from_daemon');
-      ArubaIotLog::log('debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon."");
-      if ( ($v_trick_save_from_daemon == '') || ($v_trick_save_from_daemon == 'off') ) {
-//      $v_include_mode = config::byKey('include_mode', 'ArubaIot');
-//      if ($v_include_mode == 0) {
-        ArubaIotLog::log( 'debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", send refresh api message");
-        $v_id = $this->getId();
-        $v_mac = $this->getConfiguration('mac_address');
-        ArubaIotLog::log( 'debug', "MAC is :".$v_mac);
-                            
-        if (($v_mac != '00:00:00:00:00:00') && ($v_mac != '')) {
-          $v_data = array('mac_address' => $v_mac, 'id' => $v_id );
-          self::talkToWebsocket('device_update', $v_data);
-        }
-        else {
-          ArubaIotLog::log('debug', "MAC is null or empty, don't send refresh api message");
-        }
-
-      }
-      else {
-        ArubaIotLog::log('debug', "trick_save_from_daemon = ".$v_trick_save_from_daemon.", don't send refresh api message");
-      }
-      
-       $this->setConfiguration('trick_save_from_daemon', 'off');
     }
 
     public function preUpdate() {
