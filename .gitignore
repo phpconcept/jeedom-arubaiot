@@ -6,15 +6,6 @@
 #*.lock
 
 # ----- Folders to ignore
+/3rparty
 /3rparty/awss/
-
-# ----- Pour intégrer awss
-#/3rparty/awss/.bak.git
-#/3rparty/awss/.bak.gitignore
-
-# ----- Files to accept
-#!aruba-ws-server.php
-
-# ----- Folders to add
-#!/src
 
