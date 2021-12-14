@@ -117,7 +117,10 @@ iot use-radio-profile Test
 
 iot transportProfile Test
 endpointType telemetry-websocket
-payloadContent all
+payloadContent managed-beacons
+payloadContent managed-tags
+payloadContent enocean-switches
+payloadContent enocean-sensors
 endpointURL ws://<jeedom_ip_address>:8081/telemetry
 endpointToken 12346
 transportInterval 60
@@ -135,7 +138,10 @@ iot use-radio-profile Test
 
 iot transportProfile Test
 endpointType telemetry-websocket
-payloadContent all
+payloadContent managed-beacons
+payloadContent managed-tags
+payloadContent enocean-switches
+payloadContent enocean-sensors
 endpointURL ws://<jeedom_ip_address>:8081/telemetry
 endpointToken 12346
 transportInterval 60
@@ -149,6 +155,9 @@ iot useTransportProfile Test
 Please replace MAC@ prefixes A4C138,E6FE37 by the right ones.
 
 ## Change Logs
+
+Release v1.1 (beta) :
+- Correct upgrade of dependency and daemon process
 
 Release v1.0 (beta) :
 - Enable "dependence" feature of Jeedom. Isolate websocket server (AWSS) code download from jeedom plugin code.

@@ -94,10 +94,8 @@ class ArubaIot extends eqLogic {
       $return['progress_file'] = jeedom::getTmpFolder('ArubaIot') . '/dependance';
       $return['log'] = log::getPathToLog(__CLASS__ . '_dep');
       $return['state'] = 'ok';
-      if (file_exists($return['progress_file'])) {
-        $return['state'] = 'in_progress';
-      }
-      else if (config::byKey('lastDependancyInstallTime', 'ArubaIot') == ''){
+      
+      if (config::byKey('lastDependancyInstallTime', 'ArubaIot') == ''){
         $return['state'] = 'nok';
       }
       else if (strtotime(config::byKey('lastDependancyInstallTime', 'ArubaIot')) < strtotime('01-02-2018')){
@@ -105,6 +103,9 @@ class ArubaIot extends eqLogic {
       }
       else if (!file_exists(__DIR__.'/../../3rparty/awss/aruba-ws-server.php')){
         $return['state'] = 'nok';
+      }
+      else if (file_exists($return['progress_file'])) {
+        $return['state'] = 'in_progress';
       }
       return $return;
 	}
