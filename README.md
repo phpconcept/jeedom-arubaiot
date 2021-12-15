@@ -157,7 +157,7 @@ Please replace MAC@ prefixes A4C138,E6FE37 by the right ones.
 ## Change Logs
 
 Release v1.2 (dev) :
-- Correct upgrade of dependency and daemon process
+- Bug correction : use of telemetry value 'txpower' is crashing daemon because of missing/bad default value.
 
 Release v1.1 (beta) :
 - Correct upgrade of dependency and daemon process
