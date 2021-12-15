@@ -496,7 +496,9 @@ class ArubaIot extends eqLogic {
     "name": "TX Power",
     "description": "",
     "type" : "info",
-    "sub_type" : "numeric"
+    "sub_type" : "numeric",
+    "visible" : 0,
+    "history" : 0
   }
 }
 JSON_EOT;
@@ -827,7 +829,7 @@ JSON_EOT;
         if ($p_visibility == 'visible') {
           $v_visible = 1;
         }
-        else if ($p_visibility == 'notvisible') {
+        else /* if ($p_visibility == 'notvisible') */ {
           $v_visible = 0;
         }
 
@@ -835,7 +837,7 @@ JSON_EOT;
         if ($p_historization == 'historization') {
           $v_historization = 1;
         }
-        else if ($p_historization == 'nohistorization') {
+        else /* if ($p_historization == 'nohistorization') */ {
           $v_historization = 0;
         }
 
