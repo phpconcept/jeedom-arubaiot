@@ -825,19 +825,25 @@ JSON_EOT;
     */
 
 
-        $v_visible = $v_cmd_info['visible'];
+        $v_visible = 0;
+        if (isset($v_cmd_info['visible'])) {
+          $v_visible = $v_cmd_info['visible'];
+        }
         if ($p_visibility == 'visible') {
           $v_visible = 1;
         }
-        else /* if ($p_visibility == 'notvisible') */ {
+        else if ($p_visibility == 'notvisible') {
           $v_visible = 0;
         }
 
-        $v_historization = $v_cmd_info['history'];
+        $v_historization = 0;
+        if (isset($v_cmd_info['history'])) {
+          $v_historization = $v_cmd_info['history'];
+        }
         if ($p_historization == 'historization') {
           $v_historization = 1;
         }
-        else /* if ($p_historization == 'nohistorization') */ {
+        else if ($p_historization == 'nohistorization') {
           $v_historization = 0;
         }
 
