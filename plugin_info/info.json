@@ -8,7 +8,7 @@
 	"licence" : "AGPL",
 	"author" : "Vincent",
 	"require" : "4.0",
-    "version": "1.2-dev",
+    "version": "1.2-beta",
 	"category" : "automation protocol",
 	"hasDependency" : true,
     "maxDependancyInstallTime" : 10,
