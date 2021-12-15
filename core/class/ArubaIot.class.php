@@ -496,7 +496,9 @@ class ArubaIot extends eqLogic {
     "name": "TX Power",
     "description": "",
     "type" : "info",
-    "sub_type" : "numeric"
+    "sub_type" : "numeric",
+    "visible" : 0,
+    "history" : 0
   }
 }
 JSON_EOT;
@@ -823,7 +825,10 @@ JSON_EOT;
     */
 
 
-        $v_visible = $v_cmd_info['visible'];
+        $v_visible = 0;
+        if (isset($v_cmd_info['visible'])) {
+          $v_visible = $v_cmd_info['visible'];
+        }
         if ($p_visibility == 'visible') {
           $v_visible = 1;
         }
@@ -831,12 +836,15 @@ JSON_EOT;
           $v_visible = 0;
         }
 
-        $v_historization = $v_cmd_info['history'];
+        $v_historization = false;
+        if (isset($v_cmd_info['history'])) {
+          $v_historization = $v_cmd_info['history'];
+        }
         if ($p_historization == 'historization') {
-          $v_historization = 1;
+          $v_historization = true;
         }
         else if ($p_historization == 'nohistorization') {
-          $v_historization = 0;
+          $v_historization = false;
         }
 
         ArubaIotLog::log('debug', "Create Cmd '".$p_cmd_id."' for device.");
@@ -927,7 +935,7 @@ JSON_EOT;
           return(false);
         }
 
-        ArubaIotLog::log('debug', "Create Cmd '".$p_cmd_id."' for device.");
+        ArubaIotLog::log('debug', "Create Cmd and update '".$p_cmd_id."' for device.");
         $v_cmd = new ArubaIotCmd();
         $v_cmd->setName(__($p_cmd_name, __FILE__));
 
@@ -935,7 +943,7 @@ JSON_EOT;
         $v_cmd->setEqLogic_id($this->getId());
         $v_cmd->setType($p_cmd_type);
         $v_cmd->setSubType($p_cmd_subtype);
-        $v_cmd->setIsHistorized($p_cmd_isHistorized);
+        $v_cmd->setIsHistorized(($p_cmd_isHistorized === true ? true : false));
         $v_cmd->save();
       }
 
