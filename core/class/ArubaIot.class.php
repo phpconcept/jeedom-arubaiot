@@ -333,16 +333,16 @@ class ArubaIot extends eqLogic {
     "type" : "info",
     "sub_type" : "binary",
     "generic_type" : "PRESENCE",
-    "visible" : 0,
-    "history" : 1
+    "visible" : false,
+    "history" : true
   },
   "rssi": {
     "name": "RSSI",
     "description": "",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 0,
-    "history" : 1,
+    "visible" : false,
+    "history" : true,
     "min_value" : -110,
     "max_value" : -10
   },
@@ -351,24 +351,24 @@ class ArubaIot extends eqLogic {
     "description": "",
     "type" : "info",
     "sub_type" : "string",
-    "visible" : 0,
-    "history" : 0
+    "visible" : false,
+    "history" : false
   },
   "triangulation": {
     "name": "Triangulation",
     "description": "",
     "type" : "info",
     "sub_type" : "string",
-    "visible" : 0,
-    "history" : 0
+    "visible" : false,
+    "history" : false
   },
   "illumination": {
     "name": "Illumination",
     "description": "light intensity (Lux)",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 1,
-    "history" : 1,
+    "visible" : true,
+    "history" : true,
     "min_value" : 0
   },
   "occupancy": {
@@ -376,8 +376,8 @@ class ArubaIot extends eqLogic {
     "description": "occupancy level in percentage of max capacity",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 1,
-    "history" : 1,
+    "visible" : true,
+    "history" : true,
     "min_value" : 0,
     "max_value" : 100
   },
@@ -386,8 +386,8 @@ class ArubaIot extends eqLogic {
     "description": "temperature in degrees Celcius",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 1,
-    "history" : 1,
+    "visible" : true,
+    "history" : true,
     "min_value" : -127,
     "max_value" : 127
   },
@@ -396,8 +396,8 @@ class ArubaIot extends eqLogic {
     "description": "Relative humidity (percentage)",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 1,
-    "history" : 1,
+    "visible" : true,
+    "history" : true,
     "min_value" : 0,
     "max_value" : 100
   },
@@ -406,32 +406,32 @@ class ArubaIot extends eqLogic {
     "description": "system voltage level in V",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 1,
-    "history" : 1
+    "visible" : true,
+    "history" : true
   },
   "resistance": {
     "name": "Résistance",
     "description": "electrical resistance in Ohm",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 1,
-    "history" : 0
+    "visible" : true,
+    "history" : false
   },
   "pressure": {
     "name": "Pression",
     "description": "pressure in hPa",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 1,
-    "history" : 1
+    "visible" : true,
+    "history" : true
   },
   "VOC": {
     "name": "VOC",
     "description": "volatile organic compounds in ppm",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 0,
-    "history" : 0,
+    "visible" : false,
+    "history" : false,
     "min_value" : 0
   },
   "CO": {
@@ -439,8 +439,8 @@ class ArubaIot extends eqLogic {
     "description": "carbon monoxide level in ppm",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 0,
-    "history" : 1,
+    "visible" : false,
+    "history" : true,
     "min_value" : 0
   },
   "CO2": {
@@ -448,8 +448,8 @@ class ArubaIot extends eqLogic {
     "description": "carbon dioxide level in ppm",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 0,
-    "history" : 1,
+    "visible" : false,
+    "history" : true,
     "min_value" : 0
   },
   "motion": {
@@ -457,48 +457,48 @@ class ArubaIot extends eqLogic {
     "description": "Motion detected by passive infrared sensor",
     "type" : "info",
     "sub_type" : "binary",
-    "visible" : 0,
-    "history" : 1
+    "visible" : false,
+    "history" : true
   },
   "current": {
     "name": "Courant",
     "description": "current in uA",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 0,
-    "history" : 1
+    "visible" : false,
+    "history" : true
   },
   "distance": {
     "name": "Distance",
     "description": "distance in mm",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 0,
-    "history" : 1
+    "visible" : false,
+    "history" : true
   },
   "capacitance": {
     "name": "Capacitance",
     "description": "capacitance in pF",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 0,
-    "history" : 1
+    "visible" : false,
+    "history" : true
   },
   "accelerometer": {
     "name": "Accelerometer",
     "description": "accelerometer",
     "type" : "info",
     "sub_type" : "string",
-    "visible" : 0,
-    "history" : 0
+    "visible" : false,
+    "history" : false
   },
   "txpower": {
     "name": "TX Power",
     "description": "",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 0,
-    "history" : 0
+    "visible" : false,
+    "history" : false
   }
 }
 JSON_EOT;
@@ -818,22 +818,22 @@ JSON_EOT;
     "description": "",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : 1,
-    "history" : 1,
+    "visible" : true,
+    "history" : true,
     "min_value" : -110,
     "max_value" : -10
     */
 
 
-        $v_visible = 0;
+        $v_visible = false;
         if (isset($v_cmd_info['visible'])) {
           $v_visible = $v_cmd_info['visible'];
         }
         if ($p_visibility == 'visible') {
-          $v_visible = 1;
+          $v_visible = true;
         }
         else if ($p_visibility == 'notvisible') {
-          $v_visible = 0;
+          $v_visible = false;
         }
 
         $v_historization = false;

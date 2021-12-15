@@ -84,10 +84,11 @@ arubaiot_jeedom
 22=resources\install_apt.sh
 [Selected Project Files]
 Main=
-Selected=core\php\bin\ArubaWssJeedom.class.php
+Selected=core\class\ArubaIot.class.php
 [core\class\ArubaIot.class.php]
-TopLine=57
-Caret=1,67
+TopLine=823
+Caret=1,838
+Mark1=50,835
 [core\i18n\fr_FR.json]
 TopLine=1
 Caret=1,1
@@ -104,17 +105,17 @@ Caret=15,7
 TopLine=239
 Caret=19,259
 [plugin_info\install.php]
-TopLine=93
+TopLine=58
 Caret=1,58
 [plugin_info\info.json]
 TopLine=1
-Caret=24,11
+Caret=25,11
 [..\aruba\core\class\aruba.class.php]
 TopLine=82
 Caret=1,105
 [README.md]
-TopLine=133
-Caret=18,159
+TopLine=139
+Caret=19,159
 [core\i18n\en_US.json]
 TopLine=69
 Caret=40,106
@@ -140,8 +141,8 @@ Caret=28,19
 TopLine=1
 Caret=1,1
 [core\php\bin\ArubaWssJeedom.class.php]
-TopLine=131
-Caret=1,166
+TopLine=41
+Caret=42,59
 [resources\ArubaIot-websocket.service]
 TopLine=1
 Caret=1,11

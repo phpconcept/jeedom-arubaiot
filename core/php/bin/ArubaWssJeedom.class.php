@@ -127,7 +127,13 @@
      * Description :
      * ---------------------------------------------------------------------------
      */
-    static function extension_log($p_level, $p_message) {
+    static function extension_log_SAVE($p_level, $p_message) {
+      static $s_fd = null;
+      if ($s_fd === null) {
+        $s_fd = fopen('/var/www/html/log/ArubaIot_daemon', 'a');
+      }
+      fwrite($s_fd, '['.date("Y-m-d H:i:s").'] ['.$p_level.']:'.$p_message."\n");
+      //fclose($fd);
     }
     /* -------------------------------------------------------------------------*/
 
