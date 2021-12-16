@@ -127,12 +127,23 @@
      * Description :
      * ---------------------------------------------------------------------------
      */
-    static function extension_log_SAVE($p_level, $p_message) {
+    static function extension_log($p_type, $p_sub_type, $p_level, $p_message) {
       static $s_fd = null;
+      
+      // ----- Filter debug type (too many messages)
+      if ($p_type == 'debug') {
+        return;
+      }
+      
+      // ----- Open log file ig not yet opened
       if ($s_fd === null) {
         $s_fd = fopen('/var/www/html/log/ArubaIot_daemon', 'a');
       }
-      fwrite($s_fd, '['.date("Y-m-d H:i:s").'] ['.$p_level.']:'.$p_message."\n");
+      
+      // ----- Write message
+      fwrite($s_fd, '['.date("Y-m-d H:i:s").'] ['.$p_type.']:'.$p_message."\n");
+      
+      // ----- No need to close, to lower the load to reopen
       //fclose($fd);
     }
     /* -------------------------------------------------------------------------*/
