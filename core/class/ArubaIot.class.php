@@ -499,6 +499,22 @@ class ArubaIot extends eqLogic {
     "sub_type" : "numeric",
     "visible" : false,
     "history" : false
+  },
+  "button_1": {
+    "name": "Button 1",
+    "description": "Rocker switch 1",
+    "type" : "info",
+    "sub_type" : "string",
+    "visible" : true,
+    "history" : false
+  },
+  "button_2": {
+    "name": "Button 2",
+    "description": "Rocker switch 2",
+    "type" : "info",
+    "sub_type" : "string",
+    "visible" : true,
+    "history" : false
   }
 }
 JSON_EOT;

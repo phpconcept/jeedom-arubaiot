@@ -158,6 +158,7 @@ Please replace MAC@ prefixes A4C138,E6FE37 by the right ones.
 
 Release v1.2 (beta) :
 - Bug correction : use of telemetry value 'txpower' is crashing daemon because of missing/bad default value.
+- Bug correction : button1/2 telemetry value was ignored for Enocean switch.
 
 Release v1.1 (beta) :
 - Correct upgrade of dependency and daemon process
