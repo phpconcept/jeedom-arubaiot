@@ -67,7 +67,7 @@ echo 30 > ${PROGRESS_FILE}
 # ----- Download AWSS source code
 # heads/main or heads/beta or tags/v1.0 ....
 BRANCH_TYPE="heads"
-BRANCH_NAME="beta"
+BRANCH_NAME="main"
 echo ""
 echo "----- Dowload AWSS source code from github"
 sudo wget https://github.com/phpconcept/aruba-ws-server/archive/refs/${BRANCH_TYPE}/${BRANCH_NAME}.zip
