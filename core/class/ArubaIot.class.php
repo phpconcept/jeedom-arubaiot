@@ -333,16 +333,16 @@ class ArubaIot extends eqLogic {
     "type" : "info",
     "sub_type" : "binary",
     "generic_type" : "PRESENCE",
-    "visible" : false,
-    "history" : true
+    "visible" : 0,
+    "history" : 1
   },
   "rssi": {
     "name": "RSSI",
     "description": "",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : false,
-    "history" : true,
+    "visible" : 0,
+    "history" : 1,
     "min_value" : -110,
     "max_value" : -10
   },
@@ -351,24 +351,24 @@ class ArubaIot extends eqLogic {
     "description": "",
     "type" : "info",
     "sub_type" : "string",
-    "visible" : false,
-    "history" : false
+    "visible" : 0,
+    "history" : 0
   },
   "triangulation": {
     "name": "Triangulation",
     "description": "",
     "type" : "info",
     "sub_type" : "string",
-    "visible" : false,
-    "history" : false
+    "visible" : 0,
+    "history" : 0
   },
   "illumination": {
     "name": "Illumination",
     "description": "light intensity (Lux)",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : true,
-    "history" : true,
+    "visible" : 1,
+    "history" : 1,
     "min_value" : 0
   },
   "occupancy": {
@@ -376,8 +376,8 @@ class ArubaIot extends eqLogic {
     "description": "occupancy level in percentage of max capacity",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : true,
-    "history" : true,
+    "visible" : 1,
+    "history" : 1,
     "min_value" : 0,
     "max_value" : 100
   },
@@ -386,8 +386,8 @@ class ArubaIot extends eqLogic {
     "description": "temperature in degrees Celcius",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : true,
-    "history" : true,
+    "visible" : 1,
+    "history" : 1,
     "min_value" : -127,
     "max_value" : 127
   },
@@ -396,8 +396,8 @@ class ArubaIot extends eqLogic {
     "description": "Relative humidity (percentage)",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : true,
-    "history" : true,
+    "visible" : 1,
+    "history" : 1,
     "min_value" : 0,
     "max_value" : 100
   },
@@ -406,32 +406,32 @@ class ArubaIot extends eqLogic {
     "description": "system voltage level in V",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : true,
-    "history" : true
+    "visible" : 1,
+    "history" : 1
   },
   "resistance": {
     "name": "Résistance",
     "description": "electrical resistance in Ohm",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : true,
-    "history" : false
+    "visible" : 1,
+    "history" : 0
   },
   "pressure": {
     "name": "Pression",
     "description": "pressure in hPa",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : true,
-    "history" : true
+    "visible" : 1,
+    "history" : 1
   },
   "VOC": {
     "name": "VOC",
     "description": "volatile organic compounds in ppm",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : false,
-    "history" : false,
+    "visible" : 0,
+    "history" : 0,
     "min_value" : 0
   },
   "CO": {
@@ -439,8 +439,8 @@ class ArubaIot extends eqLogic {
     "description": "carbon monoxide level in ppm",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : false,
-    "history" : true,
+    "visible" : 0,
+    "history" : 1,
     "min_value" : 0
   },
   "CO2": {
@@ -448,8 +448,8 @@ class ArubaIot extends eqLogic {
     "description": "carbon dioxide level in ppm",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : false,
-    "history" : true,
+    "visible" : 0,
+    "history" : 1,
     "min_value" : 0
   },
   "motion": {
@@ -457,64 +457,64 @@ class ArubaIot extends eqLogic {
     "description": "Motion detected by passive infrared sensor",
     "type" : "info",
     "sub_type" : "binary",
-    "visible" : false,
-    "history" : true
+    "visible" : 0,
+    "history" : 1
   },
   "current": {
     "name": "Courant",
     "description": "current in uA",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : false,
-    "history" : true
+    "visible" : 0,
+    "history" : 1
   },
   "distance": {
     "name": "Distance",
     "description": "distance in mm",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : false,
-    "history" : true
+    "visible" : 0,
+    "history" : 1
   },
   "capacitance": {
     "name": "Capacitance",
     "description": "capacitance in pF",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : false,
-    "history" : true
+    "visible" : 0,
+    "history" : 1
   },
   "accelerometer": {
     "name": "Accelerometer",
     "description": "accelerometer",
     "type" : "info",
     "sub_type" : "string",
-    "visible" : false,
-    "history" : false
+    "visible" : 0,
+    "history" : 0
   },
   "txpower": {
     "name": "TX Power",
     "description": "",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : false,
-    "history" : false
+    "visible" : 0,
+    "history" : 0
   },
   "button_1": {
     "name": "Button 1",
     "description": "Rocker switch 1",
     "type" : "info",
     "sub_type" : "string",
-    "visible" : true,
-    "history" : false
+    "visible" : 1,
+    "history" : 0
   },
   "button_2": {
     "name": "Button 2",
     "description": "Rocker switch 2",
     "type" : "info",
     "sub_type" : "string",
-    "visible" : true,
-    "history" : false
+    "visible" : 1,
+    "history" : 0
   }
 }
 JSON_EOT;
@@ -834,33 +834,33 @@ JSON_EOT;
     "description": "",
     "type" : "info",
     "sub_type" : "numeric",
-    "visible" : true,
-    "history" : true,
+    "visible" : 1,
+    "history" : 1,
     "min_value" : -110,
     "max_value" : -10
     */
 
 
-        $v_visible = false;
+        $v_visible = 0;
         if (isset($v_cmd_info['visible'])) {
           $v_visible = $v_cmd_info['visible'];
         }
         if ($p_visibility == 'visible') {
-          $v_visible = true;
+          $v_visible = 1;
         }
         else if ($p_visibility == 'notvisible') {
-          $v_visible = false;
+          $v_visible = 0;
         }
 
-        $v_historization = false;
+        $v_historization = 0;
         if (isset($v_cmd_info['history'])) {
           $v_historization = $v_cmd_info['history'];
         }
         if ($p_historization == 'historization') {
-          $v_historization = true;
+          $v_historization = 1;
         }
         else if ($p_historization == 'nohistorization') {
-          $v_historization = false;
+          $v_historization = 0;
         }
 
         ArubaIotLog::log('debug', "Create Cmd '".$p_cmd_id."' for device.");

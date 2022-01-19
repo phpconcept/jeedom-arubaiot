@@ -81,15 +81,15 @@ arubaiot_jeedom
 19=desktop\js\ArubaIot_Configuration.js
 20=plugin_info\pre_install.php
 21=resources\install_apt.sh
-22=3rparty\awss\aruba-ws-server.php
-23=3rparty\awss\README.md
+22=3rparty\awss\README.md
 [Selected Project Files]
 Main=
 Selected=core\class\ArubaIot.class.php
 [core\class\ArubaIot.class.php]
-TopLine=483
-Caret=24,512
+TopLine=11
+Caret=8,34
 Mark1=50,851
+Mark2=31,846
 [core\i18n\fr_FR.json]
 TopLine=1
 Caret=1,1
@@ -153,9 +153,6 @@ Caret=3,26
 [resources\install_apt.sh]
 TopLine=1
 Caret=17,12
-[3rparty\awss\aruba-ws-server.php]
-TopLine=7013
-Caret=1,7017
 [3rparty\awss\README.md]
 TopLine=275
 Caret=70,292
