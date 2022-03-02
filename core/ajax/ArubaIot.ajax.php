@@ -28,7 +28,7 @@ try {
     ajax::init();
 
 	if (init('action') == 'changeIncludeState') {
-		ArubaIot::changeIncludeState(init('state'), init('type'), init('generic_with_local'), init('generic_with_mac'), init('generic_mac_prefix'), init('generic_max_devices'));
+		ArubaIot::changeIncludeState(init('state'), init('type'), init('unclassified_with_local'), init('unclassified_with_mac'), init('unclassified_mac_prefix'), init('unclassified_max_devices'));
 		ajax::success();
 	}
 

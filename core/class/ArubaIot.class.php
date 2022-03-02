@@ -165,7 +165,7 @@ class ArubaIot extends eqLogic {
 	}
 
 
-	public static function changeIncludeState($p_state, $p_type='', $p_generic_with_local=0, $p_generic_with_mac=0, $p_generic_mac_prefix='', $p_generic_max_devices=3) {
+	public static function changeIncludeState($p_state, $p_type='', $p_unclassified_with_local=0, $p_unclassified_with_mac=0, $p_unclassified_mac_prefix='', $p_unclassified_max_devices=3) {
 
       ArubaIotLog::log( 'info',  "Change inclusion state to : ".$p_state);
 
@@ -179,10 +179,10 @@ class ArubaIot extends eqLogic {
 
       $v_data = array('state' => $p_state,
                       'type' => $v_type_str,
-                      'generic_with_local' => $p_generic_with_local,
-                      'generic_with_mac' => $p_generic_with_mac,
-                      'generic_mac_prefix' => $p_generic_mac_prefix,
-                      'generic_max_devices' => $p_generic_max_devices );
+                      'unclassified_with_local' => $p_unclassified_with_local,
+                      'unclassified_with_mac' => $p_unclassified_with_mac,
+                      'unclassified_mac_prefix' => $p_unclassified_mac_prefix,
+                      'unclassified_max_devices' => $p_unclassified_max_devices );
       self::talkToWebsocket('include_mode', $v_data);
 
 	}
@@ -213,7 +213,7 @@ class ArubaIot extends eqLogic {
      *  Today defined class in Aruba protobuf description :
      *
         enum deviceClassEnum {
-            unclassified                            = 0;     ==> generic
+            unclassified                            = 0;     ==> unclassified
             arubaBeacon                             = 1;
             arubaTag                                = 2;
             zfTag                                   = 3;
@@ -252,7 +252,8 @@ class ArubaIot extends eqLogic {
      *
      */
 	public static function supportedDeviceType($p_format='list' ) {
-
+      static $v_class_list = null;
+      
       $v_result = array();
 
       /*
@@ -263,7 +264,7 @@ class ArubaIot extends eqLogic {
       $v_class_list['arubaTag'] = 'arubaTag';
       $v_class_list['arubaBeacon'] = 'arubaBeacon';
       $v_class_list['iBeacon'] = 'iBeacon';
-      $v_class_list['generic'] = 'generic';
+      $v_class_list['unclassified'] = 'unclassified';
         */
 
 
@@ -273,7 +274,7 @@ class ArubaIot extends eqLogic {
                             'arubaTag' => 'arubaTag',
                             'arubaBeacon' => 'arubaBeacon',
                             'iBeacon' => 'iBeacon',
-                            'generic' => 'generic'
+                            'unclassified' => 'unclassified'
                             );
 
       if ($p_format == 'description') {
@@ -322,7 +323,7 @@ class ArubaIot extends eqLogic {
       $v_result = null;
 
       /*
-      For generic type see : https://github.com/jeedom/core/blob/beta/core/config/jeedom.config.php
+      For unclassified type see : https://github.com/jeedom/core/blob/beta/core/config/jeedom.config.php
       */
 
       $v_cmds_json = <<<JSON_EOT
@@ -565,7 +566,7 @@ JSON_EOT;
                            'arubaTag' => '__dynamic_command',
                            'arubaBeacon' => 'presence,triangulation,__dynamic_command',
                            'iBeacon' => '',
-                           'generic' => '__none'
+                           'unclassified' => '__none'
                            );
 
       if (isset($v_deny_list[$p_class_name])) {
@@ -747,7 +748,7 @@ JSON_EOT;
           $this->createCmd('nearest_ap', 'visible');
           $this->createCmd('triangulation');
         break;
-        case 'generic' :
+        case 'unclassified' :
           $this->createCmd('presence', 'visible');
           $this->createCmd('rssi');
           $this->createCmd('nearest_ap', 'visible');
