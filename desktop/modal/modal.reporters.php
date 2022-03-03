@@ -86,23 +86,23 @@ else {
             <h3 class="panel-title">Websocket Server</h3>
         </div>
         <div class="panel-body">
-            <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Status : </label>
+            <div class=" control-label ">
+                <label >Status : </label>
 <?php if ($v_websocket['status'] == "Up") {
-                echo '<div><i style="color: green;" class="fa fa-check"></i>&nbsp;&nbsp;Up since '.date("d/m/Y H:i:s", $v_websocket['up_time']).'</div>';
+                echo '<span><i style="color: green;" class="fa fa-check"></i>&nbsp;&nbsp;Up since '.date("d/m/Y H:i:s", $v_websocket['up_time']).'</span>';
  } else {
-                echo '<div><i style="color: red;" class="fa fa-info-circle"></i>&nbsp;&nbsp;Down</div>';
+                echo '<span><i style="color: red;" class="fa fa-info-circle"></i>&nbsp;&nbsp;Down</span>';
 
  } ?>
+                <br>
+                <label >IP Address : </label>
+                <span><?php echo $v_websocket['ip_address']; ?></span>
+                <br>
+                <label >Port TCP : </label>
+                <span><?php echo $v_websocket['tcp_port']; ?></span>
+                                
             </div>
-            <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">IP Address : </label>
-                <div><?php echo $v_websocket['ip_address']; ?></div>
-            </div>
-            <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">Port TCP : </label>
-                <div><?php echo $v_websocket['tcp_port']; ?></div>
-            </div>
+
         </div>
         <br />
     </div>
@@ -115,8 +115,8 @@ else {
         </div>
         <div class="panel-body">
                 <div>
-                    <label class="col-sm-3 control-label" style="margin-bottom: 0;">Nombre de Reporters : </label>
-                    <div><?php echo sizeof($v_list); ?></div>
+                    <label class=" control-label" >Nombre de Reporters : </label>
+                    <span><?php echo sizeof($v_list); ?></span>
                 </div>
         </div>
         <br />
@@ -142,7 +142,7 @@ else {
                         <th data-sort="string" style="text-align: center; width:100px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{RTLS}}</span></th>
                         <th data-sort="string" style=" width:150px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{Modèle}}</span></th>
                         <th data-sort="string" style=" width:200px;" class="scanTd"><span class="scanHender"><b class="caret"></b>{{Version}}</span></th>
-                        <th data-sort="string" class="scanTd" style="width:170px;"><span class="scanHender"><b class="caret"></b> {{Date de mise à jour}}</span></th>
+                        <th data-sort="string" class="scanTd" style="width:170px;"><span class="scanHender"><b class="caret"></b> {{Date connexion}}</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -169,7 +169,7 @@ else {
 <?php } ?>
         <td class="scanTd" ><span style="display:none;"></span> <?php echo $v_reporter["model"]; ?> </td>
         <td class="scanTd " ><span style="display:none;"></span> <?php echo $v_reporter["version"]; ?> </td>
-        <td class="scanTd "><span style="display:none;"></span> <?php echo date("d/m/Y H:i:s", $v_reporter["lastseen"]); ?></td>
+        <td class="scanTd "><span style="display:none;"></span> <?php echo date("d/m/Y H:i:s", $v_reporter["uptime"]); ?></td>
       </tr>
 
 <?php

@@ -251,7 +251,7 @@ class ArubaIot extends eqLogic {
 
      *
      */
-	public static function supportedDeviceType($p_format='list' ) {
+	public static function supportedDeviceType_BAK($p_format='list' ) {
       static $v_class_list = null;
       
       $v_result = array();
@@ -289,6 +289,53 @@ class ArubaIot extends eqLogic {
 
       return($v_result);
 	}
+
+	public static function supportedDeviceType($p_format='list' ) {
+      static $v_class_list = null;
+      
+      // ----- Load class list from AWSS
+      if ($v_class_list === null) {
+        $v_data = array('state' => $p_state,
+                        'type' => $v_type_str,
+                        'unclassified_with_local' => $p_unclassified_with_local,
+                        'unclassified_with_mac' => $p_unclassified_with_mac,
+                        'unclassified_mac_prefix' => $p_unclassified_mac_prefix,
+                        'unclassified_max_devices' => $p_unclassified_max_devices );
+
+        $v_val = self::talkToWebsocket('vendor_list', $v_data);
+        $v_result = json_decode($v_val, true);
+        
+        if (!isset($v_result['data'])) {
+          // TBC
+        }
+        
+        $v_class_list['auto'] = 'Découvrir automatiquement';
+        $v_class_list['unclassified:unclassified'] = 'Unclassified';
+        foreach ($v_result['data']['vendor_list'] as $v_key => $v_vendor) {
+          foreach ($v_vendor['devices'] as $v_device) {
+            $v_intern_class = $v_vendor['vendor_id'].':'.$v_device['model_id'];
+            $v_intern_name = $v_vendor['name'].' - '.$v_device['name'];
+            $v_class_list[$v_intern_class] = $v_intern_name;
+          }         
+        }
+      }
+      
+      $v_result = array();
+
+      if ($p_format == 'description') {
+        $v_result = $v_class_list;
+      }
+      //else if ($p_format == 'list') {
+      else {
+        foreach ($v_class_list as $v_key => $v_class) {
+          $v_result[] = $v_key;
+        }
+      }
+
+      return($v_result);
+	}
+
+
 
     /*
      * $p_device_type :
@@ -560,6 +607,7 @@ JSON_EOT;
       // automatically added to an object of this class
       // For exemple : no sense to have a presence information for an enocean sensor
       // command '__dynamic_command' is a flag to forbid dynamic commands (like for rockets telemetry data)
+      /*
       $v_deny_list = array('auto' => '__none',
                            'enoceanSwitch' => 'presence,rssi,triangulation', // comma separated list
                            'enoceanSensor' => 'presence,triangulation',
@@ -567,6 +615,14 @@ JSON_EOT;
                            'arubaBeacon' => 'presence,triangulation,__dynamic_command',
                            'iBeacon' => '',
                            'unclassified' => '__none'
+                           );
+                           */
+      $v_deny_list = array('auto' => '__none',
+                           'EnOcean:Switch' => 'presence,rssi,triangulation', // comma separated list
+                           'EnOcean:Sensor' => 'presence,triangulation',
+                           'Aruba:Tag' => '__dynamic_command',
+                           'Aruba:Beacon' => 'presence,triangulation,__dynamic_command',
+                           'unclassified:unclassified' => '__none'
                            );
 
       if (isset($v_deny_list[$p_class_name])) {
@@ -707,7 +763,8 @@ JSON_EOT;
 
 	public function getImage() {
         $v_class = $this->getConfiguration('class_type', '');
-	  	$file = 'plugins/ArubaIot/desktop/images/'.$v_class.'.png';
+        $v_icon = str_replace(':', '_', $v_class);
+	  	$file = 'plugins/ArubaIot/desktop/images/'.$v_icon.'.png';
 		if(!file_exists(__DIR__.'/../../../../'.$file)){
 			return 'plugins/ArubaIot/plugin_info/ArubaIot_icon.png';
 		}
@@ -742,28 +799,28 @@ JSON_EOT;
 
 
       switch ($v_class_name) {
-        case 'arubaTag' :
+        case 'Aruba:Tag' :
           $this->createCmd('presence', 'visible');
           $this->createCmd('rssi');
           $this->createCmd('nearest_ap', 'visible');
           $this->createCmd('triangulation');
         break;
-        case 'unclassified' :
+        case 'unclassified:unclassified' :
           $this->createCmd('presence', 'visible');
           $this->createCmd('rssi');
           $this->createCmd('nearest_ap', 'visible');
           $this->createCmd('triangulation');
         break;
-        case 'arubaBeacon' :
+        case 'Aruba:Beacon' :
           $this->createCmd('rssi', 'notvisible', 'nohistorization');
           // Battery is by default;
         break;
-        case 'enoceanSensor' :
+        case 'EnOcean:Sensor' :
           $this->createCmd('rssi', 'notvisible', 'nohistorization');
           $this->createCmd('illumination');
           $this->createCmd('occupancy');
         break;
-        case 'enoceanSwitch' :
+        case 'EnOcean:Switch' :
           $this->createCmd('rssi', 'notvisible', 'nohistorization');
           // will be learn depending of switch type
         break;

@@ -65,16 +65,16 @@ else {
         <div class="panel-body">
 
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Total données reçues}} : </label>
-                <div><?php echo $v_global['raw_data_total_size']; ?> {{bytes}}</div>
+                <label class=" control-label" style="margin-bottom: 0;">{{Total données reçues}} : </label>
+                <span><?php echo $v_global['raw_data_total_size']; ?> {{bytes}}</span>
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Bande passante moyenne consommée}} : </label>
-                <div><?php echo round(($v_global['uptime'] != 0 ? $v_global['raw_data_total_size']/$v_global['uptime'] : 0), 2); ?> {{bytes/sec}}</div>
+                <label class=" control-label" style="margin-bottom: 0;">{{Bande passante moyenne consommée}} : </label>
+                <span><?php echo round(($v_global['uptime'] != 0 ? $v_global['raw_data_total_size']/$v_global['uptime'] : 0), 2); ?> {{bytes/sec}}</span>
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Total données télémetrie reçues}} : </label>
-                <div><?php echo $v_global['msg_total_size']; ?> bytes</div>
+                <label class=" control-label" style="margin-bottom: 0;">{{Total données télémetrie reçues}} : </label>
+                <span><?php echo $v_global['msg_total_size']; ?> bytes</span>
             </div>
 
             <div>
@@ -101,46 +101,46 @@ else {
         <div class="panel-body">
 
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Taille totale des données reçues}} : </label>
-                <div><?php echo $v_reporter['stats']['msg_total_bytes']; ?> bytes</div>
+                <label class=" control-label" style="margin-bottom: 0;">{{Taille totale des données reçues}} : </label>
+                <span><?php echo $v_reporter['stats']['msg_total_bytes']; ?> bytes</span>
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Bande passante moyenne consommée}} : </label>
-                <div><?php echo round(($v_reporter['uptime'] != 0 ? $v_reporter['stats']['msg_total_bytes']/$v_reporter['uptime'] : 0),2); ?> bytes/sec</div>
-            </div>
-            <div>
-                &nbsp;
-            </div>
-            <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Nombre de messages reçus}} : </label>
-                <div><?php echo $v_reporter['stats']['msg_count']; ?></div>
-            </div>
-            <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Taille moyenne d'un message}} : </label>
-                <div><?php echo round($v_reporter['stats']['msg_size_average'], 0); ?> bytes</div>
-            </div>
-            <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Taille maximale d'un message}} : </label>
-                <div><?php echo $v_reporter['stats']['msg_size_max']; ?> bytes</div>
-            </div>
-            <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Taille minimum d'un message}} : </label>
-                <div><?php echo $v_reporter['stats']['msg_size_min']; ?> bytes</div>
+                <label class=" control-label" style="margin-bottom: 0;">{{Bande passante moyenne consommée}} : </label>
+                <span><?php echo round(($v_reporter['uptime'] != 0 ? $v_reporter['stats']['msg_total_bytes']/$v_reporter['uptime'] : 0),2); ?> bytes/sec</span>
             </div>
             <div>
                 &nbsp;
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Interval moyen entre deux messages}} : </label>
-                <div><?php echo round($v_reporter['stats']['msg_rate_average'],0); ?> secondes</div>
+                <label class=" control-label" style="margin-bottom: 0;">{{Nombre de messages reçus}} : </label>
+                <span><?php echo $v_reporter['stats']['msg_count']; ?></span>
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Interval maximal entre deux messages}} : </label>
-                <div><?php echo $v_reporter['stats']['msg_rate_max']; ?> secondes</div>
+                <label class=" control-label" style="margin-bottom: 0;">{{Taille moyenne d'un message}} : </label>
+                <span><?php echo round($v_reporter['stats']['msg_size_average'], 0); ?> bytes</span>
             </div>
             <div>
-                <label class="col-sm-3 control-label" style="margin-bottom: 0;">{{Interval minimal entre deux messages}} : </label>
-                <div><?php echo $v_reporter['stats']['msg_rate_min']; ?> secondes</div>
+                <label class=" control-label" style="margin-bottom: 0;">{{Taille maximale d'un message}} : </label>
+                <span><?php echo $v_reporter['stats']['msg_size_max']; ?> bytes</span>
+            </div>
+            <div>
+                <label class=" control-label" style="margin-bottom: 0;">{{Taille minimum d'un message}} : </label>
+                <span><?php echo $v_reporter['stats']['msg_size_min']; ?> bytes</span>
+            </div>
+            <div>
+                &nbsp;
+            </div>
+            <div>
+                <label class=" control-label" style="margin-bottom: 0;">{{Interval moyen entre deux messages}} : </label>
+                <span><?php echo round($v_reporter['stats']['msg_rate_average'],0); ?> secondes</span>
+            </div>
+            <div>
+                <label class=" control-label" style="margin-bottom: 0;">{{Interval maximal entre deux messages}} : </label>
+                <span><?php echo $v_reporter['stats']['msg_rate_max']; ?> secondes</span>
+            </div>
+            <div>
+                <label class=" control-label" style="margin-bottom: 0;">{{Interval minimal entre deux messages}} : </label>
+                <span><?php echo $v_reporter['stats']['msg_rate_min']; ?> secondes</span>
             </div>
 
             <div>

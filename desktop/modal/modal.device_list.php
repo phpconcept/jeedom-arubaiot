@@ -37,7 +37,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
     <?php
 foreach ($eqLogics as $eqLogic) {
     $v_class = $eqLogic->getConfiguration('class_type', '');
-    if (($v_class == 'enoceanSensor') || ($v_class == 'enoceanSwitch')) {
+    if (($v_class == 'EnOcean:Sensor') || ($v_class == 'EnOcean:Switch')) {
     	$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
     	echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
     	echo '<img src="' . $eqLogic->getImage() . '"/>';
@@ -55,7 +55,7 @@ foreach ($eqLogics as $eqLogic) {
     <?php
 foreach ($eqLogics as $eqLogic) {
     $v_class = $eqLogic->getConfiguration('class_type', '');
-    if ($v_class == 'arubaTag') {
+    if ($v_class == 'Aruba:Tag') {
     	$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
     	echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
     	echo '<img src="' . $eqLogic->getImage() . '"/>';
@@ -73,7 +73,7 @@ foreach ($eqLogics as $eqLogic) {
     <?php
 foreach ($eqLogics as $eqLogic) {
     $v_class = $eqLogic->getConfiguration('class_type', '');
-    if (($v_class != 'arubaTag') && ($v_class != 'enoceanSensor') && ($v_class != 'enoceanSwitch')) {
+    if (($v_class != 'Aruba:Tag') && ($v_class != 'EnOcean:Sensor') && ($v_class != 'EnOcean:Switch')) {
     	$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
     	echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
     	echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
