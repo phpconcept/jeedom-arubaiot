@@ -57,53 +57,7 @@ function addCmdToTable(_cmd) {
 /*
  * Management of inclusion
  */
-$('.changeIncludeState_OLD').off('click').on('click', function () {
-
-  var el = $(this);
-  jeedom.config.save({
-    plugin : 'ArubaIot',
-    configuration: {autoDiscoverEqLogic: el.attr('data-state')},
-    error: function (error) {
-      $('#div_alert').showAlert({message: error.message, level: 'danger'});
-    },
-    success: function () {
-      if (el.attr('data-state') == 1) {
-        $.hideAlert();
-        $('.changeIncludeState').attr('data-state', 0);
-        $('.changeIncludeState.card span').text('{{Arrêter l\'inclusion}}');
-        $('#div_inclusionAlert').showAlert({message: '{{Vous êtes en mode inclusion. Recliquez sur le bouton d\'inclusion pour sortir de ce mode}}', level: 'warning'});
-      } else {
-        $.hideAlert();
-        $('.changeIncludeState').attr('data-state', 1);
-        $('.changeIncludeState.card span').text('{{Mode inclusion}}');
-        $('#div_inclusionAlert').hideAlert();
-      }
-    }
-  });
-
-  $.ajax({
-    type: "POST",
-    url: "plugins/ArubaIot/core/ajax/ArubaIot.ajax.php",
-    data: {
-      action: "changeIncludeState",
-      state: $(this).attr('data-state')
-    },
-    dataType: 'json',
-    error: function (request, status, error) {
-      handleAjaxError(request, status, error);
-    },
-    success: function (data) {
-      if (data.state != 'ok') {
-        $('#div_alert').showAlert({message: data.result, level: 'danger'});
-        return;
-      }
-    }
-  });
-});
-
-
-
-$('.changeIncludeState').off('click').on('click', function () {
+$('.changeIncludeState_SAVE').off('click').on('click', function () {
 
   var mode = $(this).attr('data-mode');
   var state = $(this).attr('data-state');
@@ -178,6 +132,207 @@ $('.changeIncludeState').off('click').on('click', function () {
 });
 
 
+$('.changeIncludeState').off('click').on('click', display_changeIncludeState); 
+
+function display_changeIncludeState() {
+
+  var mode = $(this).attr('data-mode');
+  var state = $(this).attr('data-state');
+  if (mode != 1 || mode == 1  && state == 0) {
+    changeIncludeState(state, mode);
+  }
+  else {
+    var dialog_title = '';
+    var dialog_message = '<form class="form-horizontal onsubmit="return false;"> ';
+    dialog_title = '<label class="control-label" >{{Mode Inclusion}}</label>';
+    dialog_message += '<label class="control-label" > {{Sélectionner le type d\'équipement à inclure :}} </label> ' +
+
+    '<br><blockquote>' +
+    '<input type="checkbox" name="class_type" value="enoceanSwitch" checked /> {{enoceanSwitch}}<br>' +
+    '<input type="checkbox" name="class_type" value="enoceanSensor" /> {{enoceanSensor}}<br>' +
+    '<input type="checkbox" name="class_type" value="arubaTag" /> {{arubaTag}}<br>' +
+    '<input type="checkbox" name="class_type" value="arubaBeacon" /> {{arubaBeacon}}<br>' +
+    '<input type="checkbox" name="class_type" value="generic" /> {{generic}}<br>' +
+    '<blockquote>' +
+    '<input type="checkbox" name="generic_with_local" value="1" /> {{only with local info present}}<br>' +
+    '<input type="checkbox" name="generic_with_mac" value="1" /> {{filtered by mac prefix}} : <input type="text" id="mac_prefix" name="mac_prefix" value="XX:XX:XX" /><br>' +
+    '{{Limited to a maximum of}} <input type="text" id="max_devices" name="max_devices" value="3" style="width:50px;"/> {{generic devices}}<br>' +
+    '</blockquote>' +
+    '</blockquote>' +
+        '';
+
+    dialog_message += '</form>';
+    bootbox.dialog({
+      title: dialog_title,
+      message: dialog_message,
+      buttons: {
+        "{{Annuler}}": {
+          className: "btn-danger",
+          callback: function () {
+          }
+        },
+        success: {
+          label: "{{Démarrer}}",
+          className: "btn-success",
+          callback: function () {
+
+            var mac_prefix = '';
+            var with_local = 0;
+            var with_mac = 0;
+            var my_array = [];
+            $("input:checkbox[name=class_type]:checked").each(function() {
+                var v_val = $(this).val();
+                if (v_val == 'generic') {
+                  $("input[type='checkbox'][name='generic_with_local']:checked").each(function() {with_local = 1;});
+                  $("input[type='checkbox'][name='generic_with_mac']:checked").each(function() {with_mac = 1;mac_prefix = $("input[type='text'][name='mac_prefix']").val();});
+                //alert('with_mac='+with_mac);
+                //alert('mac_prefix='+mac_prefix);
+                //alert('with_local='+with_local);
+                }
+
+                my_array.push(v_val);
+            });
+            var v_type = JSON.stringify(my_array);
+
+            var max_devices = $("input[type='text'][name='max_devices']").val();
+
+            // ----- Exemple to get values
+            //var type = $("input[name='type']:checked").val();
+
+            // ----- Call the websocket
+            changeIncludeState(state, mode, v_type, with_local, with_mac, mac_prefix, max_devices);
+          }
+        },
+      }
+    });
+  }
+}
+
+$('.displayInclude').off('click').on('click', display_changeIncludeState_NEW); 
+
+function display_changeIncludeState_NEW() {
+
+  $('#md_modal').dialog({title: "Include Mode"});
+  $('#md_modal').load('index.php?v=d&plugin=ArubaIot&modal=modal.include&id=' + $('.eqLogicAttr[data-l1key=id]').value()).dialog('open');
+
+  return;
+
+
+  var mode = $(this).attr('data-mode');
+  var state = $(this).attr('data-state');
+  if (mode != 1 || mode == 1  && state == 0) {
+    changeIncludeState(state, mode);
+  }
+  else {
+    var dialog_title = '';
+    var dialog_message = '<form class="form-horizontal onsubmit="return false;"> ';
+    dialog_title = '<label class="control-label" >{{Mode Inclusion}}</label>';
+    dialog_message += '<label class="control-label" > {{Sélectionner le type d\'équipement à inclure :}} </label> ' +
+
+    '<br><blockquote>' +
+    '<input type="checkbox" name="class_type" value="enoceanSwitch" checked /> {{enoceanSwitch}}<br>' +
+    '<input type="checkbox" name="class_type" value="enoceanSensor" /> {{enoceanSensor}}<br>' +
+    '<input type="checkbox" name="class_type" value="arubaTag" /> {{arubaTag}}<br>' +
+    '<input type="checkbox" name="class_type" value="arubaBeacon" /> {{arubaBeacon}}<br>' +
+    '<input type="checkbox" name="class_type" value="generic" /> {{generic}}<br>' +
+    '<blockquote>' +
+    '<input type="checkbox" name="generic_with_local" value="1" /> {{only with local info present}}<br>' +
+    '<input type="checkbox" name="generic_with_mac" value="1" /> {{filtered by mac prefix}} : <input type="text" id="mac_prefix" name="mac_prefix" value="XX:XX:XX" /><br>' +
+    '{{Limited to a maximum of}} <input type="text" id="max_devices" name="max_devices" value="3" style="width:50px;"/> {{generic devices}}<br>' +
+    '</blockquote>' +
+    '</blockquote>' +
+        '';
+
+    dialog_message += '</form>';
+    bootbox.dialog({
+      title: dialog_title,
+      message: dialog_message,
+      buttons: {
+        "{{Annuler}}": {
+          className: "btn-danger",
+          callback: function () {
+          }
+        },
+        success: {
+          label: "{{Démarrer}}",
+          className: "btn-success",
+          callback: function () {
+
+            var mac_prefix = '';
+            var with_local = 0;
+            var with_mac = 0;
+            var my_array = [];
+            $("input:checkbox[name=class_type]:checked").each(function() {
+                var v_val = $(this).val();
+                if (v_val == 'generic') {
+                  $("input[type='checkbox'][name='generic_with_local']:checked").each(function() {with_local = 1;});
+                  $("input[type='checkbox'][name='generic_with_mac']:checked").each(function() {with_mac = 1;mac_prefix = $("input[type='text'][name='mac_prefix']").val();});
+                //alert('with_mac='+with_mac);
+                //alert('mac_prefix='+mac_prefix);
+                //alert('with_local='+with_local);
+                }
+
+                my_array.push(v_val);
+            });
+            var v_type = JSON.stringify(my_array);
+
+            var max_devices = $("input[type='text'][name='max_devices']").val();
+
+            // ----- Exemple to get values
+            //var type = $("input[name='type']:checked").val();
+
+            // ----- Call the websocket
+            changeIncludeState(state, mode, v_type, with_local, with_mac, mac_prefix, max_devices);
+          }
+        },
+      }
+    });
+  }
+}
+
+
+function changeIncludeState_SAVE(p_state,_mode,p_type='',p_generic_with_local=0,p_generic_with_mac=0,p_generic_mac_prefix='',p_generic_max_devices=3) {
+
+      if (p_state == 1) {
+        $.hideAlert();
+        $('.changeIncludeState').attr('data-state', 0);
+        $('.changeIncludeState.card span').text('{{Arrêter l\'inclusion}}');
+        $('#div_inclusionAlert').showAlert({message: '{{Vous êtes en mode inclusion. Recliquez sur le bouton d\'inclusion pour sortir de ce mode}}', level: 'warning'});
+        startRefreshDeviceList();
+      } else {
+        $.hideAlert();
+        $('.changeIncludeState').attr('data-state', 1);
+        $('.changeIncludeState.card span').text('{{Mode inclusion}}');
+        $('#div_inclusionAlert').hideAlert();
+        stopRefreshDeviceList();
+      }
+
+  $.ajax({
+    type: "POST",
+    url: "plugins/ArubaIot/core/ajax/ArubaIot.ajax.php",
+    data: {
+      action: "changeIncludeState",
+      state: p_state,
+      type: p_type,
+      generic_with_local: p_generic_with_local,
+      generic_with_mac: p_generic_with_mac,
+      generic_mac_prefix: p_generic_mac_prefix,
+      generic_max_devices: p_generic_max_devices
+    },
+    dataType: 'json',
+    error: function (request, status, error) {
+      handleAjaxError(request, status, error);
+    },
+    success: function (data) {
+      if (data.state != 'ok') {
+        $('#div_alert').showAlert({message: data.result, level: 'danger'});
+        return;
+      }
+    }
+  });
+
+}
+
 function changeIncludeState(p_state,_mode,p_type='',p_generic_with_local=0,p_generic_with_mac=0,p_generic_mac_prefix='',p_generic_max_devices=3) {
 
       if (p_state == 1) {
@@ -220,20 +375,19 @@ function changeIncludeState(p_state,_mode,p_type='',p_generic_with_local=0,p_gen
 
 }
 
-
 /*
  * Display reporters modal
  */
-$('.displayReporters').off('click').on('click', function () {
+$('.displayReporters').off('click').on('click', modal_DisplayReporters);
 
+function modal_DisplayReporters() {
   $('#md_modal').dialog({title: "Reporters List"});
   $('#md_modal').load('index.php?v=d&plugin=ArubaIot&modal=modal.reporters&id=' + $('.eqLogicAttr[data-l1key=id]').value()).dialog('open');
-
-});
+}
 
 
 /*
- * Display  ist of the equipements in the plugin dashboard list
+ * Display  list of the equipements in the plugin dashboard list
  */
 var refresh_timeout;
 
@@ -282,3 +436,5 @@ function stopRefreshDeviceList() {
   $('#device_list').load('index.php?v=d&plugin=ArubaIot&modal=modal.device_list');
   $('#inclusion_message_container').hide();
 }
+
+

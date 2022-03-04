@@ -15,9 +15,13 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
 
 ?>
 <script type="text/javascript">
+
+
   $(document).ready(function() {
     // do this stuff when the HTML is all ready
     refreshDeviceList();
+    
+
   });
 
 </script>
@@ -50,6 +54,12 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
 			?>
 
 
+      <div class="cursor eqLogicAttr displayInclude logoSecondary" data-l1key="titi" >
+        <i class="fas fa-sitemap"></i>
+        <br>
+        <span>NewInclude - Test</span>
+      </div>
+
       <div class="cursor eqLogicAttr displayReporters logoSecondary" data-l1key="toto" >
         <i class="fas fa-sitemap"></i>
         <br>
@@ -79,8 +89,6 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
 
 ?>
         <div id="device_list"></div>
-
-
 
 </div>
 
