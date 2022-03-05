@@ -19,40 +19,39 @@
 
 function modal_include_apply() {
     
-    var state=1;
-    var mode=0;
-    
-            var mac_prefix = '';
-            var with_local = 0;
-            var with_mac = 0;
-            var my_array = [];
-            $("input:checkbox[name=class_type]:checked").each(function() {
-                var v_val = $(this).val();
-                if (v_val == 'generic') {
-                  $("input[type='checkbox'][name='generic_with_local']:checked").each(function() {with_local = 1;});
-                  $("input[type='checkbox'][name='generic_with_mac']:checked").each(function() {with_mac = 1;mac_prefix = $("input[type='text'][name='mac_prefix']").val();});
-                //alert('with_mac='+with_mac);
-                //alert('mac_prefix='+mac_prefix);
-                //alert('with_local='+with_local);
-                }
+  var mac_prefix = '';
+  var with_local = 0;
+  var with_mac = 0;
+  var my_array = [];
+  $("input:checkbox[name=device_type]:checked").each(function() {
+      var v_val = $(this).val();
+      // ----- If unclassifed is checked, look for additional properties
+      if (v_val == 'unclassified:unclassified') {
+        $("input[type='checkbox'][name='include_with_local']:checked").each(function() {with_local = 1;});
+        $("input[type='checkbox'][name='include_with_mac']:checked").each(function() {with_mac = 1;mac_prefix = $("input[type='text'][name='include_mac_prefix']").val();});
+      //alert('with_mac='+with_mac);
+      //alert('mac_prefix='+mac_prefix);
+      //alert('with_local='+with_local);
+      }
 
-                my_array.push(v_val);
-            });
-            var v_type = JSON.stringify(my_array);
-            
-            var max_devices = $("input[type='text'][name='max_devices']").val();
+      my_array.push(v_val);
+  });
+  var v_type = JSON.stringify(my_array);
+  
+  var max_devices = $("input[type='text'][name='include_max']").val();
 
-            // ----- Exemple to get values
-            //var type = $("input[name='type']:checked").val();
-
-            // ----- Call the websocket
-            changeIncludeState(state, mode, v_type, with_local, with_mac, mac_prefix, max_devices);
+  // ----- Exemple to get values
+  //var type = $("input[name='type']:checked").val();
+  
+  // ----- Call the websocket
+  changeIncludeState(1, v_type, with_local, with_mac, mac_prefix, max_devices);
 
   $('#md_modal').dialog('close');
+  
 }
 
 function modal_include_cancel() {
-  //$('#stats').load('index.php?v=d&plugin=ArubaIot&modal=modal.stats');
+  $('#md_modal').dialog('close');
 }
 
 

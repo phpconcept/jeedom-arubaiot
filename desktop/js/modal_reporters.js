@@ -16,7 +16,6 @@
  */
 
 
-
 function refreshStats() {
   $('#stats').load('index.php?v=d&plugin=ArubaIot&modal=modal.stats');
 }

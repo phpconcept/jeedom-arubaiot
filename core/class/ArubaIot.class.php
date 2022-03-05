@@ -290,17 +290,12 @@ class ArubaIot extends eqLogic {
       return($v_result);
 	}
 
-	public static function supportedDeviceType($p_format='list' ) {
+	public static function supportedDeviceType($p_only_classified=false) {
       static $v_class_list = null;
       
       // ----- Load class list from AWSS
       if ($v_class_list === null) {
-        $v_data = array('state' => $p_state,
-                        'type' => $v_type_str,
-                        'unclassified_with_local' => $p_unclassified_with_local,
-                        'unclassified_with_mac' => $p_unclassified_with_mac,
-                        'unclassified_mac_prefix' => $p_unclassified_mac_prefix,
-                        'unclassified_max_devices' => $p_unclassified_max_devices );
+        $v_data = array();
 
         $v_val = self::talkToWebsocket('vendor_list', $v_data);
         $v_result = json_decode($v_val, true);
@@ -309,28 +304,22 @@ class ArubaIot extends eqLogic {
           // TBC
         }
         
-        $v_class_list['auto'] = 'Découvrir automatiquement';
-        $v_class_list['unclassified:unclassified'] = 'Unclassified';
+        if (!$p_only_classified) {
+          $v_class_list['auto'] = 'Découvrir automatiquement';
+          $v_class_list['unclassified:unclassified'] = 'Unclassified';
+        }
         foreach ($v_result['data']['vendor_list'] as $v_key => $v_vendor) {
           foreach ($v_vendor['devices'] as $v_device) {
-            $v_intern_class = $v_vendor['vendor_id'].':'.$v_device['model_id'];
-            $v_intern_name = $v_vendor['name'].' - '.$v_device['name'];
-            $v_class_list[$v_intern_class] = $v_intern_name;
+            if ((!$p_only_classified) || ($p_only_classified && ($v_vendor['type'] == 'classified'))) {
+              $v_intern_class = $v_vendor['vendor_id'].':'.$v_device['model_id'];
+              $v_intern_name = $v_vendor['name'].' - '.$v_device['name'];
+              $v_class_list[$v_intern_class] = $v_intern_name;
+            }
           }         
         }
       }
       
-      $v_result = array();
-
-      if ($p_format == 'description') {
-        $v_result = $v_class_list;
-      }
-      //else if ($p_format == 'list') {
-      else {
-        foreach ($v_class_list as $v_key => $v_class) {
-          $v_result[] = $v_key;
-        }
-      }
+      $v_result = $v_class_list;
 
       return($v_result);
 	}
@@ -344,7 +333,7 @@ class ArubaIot extends eqLogic {
      *   if all the device types are valid
      */
 	public static function isValidDeviceType($p_device_type) {
-      $v_class_list = self::supportedDeviceType(description);
+      $v_class_list = self::supportedDeviceType();
       $v_list = explode(',', $p_device_type);
       $v_result = false;
       foreach ($v_list as $v_item) {
