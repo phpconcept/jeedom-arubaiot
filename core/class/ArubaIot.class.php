@@ -363,6 +363,126 @@ class ArubaIot extends eqLogic {
     /* -------------------------------------------------------------------------*/
 
     /**---------------------------------------------------------------------------
+     * Method : getDeviceByVendorId()
+     * Description :
+     *
+     * Parameters :
+     * Returned Value :
+     * ---------------------------------------------------------------------------
+     */
+    public static function getDeviceByVendorId($p_vendor_id) {
+    
+      $plugin = plugin::byId('ArubaIot');
+      $eqLogics = eqLogic::byType($plugin->getId());
+      
+      $v_list = array();
+      foreach ($eqLogics as $eqLogic) {
+        $v_class = $eqLogic->getConfiguration('class_type', '');
+        $v_ids = explode(':', $v_class);
+        if (isset($v_ids[0]) && ($v_ids[0] == $p_vendor_id)) {
+          $v_list[] = $eqLogic;
+        }
+      }    
+      
+      return($v_list);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : getDeviceByVendorAndModelId()
+     * Description :
+     *
+     * Parameters :
+     * Returned Value :
+     * ---------------------------------------------------------------------------
+     */
+    public static function getDeviceByVendorAndModelId($p_id) {
+    
+      $plugin = plugin::byId('ArubaIot');
+      $eqLogics = eqLogic::byType($plugin->getId());
+      
+      $v_list = array();
+      foreach ($eqLogics as $eqLogic) {
+        $v_class = $eqLogic->getConfiguration('class_type', '');
+        if ($v_class == $p_id) {
+          $v_list[] = $eqLogic;
+        }
+      }    
+      
+      return($v_list);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : getListOfActiveVendorId()
+     * Description :
+     *   Will return in an array the list of vendor_id for which at least one device is created.
+     * Parameters :
+     * Returned Value :
+     * ---------------------------------------------------------------------------
+     */
+    public static function getListOfActiveVendorId() {
+    
+      $plugin = plugin::byId('ArubaIot');
+      $eqLogics = eqLogic::byType($plugin->getId());
+      
+      $v_list = array();
+      foreach ($eqLogics as $eqLogic) {
+        $v_class = $eqLogic->getConfiguration('class_type', '');
+        $v_ids = explode(':', $v_class);
+        if (isset($v_ids[0])) {
+          $v_list[$v_ids[0]] = $v_ids[0];
+        }        
+      }    
+      
+      return($v_list);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : getListOfVendors()
+     * Description :
+     *   Return the vendor description (as of the one received from API).
+     *   if $p_only_active is set to true then will return only the list of 
+     *   vendor for which an device is created in jeedom database.
+     * Parameters :
+     * Returned Value :
+     * ---------------------------------------------------------------------------
+     */
+    public static function getListOfVendors($p_only_active=false) {
+      static $v_class_list = null;
+      
+      // ----- Load class list from AWSS
+      if ($v_class_list === null) {
+        $v_data = array();
+
+        $v_val = self::talkToWebsocket('vendor_list', $v_data);
+        $v_result = json_decode($v_val, true);
+        
+        if (!isset($v_result['data'])) {
+          // TBC
+        }
+        
+        $v_class_list = array();
+        
+        if ($p_only_active) {
+          $v_active_vendors = ArubaIot::getListOfActiveVendorId();
+        }
+        
+        foreach ($v_result['data']['vendor_list'] as $v_key => $v_vendor) {
+          if ((!$p_only_active) || (($p_only_active) && in_array($v_key, $v_active_vendors))) {
+            $v_class_list[$v_key] = $v_vendor;
+          }
+        }
+      }
+      
+      $v_result = $v_class_list;
+
+      return($v_result);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
      * Method : getDefinedCommand()
      * Description :
      *

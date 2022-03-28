@@ -220,7 +220,8 @@
       
       ArubaWssTool::log('debug', "Set properties.");
       $v_jeedom_device->setConfiguration('mac_address', $this->mac_address);
-      $v_jeedom_device->setConfiguration('class_type', $this->classname);
+      //$v_jeedom_device->setConfiguration('class_type', $this->classname);
+      $v_jeedom_device->setConfiguration('class_type', $this->vendor_id.':'.$this->model_id);
       $v_jeedom_device->setConfiguration('vendor_name', $this->vendor_name);
       $v_jeedom_device->setConfiguration('local_name', $this->local_name);
       $v_jeedom_device->setConfiguration('model',  $this->model);
