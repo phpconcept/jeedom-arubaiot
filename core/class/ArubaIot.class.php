@@ -165,6 +165,24 @@ class ArubaIot extends eqLogic {
 	}
 
 
+	public static function getDaemonIncludeMode() {
+      $v_data = array();
+      $v_val = self::talkToWebsocket('websocket_info', $v_data);
+
+      $v_result  = json_decode($v_val, true);
+
+      if (isset($v_result['status'])
+          && ($v_result['status'] == 'success')
+          && isset($v_result['data']['websocket']['include_mode'])) {
+        $v_state = $v_result['data']['websocket']['include_mode'];
+        ArubaIotLog::log( 'debug',  "Current daemon include_state is : ".$v_state);
+        return($v_state);
+      }
+
+      return(null);
+	}
+
+
 	public static function changeIncludeState($p_state, $p_type='', $p_unclassified_with_local=0, $p_unclassified_with_mac=0, $p_unclassified_mac_prefix='', $p_unclassified_max_devices=3) {
 
       ArubaIotLog::log( 'info',  "Change inclusion state to : ".$p_state);

@@ -18,7 +18,9 @@ $eqLogics = eqLogic::byType($plugin->getId());
  <?php   
   // ----- Depending on daemon include state, adapt display
   // TBC : I should not any more store the include status in jeedom attributes,  because available in daemon API
-  if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
+  $v_status = ArubaIot::getDaemonIncludeMode();
+  //if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
+  if ($v_status == 1) {
   	echo 'displayIncludeState(1);';
   } 
   else {
