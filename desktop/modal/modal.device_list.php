@@ -43,6 +43,8 @@ $v_vendor_list = ArubaIot::getListOfVendors(true);
 
 </script>
 
+  <legend><i class="fas fa-table"></i> {{Mes Equipements}}</legend>
+	   <input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic" />
 
 <div class="eqLogicThumbnailContainer"></div>
 

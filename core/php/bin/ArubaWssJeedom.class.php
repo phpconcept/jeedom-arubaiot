@@ -272,6 +272,20 @@
             $v_name = $v_items[sizeof($v_items)-1];
           }
           $this->setName($v_name);
+          
+          // ----- Get classname and vendor/model ids
+          // TBC : to be modified
+          $v_classname = $v_eq_device->getConfiguration('class_type', '');
+          if ($v_classname == 'auto') {
+            $this->classname = 'unclassified:unclassified';
+            $this->classname_autolearn = true;
+          }
+          else {
+            $v_item = explode(':', $v_classname);
+            $this->vendor_id = $v_item[0];
+            $this->model_id = $v_item[1];
+            $this->classname_autolearn = false;
+          }
 
           return(true);
         }

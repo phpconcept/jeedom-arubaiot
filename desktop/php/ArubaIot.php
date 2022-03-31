@@ -67,10 +67,6 @@ $eqLogics = eqLogic::byType($plugin->getId());
         </div>
 
 
-  <legend><i class="fas fa-table"></i> {{Mes Equipements}}</legend>
-	   <input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic" />
-
-
 <?php
 // Here I moved this part of the display to a modal file : modal.device_list.php
 // By doing that I can refresh the list automatically, for
