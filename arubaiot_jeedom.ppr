@@ -92,12 +92,12 @@ arubaiot_jeedom
 27=3rparty\awss\awss\data\devices\aruba_class.json
 [Selected Project Files]
 Main=
-Selected=3rparty\awss\aruba-ws-server.php
+Selected=core\class\ArubaIot.class.php
 [core\class\ArubaIot.class.php]
-TopLine=769
-Caret=46,794
-Mark1=50,1036
-Mark2=31,1031
+TopLine=809
+Caret=7,858
+Mark1=50,1037
+Mark2=31,1032
 [core\i18n\fr_FR.json]
 TopLine=1
 Caret=1,1
@@ -111,8 +111,8 @@ Caret=1,74
 TopLine=98
 Caret=1,136
 [plugin_info\install.php]
-TopLine=83
-Caret=32,95
+TopLine=68
+Caret=19,73
 [plugin_info\info.json]
 TopLine=1
 Caret=25,11
@@ -174,7 +174,7 @@ Caret=1,43
 TopLine=1600
 Caret=19,1625
 [3rparty\awss\aruba-ws-server.php]
-TopLine=7292
+TopLine=7281
 Caret=7,7318
 Mark1=8,2823
 Mark2=39,2562

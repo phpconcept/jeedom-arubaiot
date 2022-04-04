@@ -70,6 +70,8 @@ function ArubaIot_install() {
   }
   log::add('ArubaIot', 'info', "ArubaIot Websocket daemon installed ($active / $enabled)");
 
+// TBC : pour test
+ArubaIot_update();
 }
 
 // Fonction exécutée automatiquement après la mise à jour du plugin
