@@ -855,8 +855,6 @@ JSON_EOT;
     }
 
     public function postUpdate() {
-        $v_mac = $this->getConfiguration('mac_address');
-        ArubaIotLog::log('debug', "postUpdate(".$v_mac.") : this is just a test !");
     }
 
     public function preRemove() {

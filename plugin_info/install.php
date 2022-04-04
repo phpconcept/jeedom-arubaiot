@@ -70,8 +70,6 @@ function ArubaIot_install() {
   }
   log::add('ArubaIot', 'info', "ArubaIot Websocket daemon installed ($active / $enabled)");
 
-// TBC : pour test
-ArubaIot_update();
 }
 
 // Fonction exécutée automatiquement après la mise à jour du plugin
@@ -110,6 +108,7 @@ function ArubaIot_update() {
       $eqLogic->setConfiguration('class_type', $v_new_class);
       log::add('ArubaIot', 'info', "Updating object class from '".$v_class."' to '".$v_new_class."'.");
     }
+
   }
   
   // ----- Add new attributes

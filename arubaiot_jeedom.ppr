@@ -25,7 +25,7 @@ arubaiot_jeedom
 	-Telemetry
 		3rparty\awss\src\aruba_telemetry\Reporter.php
 		3rparty\awss\src\aruba_telemetry\BleData.php
-	-resources
+	+resources
 		resources\ArubaIot-websocket.service
 		resources\install_apt.sh
 	+plugin_info
@@ -92,12 +92,12 @@ arubaiot_jeedom
 27=3rparty\awss\awss\data\devices\aruba_class.json
 [Selected Project Files]
 Main=
-Selected=core\class\ArubaIot.class.php
+Selected=core\php\bin\ArubaWssJeedom.class.php
 [core\class\ArubaIot.class.php]
-TopLine=809
-Caret=7,858
-Mark1=50,1037
-Mark2=31,1032
+TopLine=839
+Caret=1,858
+Mark1=50,1035
+Mark2=31,1030
 [core\i18n\fr_FR.json]
 TopLine=1
 Caret=1,1
@@ -111,8 +111,8 @@ Caret=1,74
 TopLine=98
 Caret=1,136
 [plugin_info\install.php]
-TopLine=68
-Caret=19,73
+TopLine=92
+Caret=1,20
 [plugin_info\info.json]
 TopLine=1
 Caret=25,11
@@ -144,11 +144,11 @@ Caret=1,242
 TopLine=1
 Caret=1,25
 [core\php\bin\ArubaWssJeedom.class.php]
-TopLine=263
-Caret=1,289
+TopLine=1
+Caret=1,7
 [resources\ArubaIot-websocket.service]
 TopLine=1
-Caret=1,11
+Caret=27,16
 [desktop\js\ArubaIot_Configuration.js]
 TopLine=1
 Caret=1,2
@@ -156,8 +156,8 @@ Caret=1,2
 TopLine=1
 Caret=3,26
 [resources\install_apt.sh]
-TopLine=1
-Caret=17,12
+TopLine=55
+Caret=8,74
 [core\ajax\ArubaIot.ajax.php]
 TopLine=13
 Caret=79,31
@@ -174,8 +174,8 @@ Caret=1,43
 TopLine=1600
 Caret=19,1625
 [3rparty\awss\aruba-ws-server.php]
-TopLine=7281
-Caret=7,7318
+TopLine=375
+Caret=39,391
 Mark1=8,2823
 Mark2=39,2562
 Mark3=77,3033
