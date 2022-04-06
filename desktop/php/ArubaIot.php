@@ -7,17 +7,28 @@ sendVarToJS('eqType', $plugin->getId());
 $eqLogics = eqLogic::byType($plugin->getId());
 
 
-if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
-	echo '<div class="alert jqAlert alert-warning" id="div_inclusionAlert" style="margin : 0px 5px 15px 15px; padding : 7px 35px 7px 15px;">{{Vous etes en mode inclusion. Recliquez sur le bouton d\'inclusion pour sortir de ce mode}}</div>';
-} else {
-	echo '<div id="div_inclusionAlert"></div>';
-}
-
 ?>
 <script type="text/javascript">
+
+
   $(document).ready(function() {
     // do this stuff when the HTML is all ready
     refreshDeviceList();
+ 
+ <?php   
+  // ----- Depending on daemon include state, adapt display
+  // TBC : I should not any more store the include status in jeedom attributes,  because available in daemon API
+  $v_status = ArubaIot::getDaemonIncludeMode();
+  //if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
+  if ($v_status == 1) {
+  	echo 'displayIncludeState(1);';
+  } 
+  else {
+  	echo 'displayIncludeState(0);';
+  }
+?>
+    
+
   });
 
 </script>
@@ -32,25 +43,13 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
         <span>{{Ajouter}}</span>
       </div>
 
-			<?php
-			if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
-				echo '<div class="cursor changeIncludeState include card logoSecondary" data-mode="1" data-state="0">';
-				//echo '<i class="fas fa-sign-in-alt fa-rotate-90" style="color:red"></i>';
-				echo '<i class="fas fa-sign-in-alt fa-rotate-90" ></i>';
-				echo '<br/>';
-				echo '<span>{{Arrêter l\'inclusion}}</span>';
-				echo '</div>';
-			} else {
-				echo '<div class="cursor changeIncludeState include card logoSecondary" data-mode="1" data-state="1">';
-				echo '<i class="fas fa-sign-in-alt fa-rotate-90" ></i>';
-				echo '<br/>';
-				echo '<span>{{Mode inclusion}}</span>';
-				echo '</div>';
-			}
-			?>
+      <div class="cursor changeIncludeState include card logoSecondary" data-state="0" onclick="swapIncludeState();">
+        <i class="fas fa-sign-in-alt fa-rotate-90" ></i>
+        <br>
+        <span>{{Mode inclusion}}</span>
+      </div>
 
-
-      <div class="cursor eqLogicAttr displayReporters logoSecondary" data-l1key="toto" >
+      <div class="cursor eqLogicAttr displayReporters logoSecondary" data-l1key="toto" onclick="modal_reporters_display();">
         <i class="fas fa-sitemap"></i>
         <br>
         <span>{{Rapporteurs}}</span>
@@ -68,10 +67,6 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
         </div>
 
 
-  <legend><i class="fas fa-table"></i> {{Mes Equipements}}</legend>
-	   <input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic" />
-
-
 <?php
 // Here I moved this part of the display to a modal file : modal.device_list.php
 // By doing that I can refresh the list automatically, for
@@ -79,8 +74,6 @@ if (config::byKey('include_mode', 'ArubaIot', 0) == 1) {
 
 ?>
         <div id="device_list"></div>
-
-
 
 </div>
 
@@ -154,7 +147,7 @@ foreach (jeeObject::all() as $object) {
         <div class="col-sm-3">
           <select id="cluster" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="class_type">
             <?php
-              $v_list = ArubaIot::supportedDeviceType('description' );
+              $v_list = ArubaIot::supportedDeviceType();
               foreach ($v_list as $v_index => $v_item) {
                 echo '<option value="'.$v_index.'">'.$v_item.'</option>"';
               }

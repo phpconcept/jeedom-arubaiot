@@ -16,102 +16,6 @@
   require_once __DIR__.'/../../../../../plugins/ArubaIot/core/php/ArubaIot.inc.php';
 
 
-/*
-  For testing / Temporary testings
-  class ArubaIot {
-    var $id;
-    public function __construct() {
-      $this->id = uniqid();
-    }
-    public function getId() {
-      return($this->id);
-    }
-    public function getIsEnable() {
-      return(1);
-    }
-    public function refreshWidget() {
-      return(0);
-    }
-    public function setName($p_value) {
-      return(0);
-    }
-    public function setEqType_name($p_value) {
-      return(0);
-    }    
-    public function setIsEnable($p_value) {
-      return(0);
-    }        
-    public function batteryStatus($p_cmd_value) {
-      return(0);
-    }
-    public function getConfiguration($p_cmd_id, $p_cmd_id2) {
-      return(0);
-    }
-    public function setConfiguration($p_cmd_id, $p_cmd_value) {
-      return(0);
-    }
-    public function save() {
-      return(0);
-    }
-    public function createAndUpdateCmd($p_cmd_id, $p_cmd_value) {
-      return(0);
-    }
-    public function createAndUpdateDynCmd($p_cmd_id, $p_cmd_value, $p_cmd_name='', $p_cmd_type='info', $p_cmd_subtype='string', $p_cmd_isHistorized=false) {
-      return(0);
-    }
-    public function purgeTriangulation() {
-      return(0);
-    }
-    public function purgeTriangulationList(&$p_triangulation_list) {
-      return(0);
-    }
-    public function cmdUpdateTriangulation($p_reporter_mac, $p_rssi, $p_timestamp) {
-      return(0);
-    }
-    public function cmdUpdateNearestAP($p_nearest_ap_mac, $p_nearest_ap_name='') {
-      return(0);
-    }    
-  }
-
-  class jeedomWrapper {
-    var $id;
-    public function byId($p_id) {
-      $v_value = null;
-      return($v_value);
-    }
-    public function byType($p_type) {
-      $v_value = array();
-      return($v_value);
-    }
-  }
-
-  // wrapper
-  class eqLogic {
-    public function byId($p_id) {
-      $v_value = null;
-      return($v_value);
-    }
-    public function byType($p_type) {
-      $v_value = array();
-      return($v_value);
-    }
-  }
-  // wrappers
-  class config {
-    public function byKey($p_name, $p_name2) {
-      return(ArubaWssTool::getConfig($p_name));
-    }
-  }
-  class jeedom {
-    public function getApiKey($p_name) {
-      return('123');
-    }
-  }
-*/
- 
- 
- 
- 
   /**---------------------------------------------------------------------------
    * Class : ArubaWssDeviceJeedom
    * Description :
@@ -127,7 +31,24 @@
      * Description :
      * ---------------------------------------------------------------------------
      */
-    static function extension_log($p_level, $p_message) {
+    static function extension_log($p_type, $p_sub_type, $p_level, $p_message) {
+      static $s_fd = null;
+      
+      // ----- Filter debug type (too many messages)
+      if ($p_type == 'debug') {
+        return;
+      }
+      
+      // ----- Open log file ig not yet opened
+      if ($s_fd === null) {
+        $s_fd = fopen('/var/www/html/log/ArubaIot_daemon', 'a');
+      }
+      
+      // ----- Write message
+      fwrite($s_fd, '['.date("Y-m-d H:i:s").'] ['.$p_type.']:'.$p_message."\n");
+      
+      // ----- No need to close, to lower the load to reopen
+      //fclose($fd);
     }
     /* -------------------------------------------------------------------------*/
 
@@ -203,7 +124,8 @@
       
       ArubaWssTool::log('debug', "Set properties.");
       $v_jeedom_device->setConfiguration('mac_address', $this->mac_address);
-      $v_jeedom_device->setConfiguration('class_type', $this->classname);
+      //$v_jeedom_device->setConfiguration('class_type', $this->classname);
+      $v_jeedom_device->setConfiguration('class_type', $this->vendor_id.':'.$this->model_id);
       $v_jeedom_device->setConfiguration('vendor_name', $this->vendor_name);
       $v_jeedom_device->setConfiguration('local_name', $this->local_name);
       $v_jeedom_device->setConfiguration('model',  $this->model);
@@ -254,6 +176,40 @@
             $v_name = $v_items[sizeof($v_items)-1];
           }
           $this->setName($v_name);
+          
+          // ----- Get classname and vendor/model ids
+          // TBC : to be modified
+          $v_classname = $v_eq_device->getConfiguration('class_type', '');
+          //ArubaWssTool::log('info', "Device classname : ".$v_classname." ");
+          if ($v_classname == 'auto') {
+            $this->classname = 'unclassified:unclassified';
+            $this->classname_autolearn = true;
+          }
+          else if (strpos($v_classname, ':') !== false) {
+            $v_item = explode(':', $v_classname);
+            $this->vendor_id = $v_item[0];
+            $this->model_id = $v_item[1];
+            $this->classname_autolearn = false;
+          }
+          // ----- Need to extract old class name to new names
+          // Here is the best way I found to update the device type ...
+          else {
+            if ($v_classname == 'generic') {
+              $v_classname = 'unclassified';
+            }
+            $v_new_classname = ArubaWssTool::arubaClassToVendor($v_classname);
+            $this->vendor_id = $v_new_classname['vendor_id'];
+            $this->model_id = $v_new_classname['model_id'];
+            $this->classname = $this->vendor_id.':'.$this->model_id;
+            $this->classname_autolearn = false;
+            ArubaWssTool::log('info', "New device classname : ".$this->classname." ");
+            
+            // ----- Save in Jeedom
+            $v_eq_device->setConfiguration('trick_save_from_daemon', 'on');
+            $v_eq_device->setConfiguration('class_type', $this->classname);
+            $v_eq_device->save();
+            $v_eq_device->setConfiguration('trick_save_from_daemon', 'off');
+          }
 
           return(true);
         }
@@ -378,24 +334,6 @@
           ArubaWssTool::log('debug', " -> Update '".$this->telemetry_value_list[$v_name]['name']."'");
           $v_refresh_flag = $p_jeedom_object->createAndUpdateCmd($this->telemetry_value_list[$v_name]['name'], $this->telemetry_value_list[$v_name]['value']) || $v_refresh_flag;      
         }
-      }
-      
-      return($v_refresh_flag);
-    }
-    /* -------------------------------------------------------------------------*/
-
-    /**---------------------------------------------------------------------------
-     * Method : doUpdateTelemetryValues()
-     * Description :
-     * ---------------------------------------------------------------------------
-     */
-    private function doUpdateTelemetryValues_SAVE(&$p_jeedom_object) {
-      ArubaWssTool::log('debug', "ArubaWssDeviceJeedom::doUpdateTelemetryValues()");
-      $v_refresh_flag = false;
-      
-      foreach ($this->telemetry_value_list as $v_telemetry) {
-        ArubaWssTool::log('debug', " -> Update '".$v_telemetry['name']."'");
-        $v_refresh_flag = $p_jeedom_object->createAndUpdateCmd($v_telemetry['name'], $v_telemetry['value']) || $v_refresh_flag;      
       }
       
       return($v_refresh_flag);

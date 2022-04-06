@@ -75,6 +75,42 @@ function ArubaIot_install() {
 // Fonction exécutée automatiquement après la mise à jour du plugin
 function ArubaIot_update() {
     
+  // ----- Update all device type for new format vendor:model
+  $eqLogics = eqLogic::byType('ArubaIot');
+  
+  foreach ($eqLogics as $eqLogic) {
+    $v_class = $eqLogic->getConfiguration('class_type', '');
+    $v_new_class = '';
+    switch ($v_class) {
+      case 'enoceanSwitch':
+        $v_new_class = 'enocean:switch';
+      break;
+      case 'enoceanSensor':
+        $v_new_class = 'enocean:sensor';
+      break;
+      case 'arubaTag':
+        $v_new_class = 'aruba:tag';
+      break;
+      case 'arubaBeacon':
+        $v_new_class = 'aruba:beacon';
+      break;
+      case 'iBeacon':
+        $v_new_class = '';
+      break;
+      case 'unclassified':
+        $v_new_class = 'unclassified:unclassified';
+      break;
+      case 'generic':
+        $v_new_class = 'unclassified:unclassified';
+      break;
+    }
+    if ($v_new_class != '') {
+      $eqLogic->setConfiguration('class_type', $v_new_class);
+      log::add('ArubaIot', 'info', "Updating object class from '".$v_class."' to '".$v_new_class."'.");
+    }
+
+  }
+  
   // ----- Add new attributes
   $v_val = config::searchKey('triangulation_timeout', 'ArubaIot');
   if (sizeof($v_val) == 0) {

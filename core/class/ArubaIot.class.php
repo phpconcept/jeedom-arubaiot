@@ -165,7 +165,25 @@ class ArubaIot extends eqLogic {
 	}
 
 
-	public static function changeIncludeState($p_state, $p_type='', $p_generic_with_local=0, $p_generic_with_mac=0, $p_generic_mac_prefix='', $p_generic_max_devices=3) {
+	public static function getDaemonIncludeMode() {
+      $v_data = array();
+      $v_val = self::talkToWebsocket('websocket_info', $v_data);
+
+      $v_result  = json_decode($v_val, true);
+
+      if (isset($v_result['status'])
+          && ($v_result['status'] == 'success')
+          && isset($v_result['data']['websocket']['include_mode'])) {
+        $v_state = $v_result['data']['websocket']['include_mode'];
+        ArubaIotLog::log( 'debug',  "Current daemon include_state is : ".$v_state);
+        return($v_state);
+      }
+
+      return(null);
+	}
+
+
+	public static function changeIncludeState($p_state, $p_type='', $p_unclassified_with_local=0, $p_unclassified_with_mac=0, $p_unclassified_mac_prefix='', $p_unclassified_max_devices=3) {
 
       ArubaIotLog::log( 'info',  "Change inclusion state to : ".$p_state);
 
@@ -179,10 +197,10 @@ class ArubaIot extends eqLogic {
 
       $v_data = array('state' => $p_state,
                       'type' => $v_type_str,
-                      'generic_with_local' => $p_generic_with_local,
-                      'generic_with_mac' => $p_generic_with_mac,
-                      'generic_mac_prefix' => $p_generic_mac_prefix,
-                      'generic_max_devices' => $p_generic_max_devices );
+                      'unclassified_with_local' => $p_unclassified_with_local,
+                      'unclassified_with_mac' => $p_unclassified_with_mac,
+                      'unclassified_mac_prefix' => $p_unclassified_mac_prefix,
+                      'unclassified_max_devices' => $p_unclassified_max_devices );
       self::talkToWebsocket('include_mode', $v_data);
 
 	}
@@ -213,7 +231,7 @@ class ArubaIot extends eqLogic {
      *  Today defined class in Aruba protobuf description :
      *
         enum deviceClassEnum {
-            unclassified                            = 0;     ==> generic
+            unclassified                            = 0;     ==> unclassified
             arubaBeacon                             = 1;
             arubaTag                                = 2;
             zfTag                                   = 3;
@@ -251,8 +269,9 @@ class ArubaIot extends eqLogic {
 
      *
      */
-	public static function supportedDeviceType($p_format='list' ) {
-
+	public static function supportedDeviceType_BAK($p_format='list' ) {
+      static $v_class_list = null;
+      
       $v_result = array();
 
       /*
@@ -263,7 +282,7 @@ class ArubaIot extends eqLogic {
       $v_class_list['arubaTag'] = 'arubaTag';
       $v_class_list['arubaBeacon'] = 'arubaBeacon';
       $v_class_list['iBeacon'] = 'iBeacon';
-      $v_class_list['generic'] = 'generic';
+      $v_class_list['unclassified'] = 'unclassified';
         */
 
 
@@ -273,7 +292,7 @@ class ArubaIot extends eqLogic {
                             'arubaTag' => 'arubaTag',
                             'arubaBeacon' => 'arubaBeacon',
                             'iBeacon' => 'iBeacon',
-                            'generic' => 'generic'
+                            'unclassified' => 'unclassified'
                             );
 
       if ($p_format == 'description') {
@@ -289,6 +308,42 @@ class ArubaIot extends eqLogic {
       return($v_result);
 	}
 
+	public static function supportedDeviceType($p_only_classified=false) {
+      static $v_class_list = null;
+      
+      // ----- Load class list from AWSS
+      if ($v_class_list === null) {
+        $v_data = array();
+
+        $v_val = self::talkToWebsocket('vendor_list', $v_data);
+        $v_result = json_decode($v_val, true);
+        
+        if (!isset($v_result['data'])) {
+          // TBC
+        }
+        
+        if (!$p_only_classified) {
+          $v_class_list['auto'] = 'Découvrir automatiquement';
+          $v_class_list['unclassified:unclassified'] = 'Unclassified';
+        }
+        foreach ($v_result['data']['vendor_list'] as $v_key => $v_vendor) {
+          foreach ($v_vendor['devices'] as $v_device) {
+            if ((!$p_only_classified) || ($p_only_classified && ($v_vendor['type'] == 'classified'))) {
+              $v_intern_class = $v_vendor['vendor_id'].':'.$v_device['model_id'];
+              $v_intern_name = $v_vendor['name'].' - '.$v_device['name'];
+              $v_class_list[$v_intern_class] = $v_intern_name;
+            }
+          }         
+        }
+      }
+      
+      $v_result = $v_class_list;
+
+      return($v_result);
+	}
+
+
+
     /*
      * $p_device_type :
      *   can be a single string like 'arubaTag' or a comma separated list
@@ -296,13 +351,133 @@ class ArubaIot extends eqLogic {
      *   if all the device types are valid
      */
 	public static function isValidDeviceType($p_device_type) {
-      $v_class_list = self::supportedDeviceType(description);
+      $v_class_list = self::supportedDeviceType();
       $v_list = explode(',', $p_device_type);
       $v_result = false;
       foreach ($v_list as $v_item) {
         if ($v_item != '')
           $v_result = $v_result && isset($v_class_list[$v_item]);
       }
+      return($v_result);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : getDeviceByVendorId()
+     * Description :
+     *
+     * Parameters :
+     * Returned Value :
+     * ---------------------------------------------------------------------------
+     */
+    public static function getDeviceByVendorId($p_vendor_id) {
+    
+      $plugin = plugin::byId('ArubaIot');
+      $eqLogics = eqLogic::byType($plugin->getId());
+      
+      $v_list = array();
+      foreach ($eqLogics as $eqLogic) {
+        $v_class = $eqLogic->getConfiguration('class_type', '');
+        $v_ids = explode(':', $v_class);
+        if (isset($v_ids[0]) && ($v_ids[0] == $p_vendor_id)) {
+          $v_list[] = $eqLogic;
+        }
+      }    
+      
+      return($v_list);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : getDeviceByVendorAndModelId()
+     * Description :
+     *
+     * Parameters :
+     * Returned Value :
+     * ---------------------------------------------------------------------------
+     */
+    public static function getDeviceByVendorAndModelId($p_id) {
+    
+      $plugin = plugin::byId('ArubaIot');
+      $eqLogics = eqLogic::byType($plugin->getId());
+      
+      $v_list = array();
+      foreach ($eqLogics as $eqLogic) {
+        $v_class = $eqLogic->getConfiguration('class_type', '');
+        if ($v_class == $p_id) {
+          $v_list[] = $eqLogic;
+        }
+      }    
+      
+      return($v_list);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : getListOfActiveVendorId()
+     * Description :
+     *   Will return in an array the list of vendor_id for which at least one device is created.
+     * Parameters :
+     * Returned Value :
+     * ---------------------------------------------------------------------------
+     */
+    public static function getListOfActiveVendorId() {
+    
+      $plugin = plugin::byId('ArubaIot');
+      $eqLogics = eqLogic::byType($plugin->getId());
+      
+      $v_list = array();
+      foreach ($eqLogics as $eqLogic) {
+        $v_class = $eqLogic->getConfiguration('class_type', '');
+        $v_ids = explode(':', $v_class);
+        if (isset($v_ids[0])) {
+          $v_list[$v_ids[0]] = $v_ids[0];
+        }        
+      }    
+      
+      return($v_list);
+    }
+    /* -------------------------------------------------------------------------*/
+
+    /**---------------------------------------------------------------------------
+     * Method : getListOfVendors()
+     * Description :
+     *   Return the vendor description (as of the one received from API).
+     *   if $p_only_active is set to true then will return only the list of 
+     *   vendor for which an device is created in jeedom database.
+     * Parameters :
+     * Returned Value :
+     * ---------------------------------------------------------------------------
+     */
+    public static function getListOfVendors($p_only_active=false) {
+      static $v_class_list = null;
+      
+      // ----- Load class list from AWSS
+      if ($v_class_list === null) {
+        $v_data = array();
+
+        $v_val = self::talkToWebsocket('vendor_list', $v_data);
+        $v_result = json_decode($v_val, true);
+        
+        if (!isset($v_result['data'])) {
+          // TBC
+        }
+        
+        $v_class_list = array();
+        
+        if ($p_only_active) {
+          $v_active_vendors = ArubaIot::getListOfActiveVendorId();
+        }
+        
+        foreach ($v_result['data']['vendor_list'] as $v_key => $v_vendor) {
+          if ((!$p_only_active) || (($p_only_active) && in_array($v_key, $v_active_vendors))) {
+            $v_class_list[$v_key] = $v_vendor;
+          }
+        }
+      }
+      
+      $v_result = $v_class_list;
+
       return($v_result);
     }
     /* -------------------------------------------------------------------------*/
@@ -322,7 +497,7 @@ class ArubaIot extends eqLogic {
       $v_result = null;
 
       /*
-      For generic type see : https://github.com/jeedom/core/blob/beta/core/config/jeedom.config.php
+      For unclassified type see : https://github.com/jeedom/core/blob/beta/core/config/jeedom.config.php
       */
 
       $v_cmds_json = <<<JSON_EOT
@@ -499,6 +674,22 @@ class ArubaIot extends eqLogic {
     "sub_type" : "numeric",
     "visible" : 0,
     "history" : 0
+  },
+  "button_1": {
+    "name": "Button 1",
+    "description": "Rocker switch 1",
+    "type" : "info",
+    "sub_type" : "string",
+    "visible" : 1,
+    "history" : 0
+  },
+  "button_2": {
+    "name": "Button 2",
+    "description": "Rocker switch 2",
+    "type" : "info",
+    "sub_type" : "string",
+    "visible" : 1,
+    "history" : 0
   }
 }
 JSON_EOT;
@@ -543,13 +734,22 @@ JSON_EOT;
       // automatically added to an object of this class
       // For exemple : no sense to have a presence information for an enocean sensor
       // command '__dynamic_command' is a flag to forbid dynamic commands (like for rockets telemetry data)
+      /*
       $v_deny_list = array('auto' => '__none',
                            'enoceanSwitch' => 'presence,rssi,triangulation', // comma separated list
                            'enoceanSensor' => 'presence,triangulation',
                            'arubaTag' => '__dynamic_command',
                            'arubaBeacon' => 'presence,triangulation,__dynamic_command',
                            'iBeacon' => '',
-                           'generic' => '__none'
+                           'unclassified' => '__none'
+                           );
+                           */
+      $v_deny_list = array('auto' => '__none',
+                           'EnOcean:Switch' => 'presence,rssi,triangulation', // comma separated list
+                           'EnOcean:Sensor' => 'presence,triangulation',
+                           'Aruba:Tag' => '__dynamic_command',
+                           'Aruba:Beacon' => 'presence,triangulation,__dynamic_command',
+                           'unclassified:unclassified' => '__none'
                            );
 
       if (isset($v_deny_list[$p_class_name])) {
@@ -655,7 +855,6 @@ JSON_EOT;
     }
 
     public function postUpdate() {
-        
     }
 
     public function preRemove() {
@@ -690,7 +889,8 @@ JSON_EOT;
 
 	public function getImage() {
         $v_class = $this->getConfiguration('class_type', '');
-	  	$file = 'plugins/ArubaIot/desktop/images/'.$v_class.'.png';
+        $v_icon = str_replace(':', '_', $v_class);
+	  	$file = 'plugins/ArubaIot/desktop/images/'.$v_icon.'.png';
 		if(!file_exists(__DIR__.'/../../../../'.$file)){
 			return 'plugins/ArubaIot/plugin_info/ArubaIot_icon.png';
 		}
@@ -725,28 +925,28 @@ JSON_EOT;
 
 
       switch ($v_class_name) {
-        case 'arubaTag' :
+        case 'Aruba:Tag' :
           $this->createCmd('presence', 'visible');
           $this->createCmd('rssi');
           $this->createCmd('nearest_ap', 'visible');
           $this->createCmd('triangulation');
         break;
-        case 'generic' :
+        case 'unclassified:unclassified' :
           $this->createCmd('presence', 'visible');
           $this->createCmd('rssi');
           $this->createCmd('nearest_ap', 'visible');
           $this->createCmd('triangulation');
         break;
-        case 'arubaBeacon' :
+        case 'Aruba:Beacon' :
           $this->createCmd('rssi', 'notvisible', 'nohistorization');
           // Battery is by default;
         break;
-        case 'enoceanSensor' :
+        case 'EnOcean:Sensor' :
           $this->createCmd('rssi', 'notvisible', 'nohistorization');
           $this->createCmd('illumination');
           $this->createCmd('occupancy');
         break;
-        case 'enoceanSwitch' :
+        case 'EnOcean:Switch' :
           $this->createCmd('rssi', 'notvisible', 'nohistorization');
           // will be learn depending of switch type
         break;
@@ -836,15 +1036,15 @@ JSON_EOT;
           $v_visible = 0;
         }
 
-        $v_historization = false;
+        $v_historization = 0;
         if (isset($v_cmd_info['history'])) {
           $v_historization = $v_cmd_info['history'];
         }
         if ($p_historization == 'historization') {
-          $v_historization = true;
+          $v_historization = 1;
         }
         else if ($p_historization == 'nohistorization') {
-          $v_historization = false;
+          $v_historization = 0;
         }
 
         ArubaIotLog::log('debug', "Create Cmd '".$p_cmd_id."' for device.");
