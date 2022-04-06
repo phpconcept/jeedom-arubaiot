@@ -92,7 +92,7 @@ arubaiot_jeedom
 27=3rparty\awss\awss\data\devices\aruba_class.json
 [Selected Project Files]
 Main=
-Selected=README.md
+Selected=plugin_info\info.json
 [core\class\ArubaIot.class.php]
 TopLine=839
 Caret=1,858
@@ -115,9 +115,9 @@ TopLine=20
 Caret=1,20
 [plugin_info\info.json]
 TopLine=1
-Caret=25,11
+Caret=29,11
 [README.md]
-TopLine=294
+TopLine=1
 Caret=1,303
 [core\i18n\en_US.json]
 TopLine=31
