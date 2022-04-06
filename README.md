@@ -17,7 +17,8 @@ The plugin is supporting the following type of BLE objects. For each object is s
 - enoceanSwitch (switch_bank_1, switch_bank_2)
 - arubaTag (presence, rssi, nearest_ap)
 - arubaBeacon (rssi)
-- generic (presence)
+- Jinou temperature sensors, ATC temperature sensors.
+- unclassified (presence)
 
 ### Plugin Configuration
 
@@ -111,19 +112,19 @@ Please notice that URI "/telemetry" is used for the endpointURL. For all other a
 
 ```cli
 iot radio-profile Test
-radio-mode ble
+  radio-mode ble
 
 iot use-radio-profile Test
 
 iot transportProfile Test
-endpointType telemetry-websocket
-payloadContent managed-beacons
-payloadContent managed-tags
-payloadContent enocean-switches
-payloadContent enocean-sensors
-endpointURL ws://<jeedom_ip_address>:8081/telemetry
-endpointToken 12346
-transportInterval 60
+  endpointType telemetry-websocket
+  payloadContent managed-beacons
+  payloadContent managed-tags
+  payloadContent enocean-switches
+  payloadContent enocean-sensors
+  endpointURL ws://<jeedom_ip_address>:8081/telemetry
+  endpointToken 12346
+  transportInterval 60
 
 iot useTransportProfile Test
 ```
@@ -132,22 +133,21 @@ When using generic BLE devices, the following configuration could be used :
 
 ```cli
 iot radio-profile Test
-radio-mode ble
+ radio-mode ble
 
 iot use-radio-profile Test
 
 iot transportProfile Test
-endpointType telemetry-websocket
-payloadContent managed-beacons
-payloadContent managed-tags
-payloadContent enocean-switches
-payloadContent enocean-sensors
-endpointURL ws://<jeedom_ip_address>:8081/telemetry
-endpointToken 12346
-transportInterval 60
-
-bleDataForwarding
-macOuiFilter A4C138,E6FE37
+  endpointType telemetry-websocket
+  endpointURL ws://<jeedom_ip_address>:8081/telemetry
+  endpointToken 12346
+  transportInterval 60
+  payloadContent managed-beacons
+  payloadContent managed-tags
+  payloadContent enocean-switches
+  payloadContent enocean-sensors
+  bleDataForwarding
+  macOuiFilter A4C138,E6FE37
 
 iot useTransportProfile Test
 ```
@@ -157,6 +157,7 @@ Please replace MAC@ prefixes A4C138,E6FE37 by the right ones.
 ## Change Logs
 
 Release v1.2 (beta) :
+- Use new AWSS classname for device with vendor_id and model_id.
 - Bug correction : use of telemetry value 'txpower' is crashing daemon because of missing/bad default value.
 - Bug correction : button1/2 telemetry value was ignored for Enocean switch.
 
@@ -231,7 +232,7 @@ Release v0.1 :
 
 ## Known Caveats
 
-As of Release v0.6, known caveats are :
+As of Release v1.2, known caveats are :
 - /!\ Only ws:// is supported today by the websocket daemon, which means communication is in clear. No support yet of wss:// with certificate.
 - The plugin is managing only part of the north bound Aruba API, it doesn't work with the south bound API (no use of GATT communication with BLE devices).
 - When an access point is removed, the telemetry connexion status are not updated in the reporters list. (Cosmetic)

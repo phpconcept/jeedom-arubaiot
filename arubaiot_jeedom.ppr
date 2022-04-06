@@ -92,7 +92,7 @@ arubaiot_jeedom
 27=3rparty\awss\awss\data\devices\aruba_class.json
 [Selected Project Files]
 Main=
-Selected=core\php\bin\ArubaWssJeedom.class.php
+Selected=README.md
 [core\class\ArubaIot.class.php]
 TopLine=839
 Caret=1,858
@@ -111,14 +111,14 @@ Caret=1,74
 TopLine=98
 Caret=1,136
 [plugin_info\install.php]
-TopLine=92
+TopLine=20
 Caret=1,20
 [plugin_info\info.json]
 TopLine=1
 Caret=25,11
 [README.md]
-TopLine=148
-Caret=19,159
+TopLine=294
+Caret=1,303
 [core\i18n\en_US.json]
 TopLine=31
 Caret=24,56
@@ -144,7 +144,7 @@ Caret=1,242
 TopLine=1
 Caret=1,25
 [core\php\bin\ArubaWssJeedom.class.php]
-TopLine=1
+TopLine=5
 Caret=1,7
 [resources\ArubaIot-websocket.service]
 TopLine=1
@@ -156,8 +156,8 @@ Caret=1,2
 TopLine=1
 Caret=3,26
 [resources\install_apt.sh]
-TopLine=55
-Caret=8,74
+TopLine=23
+Caret=8,71
 [core\ajax\ArubaIot.ajax.php]
 TopLine=13
 Caret=79,31
